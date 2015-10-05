@@ -4,9 +4,10 @@ Implementation of a MIPS Processor developed during the course of [Processor Arc
 
 ## Features
 
-- 5 Stage Pipeline
-- Branch Prediction
-- Support for Virtual Memory
-- Control of different Hazards
+- [ ] Fully Pipelined
+- [ ] Virtual Memory Support
+- [ ] Branch Prediction
+- [ ] Hazard Control
+- [ ] Out-of-Order
 
 [Processor Architecture]: http://www.fib.upc.edu/en/masters/miri/syllabus.html?assig=PA-MIRI
