@@ -13,3 +13,6 @@
 ### OS X ###
 .DS_Store
 
+# Temporary files
+out/
+*.vcd
