@@ -1,4 +1,4 @@
-VCD info: dumpfile frame_tb.vcd opened for output.
+VCD info: dumpfile fflop_tb.vcd opened for output.
 in	out	we	clear	clk
 --	---	--	-----	---
 aa	00	1	0	0	                   0
