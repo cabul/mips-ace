@@ -68,8 +68,6 @@ testbench/%:
 		printf "//TODO Write testbench %s\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		printf "module %s;\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo "endmodule" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo "\`endif" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo $(patsubst testbench/%, $(TEST)/%.v, $@) > $(patsubst testbench/%, $(TEST)/%.txt, $@); \
 		}
 
