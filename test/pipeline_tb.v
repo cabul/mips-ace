@@ -1,4 +1,4 @@
-`include "frame.v"
+`include "fflop.v"
 
 module pipeline_tb;
 
@@ -9,10 +9,10 @@ reg we = 1;
 reg [3:0] data_A = {4'b0};
 wire [3:0] data_B;
 wire [3:0] data_C;
-//TODO Try to combine frames
+//TODO Try to combine fflops
 
-frame #(.N(4)) frame_AB(.clk(clk), .clear(clear), .we(we), .in(data_A), .out(data_B));
-frame #(.N(4)) frame_BC(.clk(clk), .clear(clear), .we(we), .in(data_B), .out(data_C));
+fflop #(.N(4)) fflop_AB(.clk(clk), .clear(clear), .we(we), .in(data_A), .out(data_B));
+fflop #(.N(4)) fflop_BC(.clk(clk), .clear(clear), .we(we), .in(data_B), .out(data_C));
 
 always #5 clk = !clk;
 

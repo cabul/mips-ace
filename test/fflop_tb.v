@@ -1,6 +1,6 @@
-`include "frame.v"
+`include "fflop.v"
 
-module frame_tb;
+module fflop_tb;
 
 reg clk = 0;
 reg we = 1;
@@ -9,13 +9,13 @@ reg clear = 0;
 reg [7:0] in = {8'b0};
 wire [7:0] out;
 
-frame #(.N(8)) r1(.clk(clk), .clear(clear), .we(we), .in(in), .out(out));
+fflop #(.N(8)) ff1(.clk(clk), .clear(clear), .we(we), .in(in), .out(out));
 
 always #5 clk = !clk;
 
 initial begin
-	$dumpfile("frame_tb.vcd");
-	$dumpvars(0, frame_tb);
+	$dumpfile("fflop_tb.vcd");
+	$dumpvars(0, fflop_tb);
 
 	$display("in\tout\twe\tclear\tclk");
 	$display("--\t---\t--\t-----\t---");

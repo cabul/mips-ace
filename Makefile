@@ -56,7 +56,7 @@ module/%:
 		printf "\`ifndef _%s\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
 		printf "\`define _%s\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
 		echo >> $(patsubst module/%, %.v, $@); \
-		printf "//TODO Write module %s;\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
+		printf "//TODO Write module %s\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
 		printf "module %s;\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
 		echo "endmodule" >> $(patsubst module/%, %.v, $@); \
 		echo >> $(patsubst module/%, %.v, $@); \
@@ -65,11 +65,9 @@ module/%:
 
 testbench/%:
 	@test -f $(patsubst testbench/%, $(TEST)/%.v, $@) && echo "File exists" || { \
-		printf "//TODO Write testbench %s;\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
+		printf "//TODO Write testbench %s\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		printf "module %s;\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo "endmodule" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo "\`endif" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo $(patsubst testbench/%, $(TEST)/%.v, $@) > $(patsubst testbench/%, $(TEST)/%.txt, $@); \
 		}
 

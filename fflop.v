@@ -1,7 +1,7 @@
-`ifndef _frame
-`define _frame
+`ifndef _fflop
+`define _fflop
 
-module frame(
+module fflop(
 	input clk,
 	input clear,
 	input we,
