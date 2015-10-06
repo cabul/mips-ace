@@ -3,6 +3,7 @@
 
 module regfile(
 	input wire clk,
+	input wire reset,
 	input wire [4:0] rreg1, rreg2,
 	output reg [31:0] rdata1, rdata2,
 	input wire regwrite,
@@ -11,32 +12,64 @@ module regfile(
 
 reg [31:0] mem [0:31];
 
-//TODO Only read after clk edge?
-
 always @(*) begin
 	if (rreg1 == 5'b0)
 		rdata1 <= 32'b0;
-	/*
+	/* This enables bypass
 	else if(regwrite && wreg == rreg1)
 		rdata1 <= wdata;
 	*/
-	else
-		rdata1 <= mem[rreg1][31:0];
+  else
+	  rdata1 <= mem[rreg1][31:0];
 end
 
 always @(*) begin
 	if (rreg2 == 5'b0)
 		rdata2 <= 32'b0;
-	/*
+	/* This enables bypass
 	else if(regwrite && wreg == rreg2)
 		rdata2 <= wdata;
 	*/
-	else
-		rdata2 <= mem[rreg2][31:0];
+  else
+	  rdata2 <= mem[rreg2][31:0];
 end
 
 always @(posedge clk) begin
-	if (regwrite && wreg != 5'b0)
+	if (reset) begin
+		mem[0] <= 0;
+		mem[1] <= 0;
+		mem[2] <= 0;
+		mem[3] <= 0;
+		mem[4] <= 0;
+		mem[5] <= 0;
+		mem[6] <= 0;
+		mem[7] <= 0;
+		mem[8] <= 0;
+		mem[9] <= 0;
+		mem[10] <= 0;
+		mem[11] <= 0;
+		mem[12] <= 0;
+		mem[13] <= 0;
+		mem[14] <= 0;
+		mem[15] <= 0;
+		mem[16] <= 0;
+		mem[17] <= 0;
+		mem[18] <= 0;
+		mem[19] <= 0;
+		mem[20] <= 0;
+		mem[21] <= 0;
+		mem[22] <= 0;
+		mem[23] <= 0;
+		mem[24] <= 0;
+		mem[25] <= 0;
+		mem[26] <= 0;
+		mem[27] <= 0;
+		mem[28] <= 0;
+		mem[29] <= 0;
+		mem[30] <= 0;
+		mem[31] <= 0;
+	end
+	else if (regwrite && wreg != 5'b0)
 		mem[wreg] <= wdata;
 end
 
