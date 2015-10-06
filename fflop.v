@@ -3,7 +3,7 @@
 
 module fflop(
 	input clk,
-	input clear,
+	input reset,
 	input we,
 	input wire [N-1:0] in,
 	output reg [N-1:0] out = {N{1'b0}});
@@ -11,7 +11,7 @@ module fflop(
 parameter N = 1;
 
 always @(posedge clk) begin
-	if (clear)
+	if (reset)
 		out <= {N{1'b0}};
 	else if (we)
 		out <= in;
