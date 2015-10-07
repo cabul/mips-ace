@@ -36,6 +36,7 @@ end
 
 always @(posedge clk) begin
 	if (reset) begin
+		//TODO Prettify
 		mem[0] <= 0;
 		mem[1] <= 0;
 		mem[2] <= 0;
