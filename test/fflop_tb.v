@@ -14,7 +14,7 @@ fflop #(.N(8)) ff1(.clk(clk), .reset(reset), .we(we), .in(in), .out(out));
 always #5 clk = !clk;
 
 initial begin
-	$dumpfile("fflop_tb.vcd");
+	$dumpfile("out/fflop_tb.vcd");
 	$dumpvars(0, fflop_tb);
 
 	$display("in\tout\twe\tclear\tclk");

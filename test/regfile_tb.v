@@ -14,7 +14,7 @@ regfile file(.reset(reset), .clk(clk), .regwrite(regwrite), .rreg1(rreg1), .rreg
 always #5 clk = !clk;
 
 initial begin
-	$dumpfile("regfile_tb.vcd");
+	$dumpfile("out/regfile_tb.vcd");
 	$dumpvars(0, regfile_tb);
 	
 	# 2 reset <= 1;

@@ -16,7 +16,7 @@ fflop #(.N(4)) fflop_BC(.clk(clk), .reset(reset), .we(we), .in(data_B), .out(dat
 always #5 clk = !clk;
 
 initial begin
-	$dumpfile("pipeline_tb.vcd");
+	$dumpfile("out/pipeline_tb.vcd");
 	$dumpvars(0, pipeline_tb);
 
 	$display("A\tB\tC");
