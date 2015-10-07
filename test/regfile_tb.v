@@ -17,17 +17,17 @@ initial begin
 	$dumpfile("regfile_tb.vcd");
 	$dumpvars(0, regfile_tb);
 	
-	# 2 reset = 1;
+	# 2 reset <= 1;
 
 	# 10 begin
-		reset = 0;
-		wdata = 14;
-		wreg = 1;
-		regwrite = 1;
+		reset <= 0;
+		wdata <= 14;
+		wreg <= 1;
+		regwrite <= 1;
 	end
 
 	# 1 begin
-		rreg1 = 1;
+		rreg1 <= 1;
 	end
 	
 	# 10 $finish;
