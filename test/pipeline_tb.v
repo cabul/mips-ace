@@ -3,16 +3,15 @@
 module pipeline_tb;
 
 reg clk = 0;
-reg clear = 0;
+reg reset = 0;
 reg we = 1;
 
 reg [3:0] data_A = {4'b0};
 wire [3:0] data_B;
 wire [3:0] data_C;
-//TODO Try to combine fflops
 
-fflop #(.N(4)) fflop_AB(.clk(clk), .clear(clear), .we(we), .in(data_A), .out(data_B));
-fflop #(.N(4)) fflop_BC(.clk(clk), .clear(clear), .we(we), .in(data_B), .out(data_C));
+fflop #(.N(4)) fflop_AB(.clk(clk), .reset(reset), .we(we), .in(data_A), .out(data_B));
+fflop #(.N(4)) fflop_BC(.clk(clk), .reset(reset), .we(we), .in(data_B), .out(data_C));
 
 always #5 clk = !clk;
 
