@@ -12,10 +12,12 @@ all: $(TESTS)
 tests: $(SAVES)
 
 help:
+	@echo "check          - Checks dependencies"
 	@echo "list           - Lists all TESTS and SAVES"
 	@echo "build/NAME     - Builds testbench NAME"
 	@echo "all            - Builds all testbenches"
 	@echo "run/NAME       - Runs testbench NAME"
+	@echo "display/NAME   - Opens GTKWave for trace of NAME"
 	@echo "test/NAME      - Runs testbench NAME against save"
 	@echo "tests          - Runs all testbenchs against their saves"
 	@echo "clean          - Cleans directory"
@@ -67,12 +69,26 @@ testbench/%:
 	@test -f $(patsubst testbench/%, $(TEST)/%.v, $@) && echo "File exists" || { \
 		printf "//TODO Write testbench %s\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		printf "module %s;\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
+		echo >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
+		echo "initial begin" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
+		printf "\t\$$dumpfile(\"%s\");\n" $(patsubst testbench/%, $(BUILD)/%.vcd, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
+		echo "end" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
+		echo >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo "endmodule" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo $(patsubst testbench/%, $(TEST)/%.v, $@) > $(patsubst testbench/%, $(TEST)/%.txt, $@); \
 		}
 
+display/%: run/%
+	@gtkwave $(patsubst display/%, $(BUILD)/%.vcd, $@) >/dev/null  2>&1 &
+
 save/%: $(TEST)/%.txt
 	@make -s $(patsubst save/%, run/%, $@) > $(patsubst save/%, $(TEST)/%.log, $@)
+
+check:
+	@printf "* Icarus Verilog "
+	@test `which iverilog` && echo "${GREEN}Yes${NC}" || echo "${RED}No${NC}"
+	@printf "* GTKWave "
+	@test `which gtkwave` && echo "${GREEN}Yes${NC}" || echo "${RED}No${NC}"
 
 clean:
 	@rm -rf $(BUILD) *.vcd
