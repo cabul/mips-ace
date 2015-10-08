@@ -70,10 +70,10 @@ testbench/%:
 		printf "//TODO Write testbench %s\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		printf "module %s;\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo "initial begin" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
+		echo "initial begin" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		printf "\t\$$dumpfile(\"%s\");\n" $(patsubst testbench/%, $(BUILD)/%.vcd, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		printf "\t\$$dumpvars(0, %s);\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo "end" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
+		echo "end" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo "endmodule" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
 		echo $(patsubst testbench/%, $(TEST)/%.v, $@) > $(patsubst testbench/%, $(TEST)/%.txt, $@); \
