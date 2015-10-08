@@ -80,7 +80,8 @@ testbench/%:
 		}
 
 display/%: run/%
-	@gtkwave $(patsubst display/%, $(BUILD)/%.vcd, $@) >/dev/null  2>&1 &
+	@ps | grep -sq gtkwave || \
+		gtkwave $(patsubst display/%, $(BUILD)/%.vcd, $@) >/dev/null  2>&1 &
 
 save/%: $(TEST)/%.txt
 	@make -s $(patsubst save/%, run/%, $@) > $(patsubst save/%, $(TEST)/%.log, $@)
