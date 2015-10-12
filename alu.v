@@ -19,7 +19,7 @@ module alu(
 	input wire [5:0] alu_op,
 	input wire [N-1:0] in_s,
 	input wire [N-1:0] in_t,
-	input wire [N-1:0] shamt,
+	input wire [4:0] shamt,
 	output reg zero = 1'd0,
 	output reg [N-1:0] out = {N{1'b0}});
 
