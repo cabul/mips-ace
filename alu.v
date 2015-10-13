@@ -5,7 +5,7 @@
  * ALU info & pinout
  * -----------------
  *
- * This unit is asinchronous
+ * This unit is asynchronous
  * 
  * alu_op: alu operation
  * in_s: input s
