@@ -15,5 +15,5 @@
 .DS_Store
 
 # Temporary files
-out/
+build/
 *.vcd

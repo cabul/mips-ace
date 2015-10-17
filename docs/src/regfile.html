@@ -1,0 +1,86 @@
+<h1>Register File</h1>
+<p>
+32 General purpose registers of 32 bits.
+</p>
+<h2>Description</h2>
+<p>
+Reads are asynchronous.
+Writes happen on rising edge.
+Register 0 is always 0 and cannot be written to.
+</p>
+<h2>Ports</h2>
+<table>
+<tr><td>clk</td><td>Clock signal</td></tr>
+<tr><td>reset</td><td>Reset signal</td></tr>
+<tr><td>rreg1</td><td>Read data 1 from this register</td></tr>
+<tr><td>rreg2</td><td>Read data 2 from this register</td></tr>
+<tr><td>rdata1</td><td>Read data 1 output</td></tr>
+<tr><td>rdata2</td><td>Read data 2 output</td></tr>
+<tr><td>regwrite</td><td>On 1 write to register</td></tr>
+<tr><td>wreg</td><td>Write to this register</td></tr>
+<tr><td>wdata</td><td>Write this data</td></tr>
+</table>
+<h2>Schematic</h2>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+<style type="text/css">
+	.highlight:hover {
+		fill:red;
+	}
+</style>
+<symbol id="fflop">
+<g>
+<rect 	width="405.20" 	height="512.0" 	fill="white" stroke="black" 	/>
+<text 	x="159.20" 	y="266" 	fill="black" font-size="20" 	font-family="monospace" 	class="highlight" 	>regfile</text>
+</g>
+<g>
+<g>
+<rect 		x="0" y="0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>clk</text>
+</g>
+<g>
+<rect 		x="0" y="64.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>reset</text>
+</g>
+<g>
+<rect 		x="0" y="128.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="168.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>rreg1</text>
+</g>
+<g>
+<rect 		x="0" y="192.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="232.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>rreg2</text>
+</g>
+<g>
+<rect 		x="0" y="256.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="296.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>rdata2</text>
+</g>
+<g>
+<rect 		x="0" y="320.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="360.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>regwrite</text>
+</g>
+<g>
+<rect 		x="0" y="384.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="424.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>wreg</text>
+</g>
+<g>
+<rect 		x="0" y="448.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="488.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>wdata</text>
+</g>
+</g>
+<g>
+<g>
+<rect 		x="266.00" y="0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="286.00" 		y="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>rreg2</text>
+</g>
+<g>
+<rect 		x="266.00" y="64.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="286.00" 		y="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>rdata1</text>
+</g>
+<g>
+<rect 		x="266.00" y="128.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="286.00" 		y="168.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>rdata2</text>
+</g>
+</g>
+</symbol>
+<use xlink:href="#fflop"/>
+</svg>

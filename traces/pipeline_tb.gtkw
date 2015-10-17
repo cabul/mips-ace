@@ -1,0 +1,30 @@
+[*]
+[*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
+[*] Sat Oct 17 16:01:23 2015
+[*]
+[dumpfile] "/home/cabul/Miri/pa/mips/traces/pipeline_tb.vcd"
+[dumpfile_mtime] "Sat Oct 17 16:00:50 2015"
+[dumpfile_size] 1120
+[savefile] "/home/cabul/Miri/pa/mips/traces/pipeline_tb.gtkw"
+[timestart] 0
+[size] 1000 600
+[pos] -1 -1
+*-4.222393 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[sst_width] 197
+[signals_width] 118
+[sst_expanded] 1
+[sst_vpaned_height] 153
+@28
+pipeline_tb.clk
+@200
+-Data
+@22
+[color] 3
+pipeline_tb.data_A[3:0]
+[color] 2
+pipeline_tb.data_B[3:0]
+@23
+[color] 1
+pipeline_tb.data_C[3:0]
+[pattern_trace] 1
+[pattern_trace] 0
