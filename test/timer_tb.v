@@ -1,5 +1,6 @@
 `include "timer.v"
 
+/// Timer Testbench
 module timer_tb;
 
 wire signal;

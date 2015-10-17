@@ -1,5 +1,6 @@
 `include "adder.v"
 
+/// Adder Testbench
 module adder_tb;
 
 wire [31:0] out;

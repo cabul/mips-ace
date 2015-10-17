@@ -1,5 +1,6 @@
 `include "alu.v"
 
+/// ALU Testbench
 module alu_tb;
 
 wire zero;
