@@ -1,6 +1,6 @@
-`include "fflop.v"
+`include "flipflop.v"
 
-module fflop_tb;
+module flipflop_tb;
 
 reg clk = 0;
 reg we = 1;
@@ -14,8 +14,8 @@ fflop #(.N(8)) ff1(.clk(clk), .reset(reset), .we(we), .in(in), .out(out));
 always #5 clk = !clk;
 
 initial begin
-	$dumpfile("out/fflop_tb.vcd");
-	$dumpvars(0, fflop_tb);
+	$dumpfile("traces/flipflop_tb.vcd");
+	$dumpvars(0, flipflop_tb);
 
 	$display("in\tout\twe\tclear\tclk");
 	$display("--\t---\t--\t-----\t---");

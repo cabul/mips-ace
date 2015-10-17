@@ -1,4 +1,4 @@
-`include "fflop.v"
+`include "flipflop.v"
 
 module pipeline_tb;
 
@@ -10,13 +10,13 @@ reg [3:0] data_A = {4'b0};
 wire [3:0] data_B;
 wire [3:0] data_C;
 
-fflop #(.N(4)) fflop_AB(.clk(clk), .reset(reset), .we(we), .in(data_A), .out(data_B));
-fflop #(.N(4)) fflop_BC(.clk(clk), .reset(reset), .we(we), .in(data_B), .out(data_C));
+flipflop #(.N(4)) fflop_AB(.clk(clk), .reset(reset), .we(we), .in(data_A), .out(data_B));
+flipflop #(.N(4)) fflop_BC(.clk(clk), .reset(reset), .we(we), .in(data_B), .out(data_C));
 
 always #5 clk = !clk;
 
 initial begin
-	$dumpfile("out/pipeline_tb.vcd");
+	$dumpfile("traces/pipeline_tb.vcd");
 	$dumpvars(0, pipeline_tb);
 
 	$display("A\tB\tC");

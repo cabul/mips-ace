@@ -1,96 +1,82 @@
-BUILD=out
-TEST=test
-TESTS=$(patsubst $(TEST)/%.txt, build/%, $(wildcard $(TEST)/*.txt))
-SAVES=$(patsubst $(TEST)/%.log, $(TEST)/%, $(wildcard $(TEST)/*.log))
+# This Makefile is dirty
 
-NC=\033[0m
-RED=\033[0;31m
-GREEN=\033[0;32m
-
-all: $(TESTS)
-
-tests: $(SAVES)
+.PHONY: todos docs clean help
 
 help:
-	@echo "check          - Checks dependencies"
-	@echo "list           - Lists all TESTS and SAVES"
-	@echo "build/NAME     - Builds testbench NAME"
-	@echo "all            - Builds all testbenches"
-	@echo "run/NAME       - Runs testbench NAME"
-	@echo "display/NAME   - Opens GTKWave for trace of NAME"
-	@echo "test/NAME      - Runs testbench NAME against save"
-	@echo "tests          - Runs all testbenchs against their saves"
-	@echo "clean          - Cleans directory"
-	@echo "todo           - Lists all TODOS and FIXMES in source files"
-	@echo "module/NAME    - Initiates the new module NAME"
-	@echo "testbench/NAME - Initiates the new testbench NAME"
-	@echo "save/NAME      - Saves the log for testbench NAME"
-
-todo:
-	@grep --color -e TODO -e FIXME -n -H -s `find . -name "*.v"` || echo "Nothing to do"
-
-list:
-	@echo "TESTS"
-	@echo "====="
-	@for t in $(patsubst build/%, %, $(TESTS)); do echo "* $$t"; done
+	@echo "Commands"
+	@echo "========"
+	@echo "todos"
+	@echo "todo:NAME"
+	@echo "\tLists TODO and FIXME for source files"
+	@echo "docs"
+	@echo "doc:NAME"
+	@echo "\tGenerates documentation for source files"
+	@echo "build:NAME"
+	@echo "\tCompiles target and its dependencies"
+	@echo "run:NAME"
+	@echo "\tCompiles and runs target"
+	@echo "display:NAME"
+	@echo "\tOpens waveform for target"
+	@echo "create:NAME"
+	@echo "\tCreates new module or testbench (ends on _tb)"
+	@echo "help"
+	@echo "\tShows this help"
+	@echo "clean"
+	@echo "\tCleans build directory"
+	@echo "dist-clean"
+	@echo "\tCleans all generated directories (build, docs, traces)"
 	@echo
-	@echo "SAVES"
-	@echo "====="
-	@for t in $(patsubst $(TEST)/%, %, $(SAVES)); do echo "* $$t"; done
+	@echo "Variables"
+	@echo "========="
+	@echo "VERBOSE"
+	@echo "\tHides messages if set to 0"
+	@echo "CFLAGS"
+	@echo "\tExtra flags for compiler"
+	@echo
 
-build/%: $(TEST)/%.txt
-	@mkdir -p $(BUILD)
-	@iverilog -c $< -o $(patsubst build/%, $(BUILD)/%, $@)
+todos:
+	@grep --color -e TODO -e FIXME -n -H -s `find . -name "*.v"` \
+		|| utils/log info Nothing to do
 
-run/%: build/%
-	@vvp $(patsubst build/%, $(BUILD)/%, $<)
+todo\:%:
+	@test `find . -name $(patsubst todo:%,%.v,$@)` \
+		|| { utils/log error "$(patsubst todo:%,%.v,$@) not found"; exit; }
+	@grep --color -e TODO -e FIXME -n -H -s \
+		`utils/list-deps $(patsubst todo:%,%.v,$@)` \
+		|| utils/log info "Nothing to do"
 
-test/%: $(TEST)/%.txt
-	@mkdir -p $(BUILD)
-	@make -s $(patsubst test/%, run/%, $@) > $(patsubst test/%, $(BUILD)/%.log, $@)
-	@printf "* $(patsubst test/%,%,$@)\t"
-	@diff $(patsubst %.txt, %.log, $<) $(patsubst $(TEST)/%.txt, $(BUILD)/%.log, $<) > /dev/null \
-		&& echo "${GREEN}OK${NC}" \
-		|| echo "${RED}Failed${NC}"
+docs:
+	@for src in `find . -name "*.v"`; do utils/gen-doc $$src; done
 
-module/%:
-	@test -f $(patsubst module/%, %.v, $@) && echo "File exists" || { \
-		printf "\`ifndef _%s\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
-		printf "\`define _%s\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
-		echo >> $(patsubst module/%, %.v, $@); \
-		printf "//TODO Write module %s\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
-		printf "module %s;\n" $(patsubst module/%, %, $@) >> $(patsubst module/%, %.v, $@); \
-		echo "endmodule" >> $(patsubst module/%, %.v, $@); \
-		echo >> $(patsubst module/%, %.v, $@); \
-		echo "\`endif" >> $(patsubst module/%, %.v, $@); \
-		}
+doc\:%:
+	@test `find . -name $(patsubst doc:%,%.v,$@)` \
+		|| { utils/log error "$(patsubst doc:%,%.v,$@) not found"; exit; }
+	@utils/gen-doc `find . -name $(patsubst doc:%,%.v,$@)`
 
-testbench/%:
-	@test -f $(patsubst testbench/%, $(TEST)/%.v, $@) && echo "File exists" || { \
-		printf "//TODO Write testbench %s\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		printf "module %s;\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo "initial begin" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		printf "\t\$$dumpfile(\"%s\");\n" $(patsubst testbench/%, $(BUILD)/%.vcd, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		printf "\t\$$dumpvars(0, %s);\n" $(patsubst testbench/%, %, $@) >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo "end" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo "endmodule" >> $(patsubst testbench/%, $(TEST)/%.v, $@); \
-		echo $(patsubst testbench/%, $(TEST)/%.v, $@) > $(patsubst testbench/%, $(TEST)/%.txt, $@); \
-		}
+build\:%:
+	@test `find . -name $(patsubst build:%,%.v,$@)` \
+		|| { utils/log error "$(patsubst build:%,%.v,$@) not found"; exit; }
+	@utils/log info Building $(patsubst build:%,%,$@)
+	@mkdir -p build
+	@iverilog -o $(patsubst build:%,build/%,$@) $(CFLAGS) -Isrc -Itest \
+		`utils/list-deps $(patsubst build:%,%.v,$@)`
 
-display/%: run/%
-	@ps | grep -sq gtkwave || \
-		gtkwave $(patsubst display/%, $(BUILD)/%.vcd, $@) >/dev/null  2>&1 &
+run\:%: 
+	@make -s $(patsubst run:%,build:%,$@)
+	@utils/log info Running $(patsubst run:%,%,$@)
+	@vvp $(patsubst run:%,build/%,$@)
 
-save/%: $(TEST)/%.txt
-	@make -s $(patsubst save/%, run/%, $@) > $(patsubst save/%, $(TEST)/%.log, $@)
+display\:%:
+	@make -s $(patsubst display:%,run:%,$@)
+	@utils/display-wave $(patsubst display:%,%.vcd,$@)
 
-check:
-	@printf "* Icarus Verilog "
-	@test `which iverilog` && echo "${GREEN}Yes${NC}" || echo "${RED}No${NC}"
-	@printf "* GTKWave "
-	@test `which gtkwave` && echo "${GREEN}Yes${NC}" || echo "${RED}No${NC}"
+create\:%:
+	@utils/boilerplate $(patsubst create:%,%,$@)
 
 clean:
-	@rm -rf $(BUILD) *.vcd
+	@utils/log info Cleaning build directory
+	@rm -rf build
+
+dist-clean:
+	@utils/log info Cleaning everything
+	@rm -rf build docs traces

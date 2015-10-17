@@ -1,2 +1,0 @@
-test/regfile_tb.v
-regfile.v

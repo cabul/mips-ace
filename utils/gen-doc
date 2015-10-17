@@ -1,0 +1,59 @@
+#!/bin/bash
+
+[[ $# -gt 0 ]] || { utils/log error Fatal; exit 1; }
+
+par=0
+tab=0
+
+docstr=`grep -oe '///.*' $1 | sed 's/\/\/\///' \
+	| sed 's/^\s*//' | sed 's/\s*$//'`
+
+# Prepare directories
+
+file=${1##*/}
+basename=${file%.*}
+dir=docs/${1%/*}
+file=$dir/${basename}.html
+
+mkdir -p $dir
+
+if [[ "$docstr" == "" ]]; then
+	utils/log warn "No documentation for $1"
+	echo "No documentation for $1" > $file
+	exit;
+fi
+
+printf "<h1>%s</h1>\n" "`echo "$docstr" | awk '/^..*$/{print;exit;}'`" > $file
+
+echo -e "$docstr\n" | tail -n "+`echo "$docstr" \
+	| awk '!/^\s*$/{print NR+1; exit;}'`" \
+	| sed 's/\s*-\s*/-/' \
+	| while read line; do
+	case $line in
+		*:*)
+			[[ $par -eq 1 ]] && { par=0; echo "</p>" >> $file; }
+			[[ $tab -eq 1 ]] && { tab=0; echo "</table>" >> $file; }
+
+			echo "$line" | sed -n 's/\(.*\):/<h2>\1<\/h2>/p' >> $file
+			;;
+		*-*)
+			[[ $par -eq 1 ]] && { par=0; echo "</p>" >> $file; }
+			[[ $tab -eq 0 ]] && { tab=1; echo "<table>" >> $file; }
+
+			echo "$line" \
+				| sed -n 's/\(.*\)\s*-\(.*\)/<tr><td>\1<\/td><td>\2<\/td><\/tr>/p' \
+				>> $file
+			;;
+		"")
+			[[ $par -eq 1 ]] && { par=0; echo "</p>" >> $file; }
+			[[ $tab -eq 1 ]] && { tab=0; echo "</table>" >> $file; }
+			;;
+		*)
+			[[ $par -eq 0 ]] && { par=1; echo "<p>" >> $file; }
+			echo $line >> $file
+			;;
+	esac
+done
+
+echo "<h2>Schematic</h2>" >> $file
+utils/gen-graph $1 >> $file

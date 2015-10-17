@@ -1,0 +1,42 @@
+#!/bin/bash
+
+[[ $# -gt 0 ]] || { utils/log error Fatal; exit 1; }
+
+die() {
+	utils/log error $1
+	exit 1
+}
+
+case $1 in
+	*_tb)
+		file="test/${1}.v"
+		[[ -f $file ]] && die "$file already exists"
+		echo -e "//TODO Testbench $1" >> $file
+		echo -e "module $1;" >> $file
+		echo -e "" >> $file
+		echo -e "initial begin" >> $file
+		echo -e "\t// Generate Trace" >> $file
+		echo -e "\tdumpfile(\"traces/${1}.vcd\");" >> $file
+		echo -e "\tdumpvars(0, $1);" >> $file
+		echo -e "end" >> $file
+		echo -e "" >> $file
+		echo -e "endmodule" >> $file
+		utils/log info "Created $file"
+		;;
+	*)
+		file="src/${1}.v"
+		[[ -f $file ]] && die "$file already exists"
+		echo -e "\`ifndef _$1" >> $file
+		echo -e "\`define _$1" >> $file
+		echo -e "" >> $file
+		echo -e "//TODO Module $1" >> $file
+		echo -e "///" >> $file
+		echo -e "/// $1" >> $file
+		echo -e "///" >> $file
+		echo -e "module $1;" >> $file
+		echo -e "endmodule" >> $file
+		echo -e "" >> $file
+		echo -e "\`endif" >> $file
+		utils/log info "Created $file"
+		;;
+esac
