@@ -23,6 +23,8 @@ if [[ "$docstr" == "" ]]; then
 	exit;
 fi
 
+utils/log info "Writing doc for $1"
+
 printf "<h1>%s</h1>\n" "`echo "$docstr" | awk '/^..*$/{print;exit;}'`" > $file
 
 echo -e "$docstr\n" | tail -n "+`echo "$docstr" \
