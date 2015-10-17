@@ -40,7 +40,7 @@ todos:
 
 todo\:%:
 	@test `find . -name $(patsubst todo:%,%.v,$@)` \
-		|| { utils/log error "$(patsubst todo:%,%.v,$@) not found"; exit; }
+		|| { utils/log error "$(patsubst todo:%,%.v,$@) not found"; exit 1; }
 	@grep --color -e TODO -e FIXME -n -H -s \
 		`utils/list-deps $(patsubst todo:%,%.v,$@)` \
 		|| utils/log info "Nothing to do"
@@ -50,12 +50,12 @@ docs:
 
 doc\:%:
 	@test `find . -name $(patsubst doc:%,%.v,$@)` \
-		|| { utils/log error "$(patsubst doc:%,%.v,$@) not found"; exit; }
+		|| { utils/log error "$(patsubst doc:%,%.v,$@) not found"; exit 1; }
 	@utils/gen-doc `find . -name $(patsubst doc:%,%.v,$@)`
 
 build\:%:
 	@test `find . -name $(patsubst build:%,%.v,$@)` \
-		|| { utils/log error "$(patsubst build:%,%.v,$@) not found"; exit; }
+		|| { utils/log error "$(patsubst build:%,%.v,$@) not found"; exit 1; }
 	@utils/log info Building $(patsubst build:%,%,$@)
 	@mkdir -p build
 	@iverilog -o $(patsubst build:%,build/%,$@) $(CFLAGS) -Isrc -Itest \
