@@ -72,7 +72,7 @@ echo '		fill:red;'
 echo '	}'
 echo '</style>'
 
-echo '<symbol id="fflop">'
+echo '<g>'
 
 echo "<g>"
 echo "<rect \
@@ -142,8 +142,6 @@ for output in ${outputs[@]}; do
 done
 [[ ${#outputs[@]} -gt 0 ]] && echo "</g>"
 
-echo "</symbol>"
-
-echo '<use xlink:href="#fflop"/>'
+echo "</g>"
 
 echo '</svg>'
