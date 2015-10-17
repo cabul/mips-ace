@@ -1,17 +1,16 @@
 `ifndef _adder
 `define _adder
 
-/*
- * ADDER info & pinout
- * -----------------
- *
- * This unit is asinchronous
- * 
- * in_s: input s
- * in_t: input t
- * out: adder ouput
- */
-
+/// 
+/// Adder
+/// 
+/// This unit is asynchronous
+/// 
+/// Ports:
+/// in_s - input s
+/// in_t - input t
+/// out - adder ouput
+/// 
 module adder(
 	input wire [N-1:0] in_s,
 	input wire [N-1:0] in_t,

@@ -1,2 +1,0 @@
-test/alu_tb.v
-alu.v

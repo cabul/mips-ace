@@ -13,7 +13,7 @@ timer timer(
 always # 5 clk = !clk;
 
 initial begin
-	$dumpfile("out/timer_tb.vcd");
+	$dumpfile("traces/timer_tb.vcd");
 	$dumpvars(0, timer_tb);
 
 	$monitor("%d", signal);

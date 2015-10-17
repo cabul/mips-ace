@@ -1,2 +1,0 @@
-test/adder_tb.v
-adder.v

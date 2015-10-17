@@ -1,20 +1,20 @@
 `ifndef _alu
 `define _alu
 
-/*
- * ALU info & pinout
- * -----------------
- *
- * This unit is asynchronous
- * 
- * alu_op: alu operation
- * in_s: input s
- * in_t: input t
- * shamt: shift amount (ignored unless shift op)
- * zero: if division by 0 (TODO check this and any other output needed)
- * out: alu ouput
- */
-
+///
+/// Algorithmetic Logic Unit
+/// 
+/// This unit is asynchronous
+/// 
+/// Ports:
+///
+/// alu_op - alu operation
+/// in_s - input s
+/// in_t - input t
+/// shamt - shift amount (ignored unless shift op)
+/// zero - if division by 0 (TODO check this and any other output needed)
+/// out - alu ouput
+/// 
 module alu(
 	input wire [5:0] alu_op,
 	input wire [N-1:0] in_s,
