@@ -79,4 +79,4 @@ clean:
 
 dist-clean:
 	@utils/log info Cleaning everything
-	@rm -rf build docs traces
+	@rm -rf build docs `find traces -name "*.vcd"`
