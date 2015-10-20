@@ -7,7 +7,7 @@ wire cmp;
 
 comparator comparator(
 	.in_a(32'd23),
-	.in_b(32'd23),
+	.in_b(32'd2),
 	.equal(cmp));
 
 initial begin
