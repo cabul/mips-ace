@@ -1,15 +1,15 @@
 `ifndef _signextender
 `define _signextender
 
-/*
- * SIGNEXTENDER info & pinout
- * -----------------
- *
- * This unit is asynchronous
- * 
- * extend: input register to be sign-extended
- * extended: output sign-extended register
- */
+///
+/// Signextender
+/// 
+/// This unit is asynchronous
+/// 
+/// Ports:
+/// extend: input register to be sign-extended
+/// extended: output sign-extended register
+/// 
 
 module signextender(
 		input wire [15:0] extend,
