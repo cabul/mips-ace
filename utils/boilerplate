@@ -16,8 +16,8 @@ case $1 in
 		echo -e "" >> $file
 		echo -e "initial begin" >> $file
 		echo -e "\t// Generate Trace" >> $file
-		echo -e "\tdumpfile(\"traces/${1}.vcd\");" >> $file
-		echo -e "\tdumpvars(0, $1);" >> $file
+		echo -e "\t\$dumpfile(\"traces/${1}.vcd\");" >> $file
+		echo -e "\t\$dumpvars(0, $1);" >> $file
 		echo -e "end" >> $file
 		echo -e "" >> $file
 		echo -e "endmodule" >> $file
