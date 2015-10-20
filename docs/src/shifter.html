@@ -3,10 +3,12 @@
 This unit is asynchronous
 </p>
 <h2>Ports</h2>
-<h2>toshift</h2> input register to shift
-<h2>number</h2> input number of bits to be shifted
-<h2>direction</h2> input whether the shift is to the left (0) or to the right (1)
-<h2>shifted</h2> output register shifted
+<table>
+<tr><td>toshift</td><td>input register to shift</td></tr>
+<tr><td>number</td><td>input number of bits to be shifted</td></tr>
+<tr><td>direction</td><td>input whether the shift is to the left (0) or to the right (1)</td></tr>
+<tr><td>shifted</td><td>output register shifted</td></tr>
+</table>
 <h2>Schematic</h2>
 <?xml version="1.0" encoding="UTF-8"?>
 <svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
@@ -15,7 +17,7 @@ This unit is asynchronous
 		fill:red;
 	}
 </style>
-<symbol id="fflop">
+<g>
 <g>
 <rect 	width="430.00" 	height="192.0" 	fill="white" stroke="black" 	/>
 <text 	x="171.60" 	y="106" 	fill="black" font-size="20" 	font-family="monospace" 	class="highlight" 	>shifter</text>
@@ -40,6 +42,5 @@ This unit is asynchronous
 <text 		x="298.40" 		y="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>shifted</text>
 </g>
 </g>
-</symbol>
-<use xlink:href="#fflop"/>
+</g>
 </svg>
