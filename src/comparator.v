@@ -2,13 +2,14 @@
 `define _comparator
 
 ///
-/// Signextender
+/// Comparator
 /// 
 /// This unit is asynchronous
 /// 
 /// Ports:
-/// extend - input register to be sign-extended
-/// extended - output sign-extended register
+/// in_a - port a to compare
+/// in_b - port b to compare
+/// equal - if in_a equals in_b
 /// 
 module comparator(
 	input wire [N-1:0] in_a,
