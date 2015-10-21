@@ -10,18 +10,18 @@ get_module() {
 # Utility functions to extract inputs
 get_inputs() {
 	echo "$1" | grep -qe '(.*)' || return 1
-	echo "$1" | sed 's/.*(//' | sed 's/);/,/' \
+	echo "$1" | sed 's/^[^(]*(//' | sed 's/);/,/' \
 		| sed 's/output [^,]*,//g' | sed 's/inout [^,]*,//g' \
-		| sed 's/input//g' | sed 's/\[[^]]*\]/ /g' | sed 's/=[^,]*//g' \
+		| sed 's/input / /g' | sed 's/\[[^]]*\]/ /g' | sed 's/=[^,]*//g' \
 		| sed 's/ reg //g' | sed 's/ wire //g' | sed 's/,//g' 
 }
 
 # Utility functions to extract outputs
 get_outputs() {
 	echo "$1" | grep -qe '(.*)' || return 1
-	echo "$1" | sed 's/.*(//' | sed 's/);/,/' \
+	echo "$1" | sed 's/^[^(]*(//' | sed 's/);/,/' \
 		| sed 's/input [^,]*,//g' | sed 's/inout [^,]*,//g' \
-		| sed 's/output//g' | sed 's/\[[^]]*\]/ /g' | sed 's/=[^,]*//g' \
+		| sed 's/output / /g' | sed 's/\[[^]]*\]/ /g' | sed 's/=[^,]*//g' \
 		| sed 's/ reg //g' | sed 's/ wire //g' | sed 's/,//g' 
 }
 
