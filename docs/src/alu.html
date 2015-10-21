@@ -1,0 +1,56 @@
+<h1>Algorithmetic Logic Unit</h1>
+<p>
+This unit is asynchronous
+</p>
+<h2>Ports</h2>
+<table>
+<tr><td>alu_op</td><td>alu operation</td></tr>
+<tr><td>in_s</td><td>input s</td></tr>
+<tr><td>in_t</td><td>input t</td></tr>
+<tr><td>shamt</td><td>shift amount (ignored unless shift op)</td></tr>
+<tr><td>zero</td><td>if division by 0 (TODO check this and any other output needed)</td></tr>
+<tr><td>out</td><td>alu ouput</td></tr>
+</table>
+<h2>Schematic</h2>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+<style type="text/css">
+	.highlight:hover {
+		fill:red;
+	}
+</style>
+<g>
+<g>
+<rect 	width="306.00" 	height="256.0" 	fill="white" stroke="black" 	/>
+<text 	x="134.40" 	y="138" 	fill="black" font-size="20" 	font-family="monospace" 	class="highlight" 	>alu</text>
+</g>
+<g>
+<g>
+<rect 		x="0" y="0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>alu_op</text>
+</g>
+<g>
+<rect 		x="0" y="64.0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>in_s</text>
+</g>
+<g>
+<rect 		x="0" y="128.0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="168.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>in_t</text>
+</g>
+<g>
+<rect 		x="0" y="192.0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="232.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>shamt</text>
+</g>
+</g>
+<g>
+<g>
+<rect 		x="191.60" y="0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="211.60" 		y="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>zero</text>
+</g>
+<g>
+<rect 		x="191.60" y="64.0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="211.60" 		y="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>out</text>
+</g>
+</g>
+</g>
+</svg>

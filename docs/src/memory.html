@@ -1,0 +1,44 @@
+<h1>Main Memory</h1>
+<h2>Description</h2>
+<p>
+A basic memory implementation.
+On startup loads data from file.
+Currently does not allow to write data.
+</p>
+<h2>Ports</h2>
+<table>
+<tr><td>clk</td><td>Clock signal</td></tr>
+<tr><td>addr</td><td>Memory address</td></tr>
+<tr><td>data</td><td>Data output</td></tr>
+</table>
+<h2>Schematic</h2>
+<?xml version="1.0" encoding="UTF-8"?>
+<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">
+<style type="text/css">
+	.highlight:hover {
+		fill:red;
+	}
+</style>
+<g>
+<g>
+<rect 	width="293.60" 	height="128.0" 	fill="white" stroke="black" 	/>
+<text 	x="109.60" 	y="74" 	fill="black" font-size="20" 	font-family="monospace" 	class="highlight" 	>memory</text>
+</g>
+<g>
+<g>
+<rect 		x="0" y="0" 		width="89.60" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>clk</text>
+</g>
+<g>
+<rect 		x="0" y="64.0" 		width="89.60" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>addr</text>
+</g>
+</g>
+<g>
+<g>
+<rect 		x="204.00" y="0" 		width="89.60" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="224.00" 		y="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>data</text>
+</g>
+</g>
+</g>
+</svg>

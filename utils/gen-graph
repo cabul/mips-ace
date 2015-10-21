@@ -1,0 +1,147 @@
+#!/bin/bash
+
+[[ $# -gt 0 ]] || { utils/log error Fatal; exit 1; }
+
+# Utility functions to extract module name
+get_module() {
+	echo "$1" | sed -r 's/module\s+(.*)[;(]/\1/g' | sed -r 's/([a-zA-Z_]+)\s*(\(.*\))?/\1/g'
+}
+
+# Utility functions to extract inputs
+get_inputs() {
+	echo "$1" | grep -qe '(.*)' || return 1
+	echo "$1" | sed 's/^[^(]*(//' | sed 's/);/,/' \
+		| sed 's/output [^,]*,//g' | sed 's/inout [^,]*,//g' \
+		| sed 's/input / /g' | sed 's/\[[^]]*\]/ /g' | sed 's/=[^,]*//g' \
+		| sed 's/ reg //g' | sed 's/ wire //g' | sed 's/,//g' 
+}
+
+# Utility functions to extract outputs
+get_outputs() {
+	echo "$1" | grep -qe '(.*)' || return 1
+	echo "$1" | sed 's/^[^(]*(//' | sed 's/);/,/' \
+		| sed 's/input [^,]*,//g' | sed 's/inout [^,]*,//g' \
+		| sed 's/output / /g' | sed 's/\[[^]]*\]/ /g' | sed 's/=[^,]*//g' \
+		| sed 's/ reg //g' | sed 's/ wire //g' | sed 's/,//g' 
+}
+
+# Extract module declaration => module sth ( input a, output b );
+modulestr=`sed -e 's/\/\/.*//g' $1 | tr '\n' ' ' \
+	| sed 's/\/\*.*\*\///g' | grep -oe 'module[^;]*;' | sed 's/\s\s*/ /g'`
+
+module=`get_module "$modulestr"`
+inputs=(`get_inputs "$modulestr"`)
+outputs=(`get_outputs "$modulestr"`)
+
+# SVG settings
+font=monospace
+fontsize=20
+fontsx=0.62
+fontsy=1.2
+padding=20
+
+# Calculate height/width
+[[ ${#inputs[@]} -lt ${#outputs[@]} ]] && y_max=${#outputs[@]} || y_max=${#inputs[@]}
+[[ $y_max -eq 0 ]] && y_max=1
+
+port_height="`echo "$fontsize * $fontsy + $padding * 2" | bc `"
+module_height="`echo "$port_height * $y_max" | bc `"
+
+in_max=0
+for i in ${inputs[@]}; do
+	[[ ${#i} -gt $in_max ]] && in_max=${#i}
+done
+
+out_max=0
+for i in ${outputs[@]}; do
+	[[ ${#i} -gt $out_max ]] && out_max=${#i}
+done
+
+[[ $in_max -lt $out_max ]] && x_max=$out_max || x_max=$in_max
+
+port_width=`echo "$padding * 2 + $fontsize * $fontsx * $x_max" | bc`
+module_width=`echo "$port_width * 2 + $padding * 2 + $fontsize * $fontsx * ${#module}" | bc`
+
+# Write back SVG
+echo '<?xml version="1.0" encoding="UTF-8"?>'
+echo '<svg xmlns="http://www.w3.org/2000/svg" width="100%" height="100%">'
+
+echo '<style type="text/css">'
+echo '	.highlight:hover {'
+echo '		fill:red;'
+echo '	}'
+echo '</style>'
+
+echo '<g>'
+
+echo "<g>"
+echo "<rect \
+	width=\"$module_width\" \
+	height=\"$module_height\" \
+	fill=\"white\" stroke=\"black\" \
+	/>"
+
+echo "<text \
+	x=\"`echo "$padding + $port_width" | bc`\" \
+	y=\"`echo "($module_height + $fontsize) / 2" | bc`\" \
+	fill=\"black\" font-size=\"$fontsize\" \
+	font-family=\"$font\" \
+	class=\"highlight\" \
+	>$module</text>"
+echo "</g>"
+
+pos_x=0
+pos_y=0
+
+[[ ${#inputs[@]} -gt 0 ]] && echo "<g>"
+for input in ${inputs[@]}; do
+	echo "<g>"
+	echo "<rect \
+		x=\"$pos_x\" y=\"$pos_y\" \
+		width=\"$port_width\" \
+		height=\"$port_height\" \
+		fill=\"white\" stroke=\"black\" \
+		stroke-dasharray=\"5,5\" \
+		/>"
+	echo "<text \
+		dx=\"`echo "$pos_x + $padding" | bc`\" \
+		dy=\"`echo "$pos_y + $padding + $fontsize" | bc`\" \
+		fill=\"black\" font-size=\"$fontsize\" \
+		font-family=\"$font\" \
+		class=\"highlight\" \
+		>$input</text>"
+	echo "</g>"
+
+	pos_y=`echo "$pos_y + $port_height" | bc`
+done
+[[ ${#inputs[@]} -gt 0 ]] && echo "</g>"
+
+pos_x=`echo "$module_width - $port_width" | bc`
+pos_y=0
+
+[[ ${#outputs[@]} -gt 0 ]] && echo "<g>"
+for output in ${outputs[@]}; do
+	echo "<g>"
+	echo "<rect \
+		x=\"$pos_x\" y=\"$pos_y\" \
+		width=\"$port_width\" \
+		height=\"$port_height\" \
+		fill=\"white\" stroke=\"black\" \
+		stroke-dasharray=\"5,5\" \
+		/>"
+	echo "<text \
+		x=\"`echo "$pos_x + $padding" | bc`\" \
+		y=\"`echo "$pos_y + $padding + $fontsize" | bc`\" \
+		fill=\"black\" font-size=\"$fontsize\" \
+		font-family=\"$font\" \
+		class=\"highlight\" \
+		>$output</text>"
+	echo "</g>"
+
+	pos_y=`echo "$pos_y + $port_height" | bc`
+done
+[[ ${#outputs[@]} -gt 0 ]] && echo "</g>"
+
+echo "</g>"
+
+echo '</svg>'

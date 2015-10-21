@@ -9,7 +9,11 @@
 
 ### Vim ###
 *.swp
+*.swo
 
 ### OS X ###
 .DS_Store
 
+# Temporary files
+build/
+*.vcd

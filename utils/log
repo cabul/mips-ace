@@ -1,0 +1,24 @@
+#!/bin/bash
+
+DEF="\e[0m"
+RED="\e[31m"
+GREEN="\e[32m"
+YELLOW="\e[33m"
+BLUE="\e[34m"
+
+[[ -z $VERBOSE ]] && VERBOSE=1
+
+case $1 in
+	info)
+		[[ $VERBOSE -eq 0 ]] || echo -e "${BLUE}${@:2}${DEF}"
+		;;
+	warn)
+		[[ $VERBOSE -eq 0 ]] || echo -e "${YELLOW}${@:2}${DEF}"
+		;;
+	error)
+		[[ $VERBOSE -eq 0 ]] && echo "${@:2}" >&2 || echo -e "${RED}${@:2}${DEF}"
+		;;
+	*)
+		[[ $VERBOSE -eq 0 ]] || echo -e "${GREEN}$@${DEF}"
+		;;
+esac
