@@ -5,10 +5,11 @@ This unit is asynchronous
 <h2>Ports</h2>
 <table>
 <tr><td>alu_op</td><td>alu operation</td></tr>
-<tr><td>in_s</td><td>input s</td></tr>
-<tr><td>in_t</td><td>input t</td></tr>
-<tr><td>shamt</td><td>shift amount (ignored unless shift op)</td></tr>
-<tr><td>zero</td><td>if division by 0 (TODO check this and any other output needed)</td></tr>
+<tr><td>s</td><td>input s</td></tr>
+<tr><td>t</td><td>input t</td></tr>
+<tr><td>shamt</td><td>shift amount, ignored unless shift operation</td></tr>
+<tr><td>zero</td><td>if division by 0</td></tr>
+<tr><td>overflow</td><td>if overflow</td></tr>
 <tr><td>out</td><td>alu ouput</td></tr>
 </table>
 <h2>Schematic</h2>
@@ -21,35 +22,39 @@ This unit is asynchronous
 </style>
 <g>
 <g>
-<rect 	width="306.00" 	height="256.0" 	fill="white" stroke="black" 	/>
-<text 	x="134.40" 	y="138" 	fill="black" font-size="20" 	font-family="monospace" 	class="highlight" 	>alu</text>
+<rect 	width="355.60" 	height="256.0" 	fill="white" stroke="black" 	/>
+<text 	x="159.20" 	y="138" 	fill="black" font-size="20" 	font-family="monospace" 	class="highlight" 	>alu</text>
 </g>
 <g>
 <g>
-<rect 		x="0" y="0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<rect 		x="0" y="0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
 <text 		dx="20" 		dy="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>alu_op</text>
 </g>
 <g>
-<rect 		x="0" y="64.0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
-<text 		dx="20" 		dy="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>in_s</text>
+<rect 		x="0" y="64.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>s</text>
 </g>
 <g>
-<rect 		x="0" y="128.0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
-<text 		dx="20" 		dy="168.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>in_t</text>
+<rect 		x="0" y="128.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		dx="20" 		dy="168.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>t</text>
 </g>
 <g>
-<rect 		x="0" y="192.0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<rect 		x="0" y="192.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
 <text 		dx="20" 		dy="232.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>shamt</text>
 </g>
 </g>
 <g>
 <g>
-<rect 		x="191.60" y="0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
-<text 		x="211.60" 		y="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>zero</text>
+<rect 		x="216.40" y="0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="236.40" 		y="40" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>zero</text>
 </g>
 <g>
-<rect 		x="191.60" y="64.0" 		width="114.40" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
-<text 		x="211.60" 		y="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>out</text>
+<rect 		x="216.40" y="64.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="236.40" 		y="104.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>overflow</text>
+</g>
+<g>
+<rect 		x="216.40" y="128.0" 		width="139.20" 		height="64.0" 		fill="white" stroke="black" 		stroke-dasharray="5,5" 		/>
+<text 		x="236.40" 		y="168.0" 		fill="black" font-size="20" 		font-family="monospace" 		class="highlight" 		>out</text>
 </g>
 </g>
 </g>
