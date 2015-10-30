@@ -1,6 +1,6 @@
 `include "flipflop.v"
 
-/// Flip Flop Testbench
+// Flip Flop Testbench
 module flipflop_tb;
 
 reg clk = 0;

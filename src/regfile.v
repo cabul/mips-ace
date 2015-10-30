@@ -1,28 +1,28 @@
 `ifndef _regfile
 `define _regfile
 
-///
-/// Register File
 //
-/// 32 General purpose registers of 32 bits.
-///
-/// Description:
-///
-/// Reads are asynchronous.
-/// Writes happen on rising edge.
-/// Register 0 is always 0 and cannot be written to.
-/// 
-/// Ports:
-/// clk - Clock signal
-/// reset - Reset signal
-/// rreg1 - Read data 1 from this register
-/// rreg2 - Read data 2 from this register
-/// rdata1 - Read data 1 output
-/// rdata2 - Read data 2 output
-/// regwrite - On 1 write to register
-/// wreg - Write to this register
-/// wdata - Write this data
-///
+// Register File
+//
+// 32 General purpose registers of 32 bits.
+//
+// Description:
+//
+// Reads are asynchronous.
+// Writes happen on rising edge.
+// Register 0 is always 0 and cannot be written to.
+// 
+// Ports:
+// clk - Clock signal
+// reset - Reset signal
+// rreg1 - Read data 1 from this register
+// rreg2 - Read data 2 from this register
+// rdata1 - Read data 1 output
+// rdata2 - Read data 2 output
+// regwrite - On 1 write to register
+// wreg - Write to this register
+// wdata - Write this data
+//
 module regfile(
 	input wire clk,
 	input wire reset,

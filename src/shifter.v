@@ -1,17 +1,18 @@
 `ifndef _shifter
 `define _shifter
 
-///
-/// Shifter
-/// 
-/// This unit is asynchronous
-/// 
-/// Ports:
-/// toshift - input register to shift
-/// number - input number of bits to be shifted
-/// direction - input whether the shift is to the left (0) or to the right (1)
-/// shifted - output register shifted
-///
+//TODO Remove this
+//
+// Shifter
+// 
+// This unit is asynchronous
+// 
+// Ports:
+// toshift - input register to shift
+// number - input number of bits to be shifted
+// direction - input whether the shift is to the left (0) or to the right (1)
+// shifted - output register shifted
+//
 
 module shifter(
 		input wire [31:0] toshift,

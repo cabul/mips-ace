@@ -1,20 +1,20 @@
 `ifndef _memory
 `define _memory
 
-///
-/// Main Memory
-/// 
-/// Description:
-///
-/// A basic memory implementation.
-/// On startup loads data from file.
-/// Currently does not allow to write data.
-/// 
-/// Ports:
-/// clk - Clock signal
-/// addr - Memory address
-/// data - Data output
-///
+//
+// Main Memory
+// 
+// Description:
+//
+// A basic memory implementation.
+// On startup loads data from file.
+// Currently does not allow to write data.
+// 
+// Ports:
+// clk - Clock signal
+// addr - Memory address
+// data - Data output
+//
 //TODO Allow writes
 //TODO Add reset
 module memory(

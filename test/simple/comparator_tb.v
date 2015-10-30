@@ -1,6 +1,6 @@
 `include "comparator.v"
 
-/// Comparator Testbench
+// Comparator Testbench
 module comparator_tb;
 
 wire cmp;

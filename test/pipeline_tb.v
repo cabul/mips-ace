@@ -1,6 +1,6 @@
 `include "flipflop.v"
 
-/// Pipeline Testbench
+// Pipeline Testbench
 module pipeline_tb;
 
 reg clk = 0;

@@ -1,8 +1,4 @@
-/// How to screw up Calvin's doc-system:
-/// Step 1: Create a new kind of verilog file
-/// Step 2: ?????
-/// Step 3: Profit!
-
+// Functions
 parameter
     FN_SLL = 6'b000000,
     FN_SRL = 6'b000010,
@@ -15,6 +11,7 @@ parameter
     FN_NOR = 6'b100111,
     FN_SLT = 6'b101010;
 
+// OPCODES
 parameter 
     OP_AND = 4'b0000,
     OP_OR  = 4'b0001,

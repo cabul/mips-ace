@@ -1,6 +1,6 @@
 `include "multiplexer.v"
 
-/// Testbench Multiplexer
+// Testbench Multiplexer
 module multiplexer_tb;
 
 reg [31:0] a = 32'd2015;

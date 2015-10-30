@@ -1,6 +1,6 @@
 `include "regfile.v"
 
-/// Register File Testbench
+// Register File Testbench
 module regfile_tb;
 
 reg clk = 0;

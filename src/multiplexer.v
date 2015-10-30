@@ -1,11 +1,11 @@
 `ifndef _multiplexer
 `define _multiplexer
 
-///
-/// multiplexer
-///
-/// cantdeclare2darrayasinput.png
-///
+//
+// multiplexer
+//
+// cantdeclare2darrayasinput.png
+//
 module multiplexer(
 	input wire [$clog2(X)-1:0] select,
 	input wire [N*X-1:0] in_data,

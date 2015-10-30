@@ -1,6 +1,6 @@
 `include "shifter.v"
 
-/// Shifter Testbench
+// Shifter Testbench
 module shifter_tb;
 
 reg [31:0] toshift = 32'b10000000000000000000000000000000;

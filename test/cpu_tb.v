@@ -1,6 +1,6 @@
 `include "cpu.v"
 
-/// Simple CPU
+// Simple CPU
 module cpu_tb;
 
 reg clk = 0;

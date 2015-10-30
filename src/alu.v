@@ -1,23 +1,23 @@
 `ifndef _alu
 `define _alu
 
-`include aludefines.v
+`include "defines.v"
 
-///
-/// Algorithmetic Logic Unit
-/// 
-/// This unit is asynchronous
-/// 
-/// Ports:
-///
-/// alu_op - alu operation
-/// s - input s
-/// t - input t
-/// shamt - shift amount, ignored unless shift operation
-/// zero - if division by 0
-/// overflow - if overflow
-/// out - alu ouput
-/// 
+//
+// Algorithmetic Logic Unit
+// 
+// This unit is asynchronous
+// 
+// Ports:
+//
+// alu_op - alu operation
+// s - input s
+// t - input t
+// shamt - shift amount, ignored unless shift operation
+// zero - if division by 0
+// overflow - if overflow
+// out - alu ouput
+// 
 module alu(
 	input wire [3:0] alu_op,
 	input wire [N-1:0] s,

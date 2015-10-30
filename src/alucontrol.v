@@ -1,13 +1,8 @@
 `ifndef _alucontrol
 `define _alucontrol
 
-`include aludefines.v
+`include "defines.v"
 
-///
-/// alucontrol
-///
-/// This unit is... fuckit
-///
 module alucontrol(
 	input wire [5:0] func,
 	input wire [1:0] alu_op_in,

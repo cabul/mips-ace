@@ -1,10 +1,10 @@
 `ifndef _control
 `define _control
 
-/// Control Unit
-///
-/// This unit is async
-/// TODO Everything
+// Control Unit
+//
+// This unit is async
+// TODO Everything
 module control(
 	input wire[5:0] op_code,
 	input wire[5:0] funct,

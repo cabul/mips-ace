@@ -1,6 +1,6 @@
 `include "signextender.v"
 
-/// Signextender Testbench
+// Signextender Testbench
 module signextender_tb;
 
 reg [15:0] inmediato = 16'hf001;

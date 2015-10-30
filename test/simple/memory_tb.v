@@ -1,6 +1,6 @@
 `include "memory.v"
 
-/// Memory Testbench
+// Memory Testbench
 module memory_tb;
 
 reg clk = 0;

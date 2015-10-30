@@ -11,7 +11,7 @@
 `include "comparator.v"
 `include "control.v"
 
-/// Central Processing Unit
+// Central Processing Unit
 module cpu(
 	input wire clk,
 	input wire reset
@@ -50,6 +50,9 @@ adder pc_adder (
 	.in_t(32'd4),
 	.out(if_pc)
 );
+
+// Alternative?
+assign if_pc = pc_out + 4;
 
 // Instruction Decode
 reg if_id_we = 1;
