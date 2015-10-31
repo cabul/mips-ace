@@ -104,10 +104,10 @@ regfile regfile(
 	.reset(reset),
 	.rreg1(id_instr[25:21]),
 	.rreg2(id_instr[20:16]),
-    .rdata1(id_data_rs),
-    .rdata2(id_data_rt),
+ 	.rdata1(id_data_rs),
+	.rdata2(id_data_rt),
 	.regwrite(wb_regwrite),
-    .wreg(wb_wreg),
+	.wreg(wb_wreg),
 	.wdata(wb_wdata)
 );
 
@@ -116,13 +116,13 @@ flipflop #(.N(147)) id_ex (
 	.reset(reset),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
-        id_isbranch, id_regdst, id_aluop, id_alusrc, 
-        id_pc_next, id_data_rs, id_data_rt, id_imm,
-        id_instr[20:16], id_instr[15:11]}),
+        	id_isbranch, id_regdst, id_aluop, id_alusrc, 
+        	id_pc_next, id_data_rs, id_data_rt, id_imm,
+        	id_instr[20:16], id_instr[15:11]}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        ex_isbranch, ex_regdst, ex_aluop, ex_alusrc,
-        ex_pc_next, ex_data_rs, ex_data_rt, ex_imm,
-        dst_rt, dst_rd})
+        	ex_isbranch, ex_regdst, ex_aluop, ex_alusrc,
+        	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm,
+        	dst_rt, dst_rd})
 );
 
 ////////////////////////
@@ -174,7 +174,7 @@ alu alu(
 	.t(data_t),
 	.shamt(ex_imm[10:6]),
 	.zero(ex_zero),
-    .overflow(ex_overflow),
+	.overflow(ex_overflow),
 	.out(ex_alures)
 );
 
@@ -189,11 +189,11 @@ flipflop #(.N(108)) ex_mem (
 	.reset(reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        ex_isbranch, ex_pc_branch, ex_overflow, ex_zero,
-        ex_alures, ex_data_rt, ex_wreg}),
+        	ex_isbranch, ex_pc_branch, ex_overflow, ex_zero,
+        	ex_alures, ex_data_rt, ex_wreg}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
-        mem_isbranch, mem_pc_branch, mem_overflow, mem_zero,
-        mem_alures, mem_data_rt, mem_wreg})
+        	mem_isbranch, mem_pc_branch, mem_overflow, mem_zero,
+        	mem_alures, mem_data_rt, mem_wreg})
 );
 
 ////////////////////////
@@ -223,9 +223,9 @@ memory #(.DATA(DATA)) dmem (
 	.clk(clk),
 	.addr(mem_alures),
 	.data(mem_memout)
-    // TODO mem_data_rt port
-    // TODO mem_memread port
-    // TODO mem_memwrite port
+	// TODO mem_data_rt port
+    	// TODO mem_memread port
+    	// TODO mem_memwrite port
 );
 
 flipflop #(.N(71)) mem_wb (
@@ -233,9 +233,9 @@ flipflop #(.N(71)) mem_wb (
 	.reset(reset),
 	.we(mem_wb_we),
 	.in({mem_regwrite, mem_memtoreg, mem_memout, mem_alures,
-        mem_wreg}),
+        	mem_wreg}),
 	.out({wb_regwrite, wb_memtoreg, wb_memout, wb_alures,
-        wb_wreg})
+	        wb_wreg})
 );
 
 ////////////////////////
