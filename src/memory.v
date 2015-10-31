@@ -20,7 +20,8 @@
 module memory(
 	input wire clk,
 	input wire [31:0] addr,
-	output reg [31:0] data);
+	output reg [31:0] data
+);
 
 parameter DATA = "mem_data.hex";
 parameter MEM_SIZE = 64; // 16 instructions

@@ -15,11 +15,11 @@
 //
 
 module shifter(
-		input wire [31:0] toshift,
-		input wire [4:0] number,
-		input wire direction,  //0 izquierda, 1 derecha
-		output reg [31:0] shifted
-		);
+    input wire [31:0] toshift,
+    input wire [4:0] number,
+    input wire direction,  //0 izquierda, 1 derecha
+    output reg [31:0] shifted
+);
 
 always @* begin
 	if(direction == 1) begin
@@ -28,7 +28,6 @@ always @* begin
 	else begin
 		shifted <= toshift << number;
 	end
-
 end
 		
 endmodule

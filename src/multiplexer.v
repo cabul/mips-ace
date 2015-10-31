@@ -9,7 +9,8 @@
 module multiplexer(
 	input wire [$clog2(X)-1:0] select,
 	input wire [N*X-1:0] in_data,
-	output reg [N-1:0] out_data);
+	output reg [N-1:0] out_data
+);
 
 parameter N = 32;
 parameter X = 2;

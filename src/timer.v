@@ -17,7 +17,8 @@
 module timer(
 	input wire clk,
 	input wire [N-1:0] match,
-	output reg signal = 1'd0);
+	output reg signal = 1'd0
+);
 
 parameter N = 32;
 reg [N-1:0] count = {N{1'd0}};

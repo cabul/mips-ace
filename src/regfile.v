@@ -30,7 +30,8 @@ module regfile(
 	output reg [31:0] rdata1, rdata2,
 	input wire regwrite,
 	input wire [4:0] wreg,
-	input wire [31:0] wdata);
+	input wire [31:0] wdata
+);
 
 reg [31:0] mem [0:31];
 

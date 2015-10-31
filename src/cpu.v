@@ -7,11 +7,12 @@
 `include "regfile.v"
 `include "signextender.v"
 `include "alu.v"
+`include "alucontrol.v"
 `include "multiplexer.v"
 `include "comparator.v"
 `include "control.v"
 
-// Central Processing Unit
+/// Central Processing Unit
 module cpu(
 	input wire clk,
 	input wire reset
@@ -19,121 +20,242 @@ module cpu(
 
 parameter DATA = "data/mem_data.hex";
 
-// Instruction Fetch
-wire [31:0] next_pc;
+////////////////////////
+//                    //
+// Instruction Fetch  //
+//                    //
+////////////////////////
+
+wire [31:0] if_pc_next;
+wire [31:0] if_instr;
+wire [31:0] pc_in;
 wire [31:0] pc_out;
-wire [31:0] mem_out;
-wire [31:0] if_pc;
-wire [31:0] in_pc;
+reg pc_we = 1;
+reg if_id_we = 1;
+
+assign if_pc_next = pc_out + 4;
 
 multiplexer pc_mux(
-	.select(0),
-	.in_data({next_pc,if_pc}),
-	.out_data(in_pc)
+	.select(pc_src),
+	.in_data({mem_pc_branch, if_pc_next}),
+	.out_data(pc_in)
 );
 
-reg pc_we = 1;
 flipflop #(.N(32)) pc (
 	.clk(clk),
 	.reset(reset),
 	.we(pc_we),
-	.in(in_pc),
+	.in(pc_in),
 	.out(pc_out)
 );
-memory #(.DATA(DATA)) mem (
+
+memory #(.DATA(DATA)) imem (
 	.clk(clk),
 	.addr(pc_out),
-	.data(mem_out)
-);
-adder pc_adder (
-	.in_s(pc_out),
-	.in_t(32'd4),
-	.out(if_pc)
+	.data(if_instr)
 );
 
-//FIXME Alternative?
-assign if_pc = pc_out + 4;
-
-// Instruction Decode
-reg if_id_we = 1;
-wire [31:0] id_pc;
-wire [31:0] instr;
 flipflop #(.N(64)) if_id (
 	.clk(clk),
 	.reset(reset),
 	.we(if_id_we),
-	.in({if_pc, mem_out}),
-	.out({id_pc, instr})
+	.in({if_pc_next, if_instr}),
+	.out({id_pc_next, id_instr})
 );
 
-// Fancy control
-wire id_reg_dst;
-wire id_jump;
-wire id_branch;
-wire id_mem_read;
-wire id_mem_to_reg;
-wire[3:0] id_alu_op;
-wire id_mem_write;
-wire id_alu_src;
-wire id_reg_write;
+////////////////////////
+//                    //
+// Instruction Decode //
+//                    //
+////////////////////////
+
+wire [31:0] id_instr;
+wire [31:0] id_pc_next;
+wire id_regwrite;
+wire id_regdst;
+wire id_memtoreg;
+wire id_memread;
+wire id_memwrite;
+wire id_isbranch;
+wire [1:0] id_aluop;
+wire id_alusrc;
+wire [31:0] id_imm;
+wire [31:0] id_data_rs;
+wire [31:0] id_data_rt;
+reg id_ex_we = 1;
+
+assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 
 control control (
-	.op_code(instr[31:26]),
-	.funct(instr[5:0]),
-	.reg_dst(id_reg_dst),
-	.jump(id_jump),
-	.branch(id_branch),
-	.mem_read(id_mem_read),
-	.mem_to_reg(id_mem_to_reg),
-	.alu_op(id_alu_op),
-	.mem_write(id_mem_write),
-	.alu_src(id_alu_src),
-	.reg_write(id_reg_write)
-);
-
-wire wr_mux_out;
-multiplexer w_reg_mux(
-	.select(id_reg_dst),
-	.in_data({instr[15:11],instr[20:16]}),
-	.out_data(wr_mux_out)
+	.op_code(id_instr[31:26]),
+	.funct(id_instr[5:0]),
+	.reg_dst(id_regdst),
+	.isbranch(id_isbranch),
+	.mem_read(id_memread),
+	.mem_to_reg(id_memtoreg),
+	.alu_op(id_aluop),
+	.mem_write(id_memwrite),
+	.alu_src(id_alusrc),
+	.reg_write(id_regwrite)
 );
 
 regfile regfile(
 	.clk(clk),
 	.reset(reset),
-	.r_reg1(instr[25:21]),
-	.r_reg2(instr[20:16]),
-	.reg_write(id_reg_write),
-	.w_reg(wr_mux_out)
+	.rreg1(id_instr[25:21]),
+	.rreg2(id_instr[20:16]),
+    .rdata1(id_data_rs),
+    .rdata2(id_data_rt),
+	.regwrite(wb_regwrite),
+    .wreg(wb_wreg),
+	.wdata(wb_wdata)
 );
 
-wire id_immediate;
-signextender sign_extend(
-	.extend(instr[15:0]),
-	.extended(id_immediate)
+flipflop #(.N(147)) id_ex (
+	.clk(clk),
+	.reset(reset),
+	.we(id_ex_we),
+	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
+        id_isbranch, id_regdst, id_aluop, id_alusrc, 
+        id_pc_next, id_data_rs, id_data_rt, id_imm,
+        id_instr[20:16], id_instr[15:11]}),
+	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
+        ex_isbranch, ex_regdst, ex_aluop, ex_alusrc,
+        ex_pc_next, ex_data_rs, ex_data_rt, ex_imm,
+        dst_rt, dst_rd})
 );
 
-// Execute
-// id_reg_dst;
-// id_jump;
-// id_branch;
-// id_mem_read;
-// id_mem_to_reg;
-// id_alu_op;
-// id_mem_write;
-// id_alu_src;
-// id_reg_write;
-flipflop #(.N()) id_ex;
-multiplexer mux_s;
-multiplexer mux_t;
-alu alu;
+////////////////////////
+//                    //
+//      Execute       //
+//                    //
+////////////////////////
 
-// Memory
-flipflop #(.N()) ex_mem;
+wire ex_mem_we;
+wire ex_regwrite;
+wire ex_memtoreg;
+wire ex_memread;
+wire ex_memwrite;
+wire ex_isbranch;
+wire ex_regdst;
+wire [1:0] ex_aluop;
+wire [3:0] aluop;
+wire ex_alusrc;
+wire [31:0] ex_pc_next;
+wire [31:0] ex_data_rs;
+wire [31:0] ex_data_rt;
+wire [31:0] ex_imm;
+wire [4:0] dst_rt;
+wire [4:0] dst_rd;
+wire [4:0] ex_wreg;
+wire ex_zero;
+wire ex_overflow;
+wire [31:0] ex_alures;
+wire [31:0] data_t;
+wire [31:0] ex_pc_branch;
 
-// Write Back
-flipflop #(.N()) mem_wb;
-multiplexer mux_wb;
+assign ex_pc_branch = ex_pc_next + (ex_imm << 2);
+
+alucontrol alucontrol(
+	.func(ex_imm[5:0]),
+	.alu_op_in(ex_aluop),
+	.alu_op_out(aluop)
+);
+
+multiplexer t_mux (
+	.select(ex_alusrc),
+	.in_data({ex_imm, ex_data_rt}),
+	.out_data(data_t)
+);
+
+alu alu(
+	.alu_op(aluop),
+	.s(ex_data_rs),
+	.t(data_t),
+	.shamt(ex_imm[10:6]),
+	.zero(ex_zero),
+    .overflow(ex_overflow),
+	.out(ex_alures)
+);
+
+multiplexer #(.N(5)) dst_mux(
+	.select(ex_regdst),
+	.in_data({dst_rd, dst_rt}),
+	.out_data(ex_wreg)
+);
+
+flipflop #(.N(108)) ex_mem (
+	.clk(clk),
+	.reset(reset),
+	.we(ex_mem_we),
+	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
+        ex_isbranch, ex_pc_branch, ex_overflow, ex_zero,
+        ex_alures, ex_data_rt, ex_wreg}),
+	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
+        mem_isbranch, mem_pc_branch, mem_overflow, mem_zero,
+        mem_alures, mem_data_rt, mem_wreg})
+);
+
+////////////////////////
+//                    //
+//       Memory       //
+//                    //
+////////////////////////
+
+wire [31:0] mem_pc_branch;
+wire mem_wb_we;
+wire mem_regwrite;
+wire mem_memtoreg;
+wire mem_memread;
+wire mem_memwrite;
+wire mem_isbranch;
+wire mem_zero;
+wire mem_overflow;
+wire [31:0] mem_alures;
+wire [31:0] mem_data_rt;
+wire [31:0] mem_memout;
+wire [4:0] mem_wreg;
+wire pc_src;
+
+assign pc_src = mem_isbranch & mem_zero;
+
+memory #(.DATA(DATA)) dmem (
+	.clk(clk),
+	.addr(mem_alures),
+	.data(mem_memout)
+    // TODO mem_data_rt port
+    // TODO mem_memread port
+    // TODO mem_memwrite port
+);
+
+flipflop #(.N(71)) mem_wb (
+	.clk(clk),
+	.reset(reset),
+	.we(mem_wb_we),
+	.in({mem_regwrite, mem_memtoreg, mem_memout, mem_alures,
+        mem_wreg}),
+	.out({wb_regwrite, wb_memtoreg, wb_memout, wb_alures,
+        wb_wreg})
+);
+
+////////////////////////
+//                    //
+//     Write back     //
+//                    //
+////////////////////////
+
+wire wb_regwrite;
+wire wb_memtoreg;
+wire [31:0] wb_memout;
+wire [31:0] wb_alures;
+wire [31:0] wb_wdata;
+wire [4:0] wb_wreg;
+
+multiplexer wb_mux(
+	.select(wb_memtoreg),
+	.in_data({wb_alures, wb_memout}),
+	.out_data(wb_wdata)
+);
 
 endmodule
 

@@ -14,7 +14,8 @@
 module adder(
 	input wire [N-1:0] in_s,
 	input wire [N-1:0] in_t,
-	output reg [N-1:0] out = {N{1'b0}});
+	output reg [N-1:0] out = {N{1'b0}}
+);
 
 parameter N = 32;
 

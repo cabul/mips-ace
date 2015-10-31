@@ -14,7 +14,8 @@
 module comparator(
 	input wire [N-1:0] in_a,
 	input wire [N-1:0] in_b,
-	output reg equal);
+	output reg equal
+);
 
 parameter N = 32;
 
