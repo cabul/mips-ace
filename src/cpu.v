@@ -51,7 +51,7 @@ adder pc_adder (
 	.out(if_pc)
 );
 
-// Alternative?
+//FIXME Alternative?
 assign if_pc = pc_out + 4;
 
 // Instruction Decode

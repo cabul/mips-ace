@@ -11,7 +11,7 @@ parameter
     FN_NOR = 6'b100111,
     FN_SLT = 6'b101010;
 
-// OPCODES
+// Opcodes
 parameter 
     OP_AND = 4'b0000,
     OP_OR  = 4'b0001,
