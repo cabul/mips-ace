@@ -148,8 +148,8 @@ wire [31:0] ex_imm;
 wire [4:0] dst_rt;
 wire [4:0] dst_rd;
 wire [4:0] ex_wreg;
-wire ex_zero;
-wire ex_overflow;
+wire ex_aluz;
+wire ex_aluovf;
 wire [31:0] ex_alures;
 wire [31:0] data_t;
 wire [31:0] ex_pc_branch;
@@ -173,8 +173,8 @@ alu alu(
 	.s(ex_data_rs),
 	.t(data_t),
 	.shamt(ex_imm[10:6]),
-	.zero(ex_zero),
-	.overflow(ex_overflow),
+	.zero(ex_aluz),
+	.overflow(ex_aluovf),
 	.out(ex_alures)
 );
 
@@ -189,10 +189,10 @@ flipflop #(.N(108)) ex_mem (
 	.reset(reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        	ex_isbranch, ex_pc_branch, ex_overflow, ex_zero,
+        	ex_isbranch, ex_pc_branch, ex_aluovf, ex_aluz,
         	ex_alures, ex_data_rt, ex_wreg}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
-        	mem_isbranch, mem_pc_branch, mem_overflow, mem_zero,
+        	mem_isbranch, mem_pc_branch, mem_aluovf, mem_aluz,
         	mem_alures, mem_data_rt, mem_wreg})
 );
 
@@ -209,15 +209,15 @@ wire mem_memtoreg;
 wire mem_memread;
 wire mem_memwrite;
 wire mem_isbranch;
-wire mem_zero;
-wire mem_overflow;
+wire mem_aluz;
+wire mem_aluovf;
 wire [31:0] mem_alures;
 wire [31:0] mem_data_rt;
 wire [31:0] mem_memout;
 wire [4:0] mem_wreg;
 wire pc_src;
 
-assign pc_src = mem_isbranch & mem_zero;
+assign pc_src = mem_isbranch & mem_aluz;
 
 memory #(.DATA(DATA)) dmem (
 	.clk(clk),
