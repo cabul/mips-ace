@@ -30,9 +30,9 @@ case $1 in
 		echo -e "\`define _$1" >> $file
 		echo -e "" >> $file
 		echo -e "//TODO Module $1" >> $file
-		echo -e "///" >> $file
-		echo -e "/// $1" >> $file
-		echo -e "///" >> $file
+		echo -e "//" >> $file
+		echo -e "// $1" >> $file
+		echo -e "//" >> $file
 		echo -e "module $1;" >> $file
 		echo -e "endmodule" >> $file
 		echo -e "" >> $file
