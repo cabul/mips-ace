@@ -224,8 +224,8 @@ memory #(.DATA(DATA)) dmem (
 	.addr(mem_alures),
 	.data(mem_memout)
 	// TODO mem_data_rt port
-    	// TODO mem_memread port
-    	// TODO mem_memwrite port
+    // TODO mem_memread port
+    // TODO mem_memwrite port
 );
 
 flipflop #(.N(71)) mem_wb (
