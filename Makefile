@@ -7,7 +7,7 @@ todos:
 		|| utils/log info Nothing to do
 
 todo\:%:
-	@test `find . -name $(patsubst todo:%,%.v,$@)` \
+	@test `sed -e 's/\./\//g' $(patsubst todo:%find . -wholename $(patsubst todo:%,%.v,$@)` \
 		|| { utils/log error "$(patsubst todo:%,%.v,$@) not found"; exit 1; }
 	@grep --color -e TODO -e FIXME -n -H -s \
 		`utils/list-deps $(patsubst todo:%,%.v,$@)` \
@@ -16,7 +16,7 @@ todo\:%:
 build\:%:
 	@test `find . -name $(patsubst build:%,%.v,$@)` \
 		|| { utils/log error "$(patsubst build:%,%.v,$@) not found"; exit 1; }
-	@utils/log info Building $(patsubst build:%,%,$@)
+	@utils/log info "Building $(patsubst build:%,%,$@) `[ -z "$(CFLAGS)" ] || echo "[$(CFLAGS)]"`"
 	@mkdir -p build
 	@iverilog -o $(patsubst build:%,build/%,$@) $(CFLAGS) -Isrc -Itest \
 		`utils/list-deps $(patsubst build:%,%.v,$@)`
