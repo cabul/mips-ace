@@ -1,0 +1,55 @@
+#!/bin/bash
+
+usage() {
+	echo 'usage: ace <command> [<args>]'
+	echo
+	echo 'The following commands are available:'
+	echo '   todo     List todos and fixmes in source files'
+	echo '   check    Check if module compiles correctly'
+	echo '   test     Compile and run testbench'
+	echo '   create   Create boilerplate testbench or module'
+	echo '   clean    Remove all intermediate files'
+	echo '   run      Run assembly or memory'
+	echo '   asm      Convert assembly to hex'
+	echo
+	echo 'To learn more about the options for the'
+	echo 'different commands try ace help <command>'
+	exit 1
+}
+
+details() {
+	case $1 in
+		todo)
+			echo 'usage: ace todo [-a] [<file>]'
+			;;
+		check)
+			;;
+		test)
+			;;
+		create)
+			;;
+		clean)
+			;;
+		run)
+			;;
+		asm)
+			;;
+		*)
+			;;
+	esac
+	exit 1
+}
+
+[[ $# -gt 0 ]] || usage
+
+cmd=$1
+shift
+
+case $cmd in
+	help)
+		[[ $# -gt 0 ]] || usage
+		details $1
+		;;
+	*)
+		usage
+esac
