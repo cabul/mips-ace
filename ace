@@ -1,5 +1,10 @@
 #!/bin/bash
 
+die() {
+	echo "$@" >&2
+	exit 1
+}
+
 usage() {
 	echo 'usage: ace <command> [<args>]'
 	echo
@@ -27,11 +32,12 @@ details() {
 			echo 'List all TODO and FIXME tokens in source files (.v).'
 			;;
 		check)
-			echo 'usage: ace check [-A] [-q] [<file>]'
+			echo 'usage: ace check [-A] [<file>]'
 			echo
 			echo '   -A   Check all files'
 			echo
-			echo 'Tries to compile source file (.v).'
+			echo 'Tries to compile source file (.v). This is useful for'
+			echo 'syntax checking'
 			;;
 		test)
 			echo 'usage: ace test [-g] [-t <trace>] [<testbench>]'
@@ -79,16 +85,51 @@ details() {
 	exit 1
 }
 
+clean() {
+	rm -rf build/
+}
+
+check() {
+	ARG_ALL=0
+	ARG_FILE=''
+	TEMP=`getopt -o A -- "$@"` 
+	eval set -- "$TEMP"
+	while true ; do
+		case "$1" in
+			-A) ARG_ALL=1 ; shift ; break ;;
+			--) shift ; break ;;
+			*) die "Unrecognized option" ;;
+		esac
+	done
+	if [[ $ARG_ALL -eq 1 ]] ; then
+		echo 'Check all'
+	else
+		[[ $# -gt 0 ]] || die 'No file specified'
+		for ARG in "$@" ; do
+			ARG=${ARG%.v}.v
+			echo "$ARG"
+			FILES=(`find . -type f -path "./*$ARG"`)
+			echo "${FILES[@]}"
+			[[ ${#FILES[@]} -gt 0 ]] || die 'No such file(s)'
+			#for FILE in ${FILES[@]} ; do
+			#	echo "- $FILE"
+			#done
+		done
+	fi
+}
+
 [[ $# -gt 0 ]] || usage
 
-cmd=$1
+CMD=$1
 shift
 
-case $cmd in
+case $CMD in
 	help)
 		[[ $# -gt 0 ]] || usage
 		details $1
 		;;
+	check) check "$@" ;;
+	clean) clean ;;
 	*)
 		usage
 esac
