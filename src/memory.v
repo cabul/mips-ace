@@ -19,8 +19,12 @@
 //TODO Add reset
 module memory(
 	input wire clk,
+	input wire reset,
 	input wire [31:0] addr,
-	output reg [31:0] data
+	input wire [31:0] wdata,
+	input wire memwrite,
+	input wire memread,
+	output reg [31:0] rdata = 0
 );
 
 parameter DATA = "mem_data.hex";
@@ -35,7 +39,10 @@ initial begin
 end
 
 always @(posedge clk) begin
-	data <= mem[addr[TAG_SIZE-1:2]][31:0];
+	if (memread) 
+		rdata <= mem[addr[TAG_SIZE-1:2]][31:0];
+	if (memwrite) 
+		mem[addr[TAG_SIZE-1:2]] <= wdata;
 end
 
 endmodule
