@@ -43,7 +43,7 @@ always @* begin
         `OP_NOR: out <= ~(s | t);
         `OP_SLT: out <= (s < t)? 32'd1 : 32'd0;
 		default:
-			$display("Warning: ALU received unknown alu_op signal.");
+			$display("Warning: ALU received unknown alu_op signal: %x", alu_op);
 	endcase
     
     zero     <= (out == 32'd0) ? 1'b1 : 1'b0;

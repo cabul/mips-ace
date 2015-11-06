@@ -14,9 +14,7 @@
 // clk - Clock signal
 // addr - Memory address
 // data - Data output
-//
-//TODO Allow writes
-//TODO Add reset
+//TODO Update doc
 module memory(
 	input wire clk,
 	input wire reset,

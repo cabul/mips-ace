@@ -21,14 +21,14 @@
 module control_unit(
 	input wire [5:0] opcode,
 	input wire [5:0] funct,
-	output reg regwrite,
-	output reg memtoreg,
-	output reg memread,
-	output reg memwrite,
-	output reg isbranch,
-	output reg regdst,
-	output reg [1:0] aluop,
-	output reg alusrc
+	output reg regwrite = 0,
+	output reg memtoreg = 0,
+	output reg memread = 0,
+	output reg memwrite = 0,
+	output reg isbranch = 0,
+	output reg regdst = 0,
+	output reg [1:0] aluop = 0,
+	output reg alusrc = 0
 	);
 
 always @*begin
@@ -44,8 +44,19 @@ always @*begin
 				aluop <= 2'b10; //Look for this opcode
 				alusrc <= 0;
 				end
+			6'h0: begin
+				regwrite <= 0;
+				regwrite <= 0;
+				memtoreg <= 0;
+				memread <= 0;
+				memwrite <= 0;
+				isbranch <= 0;
+				regdst <= 0;
+				aluop <= 2'b00; //Look for this opcode
+				alusrc <= 0;
+			end
 			default:
-				$display("Warning: Control Unit received unknown opcode signal");
+				$display("Warning: Control Unit received unknown funct signal");
 		endcase
 	end
 	else begin // I/J - Instruction Format
@@ -95,7 +106,7 @@ always @*begin
 				alusrc <= 0;
 				end
 			default:
-				$display("Warning: Control Unit received unknown function signal");
+				$display("Warning: Control Unit received unknown opcode signal");
 		endcase
 
 

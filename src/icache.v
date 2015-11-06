@@ -16,12 +16,12 @@ module icache(
 
 parameter BLOCKSIZE = 4; // 2^BLOCKSIZE Bytes
 parameter ASSOC = 2; // N-way associative
-parameter SETS = 4; // 2^SETS sets
+parameter SETS = 2; // 2^SETS sets
 
 wire[ASSOC-1:0] hits;
 
 wire[31-SETS-BLOCKSIZE:0] tag;
-wire[SETS-1:0] set;
+wire[SETS-1:0] set; // index
 wire[BLOCKSIZE-1:0] offset;
 
 assign offset = addr[BLOCKSIZE-1:0];
@@ -38,7 +38,7 @@ reg[2**(BLOCKSIZE+3)-1:0] block;
 // setdata[0][set] => tag
 
 multiplexer #(.N(32), .X(BLOCKSIZE-2)) mux(
-	.select(...),
+	.select(offset[BLOCKSIZE-1:2]),
 	.in_data(block),
 	.out_data(data)
 );
@@ -46,7 +46,7 @@ multiplexer #(.N(32), .X(BLOCKSIZE-2)) mux(
 genvar i;
 generate
 for(i=0; i < ASSOC; i = i+1) begin
-	assign hits[i] = (alltags[i][set] == tag) && valids[i][set];
+	assign hits[i] = (tags[i][set] == tag) && valids[i][set];
 
 	always @(posedge clk) begin
 		if (hits[i]) begin
@@ -58,7 +58,6 @@ endgenerate
 
 always @(posedge clk) begin
 	hit <= | hits;
-	data <= block
 end
 
 endmodule
