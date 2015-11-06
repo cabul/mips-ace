@@ -10,7 +10,7 @@
 `include "alucontrol.v"
 `include "multiplexer.v"
 `include "comparator.v"
-`include "control.v"
+`include "control_unit.v"
 
 /// Central Processing Unit
 module cpu(
@@ -86,7 +86,7 @@ reg id_ex_we = 1;
 
 assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 
-control control (
+control_unit control (
 	.op_code(id_instr[31:26]),
 	.funct(id_instr[5:0]),
 	.reg_dst(id_regdst),
