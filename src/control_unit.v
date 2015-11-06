@@ -41,7 +41,7 @@ always @*begin
 				id_memwrite <= 0;
 				id_isbranch <= 0;
 				id_regdst <= 1;
-				id_aluop <= 2'b00; //Look for this opcode
+				id_aluop <= 2'b10; //Look for this opcode
 				id_alusrc <= 0;
 				end
 			default:
