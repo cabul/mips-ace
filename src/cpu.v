@@ -89,14 +89,14 @@ assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 control_unit control (
 	.op_code(id_instr[31:26]),
 	.funct(id_instr[5:0]),
-	.reg_dst(id_regdst),
+	.regdst(id_regdst),
 	.isbranch(id_isbranch),
-	.mem_read(id_memread),
-	.mem_to_reg(id_memtoreg),
-	.alu_op(id_aluop),
-	.mem_write(id_memwrite),
-	.alu_src(id_alusrc),
-	.reg_write(id_regwrite)
+	.memread(id_memread),
+	.memtoreg(id_memtoreg),
+	.aluop(id_aluop),
+	.memwrite(id_memwrite),
+	.alusrc(id_alusrc),
+	.regwrite(id_regwrite)
 );
 
 regfile regfile(

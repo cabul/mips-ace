@@ -9,40 +9,40 @@
 /// Ports:
 /// opcode - Instruction opcode
 /// funct - Instruction function code
-/// id_regwrite - Control signal regwrite
-/// id_memtoreg - Control signal memtoreg
-/// id_memread- Control signal memread
-/// id_memwrite- Control signal memwrite
-/// id_isbranch- Control signal isbranch
-/// id_regdst- Control signal regdst
-/// id_aluop- Control signal aluop
-/// id_alusrc- Control signal alusrc
+/// regwrite - Control signal regwrite
+/// memtoreg - Control signal memtoreg
+/// memread- Control signal memread
+/// memwrite- Control signal memwrite
+/// isbranch- Control signal isbranch
+/// regdst- Control signal regdst
+/// aluop- Control signal aluop
+/// alusrc- Control signal alusrc
 ///
 module control_unit(
 	input wire [5:0] opcode,
 	input wire [5:0] funct,
-	output reg id_regwrite,
-	output reg id_memtoreg,
-	output reg id_memread,
-	output reg id_memwrite,
-	output reg id_isbranch,
-	output reg id_regdst,
-	output reg [1:0] id_aluop,
-	output reg id_alusrc
+	output reg regwrite,
+	output reg memtoreg,
+	output reg memread,
+	output reg memwrite,
+	output reg isbranch,
+	output reg regdst,
+	output reg [1:0] aluop,
+	output reg alusrc
 	);
 
 always @*begin
 	if(opcode == 0) begin //R - Instruction Format
 		case(funct)
 			6'h20:	begin
-				id_regwrite <= 1;
-				id_memtoreg <= 0;
-				id_memread <= 0;
-				id_memwrite <= 0;
-				id_isbranch <= 0;
-				id_regdst <= 1;
-				id_aluop <= 2'b10; //Look for this opcode
-				id_alusrc <= 0;
+				regwrite <= 1;
+				memtoreg <= 0;
+				memread <= 0;
+				memwrite <= 0;
+				isbranch <= 0;
+				regdst <= 1;
+				aluop <= 2'b10; //Look for this opcode
+				alusrc <= 0;
 				end
 			default:
 				$display("Warning: Control Unit received unknown opcode signal");
@@ -52,47 +52,47 @@ always @*begin
 		case(opcode)
 			//ADDI
 			6'h8: begin
-				id_regwrite <= 1;
-				id_memtoreg <= 0;
-				id_memread <= 0;
-				id_memwrite <= 0;
-				id_isbranch <= 0;
-				id_regdst <= 0;
-				id_aluop <= 2'b00; //Look for this opcode
-				id_alusrc <= 1;
+				regwrite <= 1;
+				memtoreg <= 0;
+				memread <= 0;
+				memwrite <= 0;
+				isbranch <= 0;
+				regdst <= 0;
+				aluop <= 2'b00; //Look for this opcode
+				alusrc <= 1;
 				end
 			//LW
 			6'h23:  begin
-				id_regwrite <= 1;
-				id_memtoreg <= 1;
-				id_memread <= 1;
-				id_memwrite <= 0;
-				id_isbranch <= 0;
-				id_regdst <= 0;
-				id_aluop <= 2'b00; //Look for this opcode
-				id_alusrc <= 1;
+				regwrite <= 1;
+				memtoreg <= 1;
+				memread <= 1;
+				memwrite <= 0;
+				isbranch <= 0;
+				regdst <= 0;
+				aluop <= 2'b00; //Look for this opcode
+				alusrc <= 1;
 				end
 			//SW
 			6'h2b:	begin
-				id_regwrite <= 0;
-				id_memtoreg <= 0; //This one does not matter
-				id_memread <= 0;
-				id_memwrite <= 1;
-				id_isbranch <= 0;
-				id_regdst <= 0; //This one does not matter
-				id_aluop <= 2'b00; //Look for this opcode
-				id_alusrc <= 1;
+				regwrite <= 0;
+				memtoreg <= 0; //This one does not matter
+				memread <= 0;
+				memwrite <= 1;
+				isbranch <= 0;
+				regdst <= 0; //This one does not matter
+				aluop <= 2'b00; //Look for this opcode
+				alusrc <= 1;
 				end
 			//BEQ
 			6'h4:	begin
-				id_regwrite <= 0;
-				id_memtoreg <= 0; //This one does not matter
-				id_memread <= 0;  //This one does not matter
-				id_memwrite <= 0;  //This one does not matter
-				id_isbranch <= 1;
-				id_regdst <= 0;  //This one does not matter
-				id_aluop <= 2'b00; //Look for this opcode
-				id_alusrc <= 0;
+				regwrite <= 0;
+				memtoreg <= 0; //This one does not matter
+				memread <= 0;  //This one does not matter
+				memwrite <= 0;  //This one does not matter
+				isbranch <= 1;
+				regdst <= 0;  //This one does not matter
+				aluop <= 2'b00; //Look for this opcode
+				alusrc <= 0;
 				end
 			default:
 				$display("Warning: Control Unit received unknown function signal");
