@@ -20,21 +20,60 @@ usage() {
 details() {
 	case $1 in
 		todo)
-			echo 'usage: ace todo [-a] [<file>]'
+			echo 'usage: ace todo [-A] [<file>]'
+			echo
+			echo '   -A   Gets all todos'
+			echo
+			echo 'List all TODO and FIXME tokens in source files (.v).'
 			;;
 		check)
+			echo 'usage: ace check [-A] [-q] [<file>]'
+			echo
+			echo '   -A   Check all files'
+			echo
+			echo 'Tries to compile source file (.v).'
 			;;
 		test)
+			echo 'usage: ace test [-g] [-t <trace>] [<testbench>]'
+			echo
+			echo '   -g   Graphical mode (GTKWave)'
+			echo '   -t   Writes trace to <trace>'
+			echo '        defaults to name of <testbench>'
+			echo
+			echo 'All testbenches are located in the test folder.'
 			;;
 		create)
+			echo 'usage: ace create [-t <testbench>] [-s <source>]'
+			echo
+			echo '   -s   Name for new module/source'
+			echo '   -t   Name for new testbench'
+			echo
+			echo 'All modules are located in the src folder. All'
+			echo 'testbenches in the test folder. Testbenches should'
+			echo 'end on _tb.'
 			;;
 		clean)
+			echo 'usage: ace clean'
 			;;
 		run)
+			echo 'usage: ace run [-s <source>] [-d <data>]'
+			echo '               [-t <trace>] [-g] [-o <output>]'
+			echo
+			echo '   -s   Input assembly source code'
+			echo '   -d   Input data file'
+			echo '   -t   Write trace to <trace>'
+			echo '   -g   Graphical mode (GTKWave)'
+			echo '   -o   Write output data to <output>'
+			echo
+			echo 'This command builds the cpu and runs a program against it.'
+			echo 'You can either use assembly source code or a hexadecimal'
+			echo 'file containing the memory input data'
 			;;
 		asm)
+			echo 'Not implemented yet'
 			;;
 		*)
+			echo "Unrecognized command $1"
 			;;
 	esac
 	exit 1
