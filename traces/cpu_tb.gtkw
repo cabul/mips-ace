@@ -1,0 +1,58 @@
+[*]
+[*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
+[*] Fri Nov  6 16:14:38 2015
+[*]
+[dumpfile] "/home/cabul/Miri/pa/mips/traces/cpu_tb.vcd"
+[dumpfile_mtime] "Fri Nov  6 16:03:29 2015"
+[dumpfile_size] 783504
+[savefile] "/home/cabul/Miri/pa/mips/traces/cpu_tb.gtkw"
+[timestart] 4
+[size] 1920 1025
+[pos] -1 -1
+*-3.000000 16 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] cpu_tb.
+[treeopen] cpu_tb.cpu.
+[sst_width] 197
+[signals_width] 243
+[sst_expanded] 1
+[sst_vpaned_height] 302
+@22
+cpu_tb.clk
+cpu_tb.reset
+@24
+[color] 7
+cpu_tb.cpu.pc_out[31:0]
+@200
+-Control
+@22
+cpu_tb.cpu.if_instr[31:0]
+cpu_tb.cpu.control.opcode[5:0]
+cpu_tb.cpu.control.funct[5:0]
+@28
+cpu_tb.cpu.control.regwrite
+cpu_tb.cpu.control.regdst
+cpu_tb.cpu.control.aluop[1:0]
+@29
+cpu_tb.cpu.control.alusrc
+@28
+cpu_tb.cpu.control.memread
+cpu_tb.cpu.control.memtoreg
+cpu_tb.cpu.control.memwrite
+cpu_tb.cpu.control.isbranch
+@200
+-Register File
+@24
+[color] 4
+cpu_tb.cpu.regfile.wreg[4:0]
+[color] 4
+cpu_tb.cpu.regfile.wdata[31:0]
+[color] 3
+cpu_tb.cpu.regfile.rreg1[4:0]
+[color] 3
+cpu_tb.cpu.regfile.rdata1[31:0]
+[color] 2
+cpu_tb.cpu.regfile.rreg2[4:0]
+[color] 2
+cpu_tb.cpu.regfile.rdata2[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

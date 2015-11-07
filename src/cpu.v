@@ -10,7 +10,7 @@
 `include "alucontrol.v"
 `include "multiplexer.v"
 `include "comparator.v"
-`include "control.v"
+`include "control_unit.v"
 
 /// Central Processing Unit
 module cpu(
@@ -49,8 +49,12 @@ flipflop #(.N(32)) pc (
 
 memory imem (
 	.clk(clk),
+	.reset(reset),
 	.addr(pc_out),
-	.data(if_instr)
+	.rdata(if_instr),
+	.wdata(0),
+	.memwrite(0),
+	.memread(1)
 );
 
 flipflop #(.N(64)) if_id (
@@ -84,17 +88,17 @@ reg id_ex_we = 1;
 
 assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 
-control control (
-	.op_code(id_instr[31:26]),
+control_unit control (
+	.opcode(id_instr[31:26]),
 	.funct(id_instr[5:0]),
-	.reg_dst(id_regdst),
+	.regdst(id_regdst),
 	.isbranch(id_isbranch),
-	.mem_read(id_memread),
-	.mem_to_reg(id_memtoreg),
-	.alu_op(id_aluop),
-	.mem_write(id_memwrite),
-	.alu_src(id_alusrc),
-	.reg_write(id_regwrite)
+	.memread(id_memread),
+	.memtoreg(id_memtoreg),
+	.aluop(id_aluop),
+	.memwrite(id_memwrite),
+	.alusrc(id_alusrc),
+	.regwrite(id_regwrite)
 );
 
 regfile regfile(
@@ -129,7 +133,7 @@ flipflop #(.N(147)) id_ex (
 //                    //
 ////////////////////////
 
-wire ex_mem_we;
+reg ex_mem_we = 1;
 wire ex_regwrite;
 wire ex_memtoreg;
 wire ex_memread;
@@ -201,7 +205,7 @@ flipflop #(.N(108)) ex_mem (
 ////////////////////////
 
 wire [31:0] mem_pc_branch;
-wire mem_wb_we;
+reg mem_wb_we = 1;
 wire mem_regwrite;
 wire mem_memtoreg;
 wire mem_memread;
@@ -219,11 +223,12 @@ assign pc_src = mem_isbranch & mem_aluz;
 
 memory dmem (
 	.clk(clk),
+	.reset(reset),
 	.addr(mem_alures),
-	.data(mem_memout)
-	// TODO mem_data_rt port
-    // TODO mem_memread port
-    // TODO mem_memwrite port
+	.rdata(mem_memout),
+	.wdata(mem_data_rt),
+	.memwrite(mem_memwrite),
+	.memread(mem_memread)
 );
 
 flipflop #(.N(71)) mem_wb (
@@ -251,7 +256,7 @@ wire [4:0] wb_wreg;
 
 multiplexer wb_mux(
 	.select(wb_memtoreg),
-	.in_data({wb_alures, wb_memout}),
+	.in_data({wb_memout, wb_alures}),
 	.out_data(wb_wdata)
 );
 

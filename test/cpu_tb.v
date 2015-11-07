@@ -1,4 +1,5 @@
 `include "cpu.v"
+`include "regfile.v"
 
 `ifndef TRACEFILE
 `define TRACEFILE "traces/cpu_tb.vcd"
@@ -17,8 +18,13 @@ always #5 clk = !clk;
 initial begin
 	$dumpfile(`TRACEFILE);
 	$dumpvars(0, cpu_tb);
+	reset <= 1;
+	# 10 reset <= 0;
 
-	#40 $finish;
+
+	# 10000 $finish;
+	//$dumpvars(0, cpu_tb);
+	//$dumpvars(0, regfile);
 end
 
 endmodule
