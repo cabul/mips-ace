@@ -15,11 +15,16 @@ case $1 in
 		[[ -f $FILE ]] && die "$FILE already exists"
 		mkdir -p "test/$DIRNAME"
 		echo -e "//TODO Testbench $1" >> $FILE
+		echo -e "" >> $FILE
+		echo -e "\`ifndef TRACEFILE" >> $FILE
+		echo -e "\`define TRACEFILE \"traces/`basename ${1}`.vcd\"" >> $FILE
+		echo -e "\`endif" >> $FILE
+		echo -e "" >> $FILE
 		echo -e "module $1;" >> $FILE
 		echo -e "" >> $FILE
 		echo -e "initial begin" >> $FILE
 		echo -e "\t// Generate Trace" >> $FILE
-		echo -e "\t\$dumpFILE(\"traces/${1}.vcd\");" >> $FILE
+		echo -e "\t\$dumpfile(\`TRACEFILE);" >> $FILE
 		echo -e "\t\$dumpvars(0, $1);" >> $FILE
 		echo -e "end" >> $FILE
 		echo -e "" >> $FILE

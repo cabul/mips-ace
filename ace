@@ -48,7 +48,7 @@ details() {
 			echo 'syntax checking'
 			;;
 		test)
-			echo 'usage: ace test [-g] [-t <trace>] [<testbench>]'
+			echo 'usage: ace test [-g] [-t <trace>] <testbench>'
 			echo
 			echo '   -g   Graphical mode (GTKWave)'
 			echo '   -t   Writes trace to <trace>'
@@ -57,10 +57,7 @@ details() {
 			echo 'All testbenches are located in the test folder.'
 			;;
 		create)
-			echo 'usage: ace create [-t <testbench>] [-s <source>]'
-			echo
-			echo '   -s   Name for new module/source'
-			echo '   -t   Name for new testbench'
+			echo 'usage: ace create <module>]'
 			echo
 			echo 'All modules are located in the src folder, all'
 			echo 'testbenches in the test folder. Testbenches should'
@@ -70,11 +67,8 @@ details() {
 			echo 'usage: ace clean'
 			;;
 		run)
-			echo 'usage: ace run [-s <source>] [-d <data>]'
-			echo '               [-t <trace>] [-g] [-o <output>]'
+			echo 'usage: ace run [-t <trace>] [-g] [-o <output>] <program>'
 			echo
-			echo '   -s   Input assembly source code'
-			echo '   -d   Input data file'
 			echo '   -t   Write trace to <trace>'
 			echo '   -g   Graphical mode (GTKWave)'
 			echo '   -o   Write output data to <output>'
@@ -188,19 +182,28 @@ todo() {
 	fi
 }
 
-create() {
-	TEMP=`getopt -o s:t: -- "$@"`
+testbench() {
+	TEMP=`getopt -o gt: -- "$@"`
+	ARG_GTK=0
 	eval set -- "$TEMP"
+	mkdir -p build
 	while true ; do
 		case "$1" in
-			-s) ARG_SOURCE=$2 ; shift 2 ;;
-			-t) ARG_TEST=$2 ; shift 2 ;;
+			-g) ARG_GTK=1 ; shift ;;
+			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
 		esac
 	done
-	[[ -z $ARG_SOURCE ]] || utils/boilerplate $ARG_SOURCE
-	[[ -z $ARG_TEST ]] || utils/boilerplate $ARG_TEST
+	[[ $# -gt 0 ]] || die "No testbench"
+	[[ -z $ARG_TRACE ]] && ARG_TRACE=traces/`basename "${1%.v}.vcd"`
+	FILE=${1%.v}.v
+	CFLAGS="$CFLAGS -DTRACEFILE=\"$ARG_TRACE\""
+	compile $FILE 2> build/tmp || die "Unable to build"
+	build/`basename ${1%.v}`
+	[[ $ARG_GTK -eq 1 ]] || exit 0
+	ps | grep -sq gtkwave && die "GTKWave already running"
+	gtkwave -A -f $ARG_TRACE >/dev/null 2>&1 &
 }
 
 [[ $# -gt 0 ]] || usage
@@ -215,7 +218,8 @@ case $CMD in
 		;;
 	check) check "$@" ;;
 	todo) todo "$@" ;;
-	create) create "$@" ;;
+	create) utils/boilerplate "${1%.v}" ;;
 	clean) clean ;;
+	test) testbench "$@" ;;
 	*) usage ;;
 esac
