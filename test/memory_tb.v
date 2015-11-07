@@ -1,5 +1,9 @@
 `include "memory.v"
 
+`ifndef TRACEFILE
+`define TRACEFILE "traces/memory_tb.vcd"
+`endif
+
 // Memory Testbench
 module memory_tb;
 
@@ -12,7 +16,7 @@ always #5 clk = !clk;
 imem #(.DATA("data/mem_data.hex")) im(.clk(clk), .addr(addr), .data(instr));
 
 initial begin
-	$dumpfile("traces/memory_tb.vcd");
+	$dumpfile(`TRACEFILE)
 	$dumpvars(0, memory_tb);
 	
 	#2 addr <= 'h4;

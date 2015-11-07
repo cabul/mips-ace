@@ -1,5 +1,9 @@
 `include "multiplexer.v"
 
+`ifndef TRACEFILE
+`define TRACEFILE "traces/multiplexer_tb.vcd"
+`endif
+
 // Testbench Multiplexer
 module multiplexer_tb;
 
@@ -16,7 +20,7 @@ multiplexer mux(
 
 initial begin
 	// Generate Trace
-	$dumpfile("traces/multiplexer_tb.vcd");
+	$dumpfile(`TRACEFILE);
 	$dumpvars(0, multiplexer_tb);
 
 	# 1

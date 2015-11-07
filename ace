@@ -67,11 +67,12 @@ details() {
 			echo 'usage: ace clean'
 			;;
 		run)
-			echo 'usage: ace run [-t <trace>] [-g] [-o <output>] <program>'
+			echo 'usage: ace run [-t <trace>] [-g] [-o <output>] [-m <main>] <program>'
 			echo
 			echo '   -t   Write trace to <trace>'
 			echo '   -g   Graphical mode (GTKWave)'
 			echo '   -o   Write output data to <output>'
+			echo '   -m   Main module (default: cpu_tb)'
 			echo
 			echo 'This command builds the cpu and runs a program against it.'
 			echo 'You can either use assembly source code or a hexadecimal'
@@ -182,6 +183,18 @@ todo() {
 	fi
 }
 
+runtest() {
+	[[ $# -gt 0 ]] || die "No testbench"
+	[[ -z $ARG_TRACE ]] && ARG_TRACE=traces/`basename "${1%.v}.vcd"`
+	FILE=${1%.v}.v
+	CFLAGS="$CFLAGS -DTRACEFILE=\"$ARG_TRACE\""
+	compile $FILE 2> build/tmp || die "Unable to build"
+	build/`basename ${1%.v}`
+	[[ $ARG_GTK -eq 1 ]] || exit 0
+	ps | grep -sq gtkwave && die "GTKWave already running"
+	gtkwave -A -f $ARG_TRACE >/dev/null 2>&1 &
+}
+
 testbench() {
 	TEMP=`getopt -o gt: -- "$@"`
 	ARG_GTK=0
@@ -195,15 +208,29 @@ testbench() {
 			*) die "Unrecognized option $1" ;;
 		esac
 	done
-	[[ $# -gt 0 ]] || die "No testbench"
-	[[ -z $ARG_TRACE ]] && ARG_TRACE=traces/`basename "${1%.v}.vcd"`
-	FILE=${1%.v}.v
-	CFLAGS="$CFLAGS -DTRACEFILE=\"$ARG_TRACE\""
-	compile $FILE 2> build/tmp || die "Unable to build"
-	build/`basename ${1%.v}`
-	[[ $ARG_GTK -eq 1 ]] || exit 0
-	ps | grep -sq gtkwave && die "GTKWave already running"
-	gtkwave -A -f $ARG_TRACE >/dev/null 2>&1 &
+	runtest "$1"
+}
+
+run() {
+	TEMP=`getopt -o gt:m:o: -- "$@"`
+	ARG_GTK=0
+	eval set -- "$TEMP"
+	mkdir -p build
+	while true ; do
+		case "$1" in
+			-g) ARG_GTK=1 ; shift ;;
+			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
+			-m) ARG_MAIN=${2%.v}.v ; shift 2 ;;
+			-o) ARG_OUTPUT=$2 ; shift 2 ;;
+			--) shift ; break ;;
+			*) die "Unrecognized option $1" ;;
+		esac
+	done
+	[[ $# -gt 0 ]] || die "No program"
+	[[ -z $ARG_MAIN ]] && ARG_MAIN="test/cpu_tb.v"
+	[[ -z $ARG_OUTPUT ]] || CFLAGS="$CFLAGS -DMEMDATA_OUT=\"$ARG_OUTPUT\""
+	CFLAGS="$CFLAGS -DMEMDATA_IN=\"$1\" -DMEMDATA_LEN=`wc -l $1`"
+	runtest "$ARG_MAIN"
 }
 
 [[ $# -gt 0 ]] || usage
@@ -221,5 +248,6 @@ case $CMD in
 	create) utils/boilerplate "${1%.v}" ;;
 	clean) clean ;;
 	test) testbench "$@" ;;
+	run) run "$@" ;;
 	*) usage ;;
 esac

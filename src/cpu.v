@@ -18,8 +18,6 @@ module cpu(
 	input wire reset
 );
 
-parameter DATA = "data/mem_data.hex";
-
 ////////////////////////
 //                    //
 // Instruction Fetch  //
@@ -49,7 +47,7 @@ flipflop #(.N(32)) pc (
 	.out(pc_out)
 );
 
-memory #(.DATA(DATA)) imem (
+memory imem (
 	.clk(clk),
 	.addr(pc_out),
 	.data(if_instr)
@@ -219,7 +217,7 @@ wire pc_src;
 
 assign pc_src = mem_isbranch & mem_aluz;
 
-memory #(.DATA(DATA)) dmem (
+memory dmem (
 	.clk(clk),
 	.addr(mem_alures),
 	.data(mem_memout)

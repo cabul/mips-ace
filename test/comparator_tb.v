@@ -1,5 +1,9 @@
 `include "comparator.v"
 
+`ifndef TRACEFILE
+`define TRACEFILE "traces/comperator_tb.vcd"
+`endif
+
 // Comparator Testbench
 module comparator_tb;
 
@@ -12,7 +16,7 @@ comparator comparator(
 
 initial begin
 	// Generate Trace
-	$dumpfile("traces/comparator_tb.vcd");
+	$dumpfile(`TRACEFILE);
 	$dumpvars(0, comparator_tb);
 	
 	# 1
