@@ -1,5 +1,11 @@
 #!/bin/bash
 
+NC='\033[0m'
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
+
 die() {
 	echo "$@" >&2
 	exit 1
@@ -25,16 +31,18 @@ usage() {
 details() {
 	case $1 in
 		todo)
-			echo 'usage: ace todo [-A] [<file>]'
+			echo 'usage: ace todo [-A] [-d] [-q] [<file>]'
 			echo
 			echo '   -A   Gets all todos'
+			echo '   -q   Quiet'
 			echo
 			echo 'List all TODO and FIXME tokens in source files (.v).'
 			;;
 		check)
-			echo 'usage: ace check [-A] [<file>]'
+			echo 'usage: ace check [-A] [-q] [<file>]'
 			echo
 			echo '   -A   Check all files'
+			echo '   -q   Quiet, no error messages'
 			echo
 			echo 'Tries to compile source file (.v). This is useful for'
 			echo 'syntax checking'
@@ -54,7 +62,7 @@ details() {
 			echo '   -s   Name for new module/source'
 			echo '   -t   Name for new testbench'
 			echo
-			echo 'All modules are located in the src folder. All'
+			echo 'All modules are located in the src folder, all'
 			echo 'testbenches in the test folder. Testbenches should'
 			echo 'end on _tb.'
 			;;
@@ -89,33 +97,110 @@ clean() {
 	rm -rf build/
 }
 
+# $1 -> file
+compile() {
+	FILE=$1
+	BUILD=`basename ${1%.v}`
+	iverilog -o build/$BUILD $CFLAGS -Isrc -Itest `utils/list-deps $FILE`
+}
+
+check_files() {
+	[[ $# -gt 0 ]] || return 1
+	for FILE in $@ ; do
+		if compile $FILE 2> build/tmp ; then
+			echo -e "[${GREEN}Ok${NC}]    $FILE"
+		else
+			echo -e "[${RED}Error${NC}] $FILE"
+			[[ $ARG_QUIET -eq 1 ]] || cat build/tmp
+		fi
+	done
+}
+
 check() {
 	ARG_ALL=0
-	ARG_FILE=''
-	TEMP=`getopt -o A -- "$@"` 
+	ARG_QUIET=0
+	TEMP=`getopt -o Aq -- "$@"` 
 	eval set -- "$TEMP"
+	mkdir -p build
 	while true ; do
 		case "$1" in
-			-A) ARG_ALL=1 ; shift ; break ;;
+			-A) ARG_ALL=1 ; shift ;;
+			-q) ARG_QUIET=1 ; shift ;;
 			--) shift ; break ;;
-			*) die "Unrecognized option" ;;
+			*) die "Unrecognized option $1" ;;
 		esac
 	done
 	if [[ $ARG_ALL -eq 1 ]] ; then
-		echo 'Check all'
+		FILES=(`find . -type f -name "*.v"`)
+		check_files ${FILES[@]}
 	else
-		[[ $# -gt 0 ]] || die 'No file specified'
+		[[ $# -gt 0 ]] || die "No files specified"
 		for ARG in "$@" ; do
-			ARG=${ARG%.v}.v
-			echo "$ARG"
-			FILES=(`find . -type f -path "./*$ARG"`)
-			echo "${FILES[@]}"
-			[[ ${#FILES[@]} -gt 0 ]] || die 'No such file(s)'
-			#for FILE in ${FILES[@]} ; do
-			#	echo "- $FILE"
-			#done
+			FILES=(`find . -type f -path "./*$ARG*" -name "*.v"`)
+			check_files ${FILES[@]} || echo -e "[${RED}Error${NC}] $ARG not found"
 		done
 	fi
+}
+
+list_todos() {
+	awk '/\/{2}\s*TODO\s*(.*)/ {
+		gsub(/[^/]*\/*\s*TODO\s*/, "");
+		print NR": "$0; f=1
+	} END { exit f }' $1 > build/tmp
+}
+
+
+todo_files() {
+	[[ $# -gt 0 ]] || return 1
+	for FILE in $@ ; do
+		if list_todos $FILE ; then
+			echo -e "[${GREEN}Ok${NC}]   $FILE"
+		else
+			echo -e "[${BLUE}Todo${NC}] $FILE"
+			[[ $ARG_QUIET -eq 1 ]] || cat build/tmp
+		fi
+	done
+}
+
+todo() {
+	ARG_ALL=0
+	ARG_QUIET=0
+	TEMP=`getopt -o Aq -- "$@"`
+	eval set -- "$TEMP"
+	mkdir -p build
+	while true ; do
+		case "$1" in
+			-A) ARG_ALL=1 ; shift ;;
+			-q) ARG_QUIET=1 ; shift ;;
+			--) shift ; break ;;
+			*) die "Unrecognized option $1" ;;
+		esac
+	done
+	if [[ $ARG_ALL -eq 1 ]] ; then
+		FILES=(`find . -type f -name "*.v"`)
+		todo_files ${FILES[@]}
+	else
+		[[ $# -gt 0 ]] || die "No files specified"
+		for ARG in "$@" ; do
+			FILES=(`find . -type f -path "./*$ARG*" -name "*.v"`)
+			todo_files ${FILES[@]} || echo -e "[${RED}Error${NC}] $ARG not found"
+		done
+	fi
+}
+
+create() {
+	TEMP=`getopt -o s:t: -- "$@"`
+	eval set -- "$TEMP"
+	while true ; do
+		case "$1" in
+			-s) ARG_SOURCE=$2 ; shift 2 ;;
+			-t) ARG_TEST=$2 ; shift 2 ;;
+			--) shift ; break ;;
+			*) die "Unrecognized option $1" ;;
+		esac
+	done
+	[[ -z $ARG_SOURCE ]] || utils/boilerplate $ARG_SOURCE
+	[[ -z $ARG_TEST ]] || utils/boilerplate $ARG_TEST
 }
 
 [[ $# -gt 0 ]] || usage
@@ -129,7 +214,8 @@ case $CMD in
 		details $1
 		;;
 	check) check "$@" ;;
+	todo) todo "$@" ;;
+	create) create "$@" ;;
 	clean) clean ;;
-	*)
-		usage
+	*) usage ;;
 esac

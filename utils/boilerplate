@@ -1,42 +1,46 @@
 #!/bin/bash
 
-[[ $# -gt 0 ]] || { utils/log error Fatal; exit 1; }
+[[ $# -gt 0 ]] || die "Not enough arguments"
 
 die() {
-	utils/log error $1
+	echo "$@" >&2
 	exit 1
 }
 
+DIRNAME=`dirname $1`
+
 case $1 in
 	*_tb)
-		file="test/${1}.v"
-		[[ -f $file ]] && die "$file already exists"
-		echo -e "//TODO Testbench $1" >> $file
-		echo -e "module $1;" >> $file
-		echo -e "" >> $file
-		echo -e "initial begin" >> $file
-		echo -e "\t// Generate Trace" >> $file
-		echo -e "\t\$dumpfile(\"traces/${1}.vcd\");" >> $file
-		echo -e "\t\$dumpvars(0, $1);" >> $file
-		echo -e "end" >> $file
-		echo -e "" >> $file
-		echo -e "endmodule" >> $file
-		utils/log info "Created $file"
+		FILE="test/${1}.v"
+		[[ -f $FILE ]] && die "$FILE already exists"
+		mkdir -p "test/$DIRNAME"
+		echo -e "//TODO Testbench $1" >> $FILE
+		echo -e "module $1;" >> $FILE
+		echo -e "" >> $FILE
+		echo -e "initial begin" >> $FILE
+		echo -e "\t// Generate Trace" >> $FILE
+		echo -e "\t\$dumpFILE(\"traces/${1}.vcd\");" >> $FILE
+		echo -e "\t\$dumpvars(0, $1);" >> $FILE
+		echo -e "end" >> $FILE
+		echo -e "" >> $FILE
+		echo -e "endmodule" >> $FILE
+		echo "Created $FILE"
 		;;
 	*)
-		file="src/${1}.v"
-		[[ -f $file ]] && die "$file already exists"
-		echo -e "\`ifndef _$1" >> $file
-		echo -e "\`define _$1" >> $file
-		echo -e "" >> $file
-		echo -e "//TODO Module $1" >> $file
-		echo -e "//" >> $file
-		echo -e "// $1" >> $file
-		echo -e "//" >> $file
-		echo -e "module $1;" >> $file
-		echo -e "endmodule" >> $file
-		echo -e "" >> $file
-		echo -e "\`endif" >> $file
-		utils/log info "Created $file"
+		FILE="src/${1}.v"
+		[[ -f $FILE ]] && die "$FILE already exists"
+		mkdir -p "src/$DIRNAME"
+		echo -e "\`ifndef _$1" >> $FILE
+		echo -e "\`define _$1" >> $FILE
+		echo -e "" >> $FILE
+		echo -e "//TODO Module $1" >> $FILE
+		echo -e "//" >> $FILE
+		echo -e "// $1" >> $FILE
+		echo -e "//" >> $FILE
+		echo -e "module $1;" >> $FILE
+		echo -e "endmodule" >> $FILE
+		echo -e "" >> $FILE
+		echo -e "\`endif" >> $FILE
+		echo "Created $FILE"
 		;;
 esac
