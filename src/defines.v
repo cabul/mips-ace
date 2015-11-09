@@ -27,4 +27,13 @@
 `define OP_XOR 4'b1010
 `define OP_NOR 4'b1100
 
+// Configuration
+`ifndef MEMDATA_IN
+`define MEMDATA_IN "data/default"
+`endif
+
+`ifndef MEMDATA_LEN
+`define MEMDATA_LEN 16
+`endif
+
 `endif

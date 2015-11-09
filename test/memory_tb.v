@@ -8,12 +8,13 @@
 module memory_tb;
 
 reg clk = 0;
+reg reset = 0;
 reg [31:0] addr = 32'b0;
-wire [31:0] instr;
+wire [31:0] rdata;
 
 always #5 clk = !clk;
 
-imem #(.DATA("data/mem_data.hex")) im(.clk(clk), .addr(addr), .data(instr));
+memory mem(.clk(clk), .addr(addr), .data(instr));
 
 initial begin
 	$dumpfile(`TRACEFILE)

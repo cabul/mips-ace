@@ -1,6 +1,8 @@
 `ifndef _memory
 `define _memory
 
+`include "defines.v"
+
 //
 // Main Memory
 // 
@@ -25,22 +27,21 @@ module memory(
 	output reg [31:0] rdata = 0
 );
 
-parameter DATA = "mem_data.hex";
-parameter MEM_SIZE = 64; // 16 instructions
-parameter TAG_SIZE = 6;
-// Two least significant bits are ignored
+parameter MEMDATA_IN = `MEMDATA_IN;
+//parameter MEMDATA_OUT = `MEMDATA_OUT
+parameter MEMDATA_LEN = `MEMDATA_LEN;
 
-reg [31:0] mem [0:MEM_SIZE/4-1];
+reg [31:0] mem [0:MEMDATA_LEN-1];
 
 initial begin
-	$readmemh(DATA, mem);
+	$readmemh(MEMDATA_IN, mem);
 end
 
 always @(posedge clk) begin
 	if (memread) 
-		rdata <= mem[addr[TAG_SIZE-1:2]][31:0];
+		rdata <= mem[addr[$clog2(MEMDATA_LEN)-1:2]][31:0];
 	if (memwrite) 
-		mem[addr[TAG_SIZE-1:2]] <= wdata;
+		mem[addr[$clog2(MEMDATA_LEN)-1:2]] <= wdata;
 end
 
 endmodule
