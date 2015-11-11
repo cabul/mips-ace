@@ -1,9 +1,5 @@
 `include "flipflop.v"
 
-`ifndef TRACEFILE
-`define TRACEFILE "traces/pipeline_tb.vcd"
-`endif
-
 // Pipeline Testbench
 module pipeline_tb;
 
@@ -21,8 +17,10 @@ flipflop #(.N(4)) fflop_BC(.clk(clk), .reset(reset), .we(we), .in(data_B), .out(
 always #5 clk = !clk;
 
 initial begin
+	`ifdef TRACEFILE
 	$dumpfile(`TRACEFILE);
 	$dumpvars(0, pipeline_tb);
+	`endif
 
 	$display("A\tB\tC");
 	$display("-\t-\t-");

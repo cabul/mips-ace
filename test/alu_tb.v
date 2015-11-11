@@ -1,9 +1,5 @@
 `include "alu.v"
 
-`ifndef TRACEFILE
-`define TRACEFILE "traces/alu_tb.vcd"
-`endif
-
 // ALU Testbench
 module alu_tb;
 
@@ -19,8 +15,10 @@ alu alu(
 	.out(out));
 
 initial begin
+	`ifdef TRACEFILE
 	$dumpfile(`TRACEFILE);
 	$dumpvars(0, alu_tb);
+	`endif
 
 	$monitor("%d + %d = %d", alu.in_s, alu.in_t, out);
 end

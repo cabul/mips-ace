@@ -50,11 +50,11 @@ details() {
 		test)
 			echo 'usage: ace test [-g] [-t <trace>] <testbench>'
 			echo
-			echo '   -g   Graphical mode (GTKWave)'
 			echo '   -t   Writes trace to <trace>'
-			echo '        defaults to name of <testbench>'
+			echo '   -g   Graphical mode (GTKWave)'
 			echo
 			echo 'All testbenches are located in the test folder.'
+			echo 'GTKWave needs a valid trace file'
 			;;
 		create)
 			echo 'usage: ace create <module>]'
@@ -69,10 +69,11 @@ details() {
 		run)
 			echo 'usage: ace run [-t <trace>] [-g] [-o <output>] [-m <main>] <program>'
 			echo
-			echo '   -t   Write trace to <trace>'
+			echo '   -t   Name for tracefile'
 			echo '   -g   Graphical mode (GTKWave)'
-			echo '   -o   Write output data to <output>'
+			echo '   -d   Location for memory dump'
 			echo '   -m   Main module (default: cpu_tb)'
+			echo '   -x   Exit after x seconds (default: 100000)'
 			echo
 			echo 'This command builds the cpu and runs a program against it.'
 			echo 'You can either use assembly source code or a hexadecimal'
@@ -131,7 +132,8 @@ check() {
 	else
 		[[ $# -gt 0 ]] || die "No files specified"
 		for ARG in "$@" ; do
-			FILES=(`find . -type f -path "./*$ARG*" -name "*.v"`)
+			ARG=${ARG%.v}.v
+			FILES=(`find . -type f -path "./*${ARG}"`)
 			check_files ${FILES[@]} || echo -e "[${RED}Error${NC}] $ARG not found"
 		done
 	fi
@@ -140,7 +142,7 @@ check() {
 list_todos() {
 	awk '/\/{2}\s*TODO\s*(.*)/ {
 		gsub(/[^/]*\/*\s*TODO\s*/, "");
-		print NR": "$0; f=1
+		print $0; f=1
 	} END { exit f }' $1 > build/tmp
 }
 
@@ -177,7 +179,8 @@ todo() {
 	else
 		[[ $# -gt 0 ]] || die "No files specified"
 		for ARG in "$@" ; do
-			FILES=(`find . -type f -path "./*$ARG*" -name "*.v"`)
+			ARG=${ARG%.v}.v
+			FILES=(`find . -type f -path "./*${ARG}"`)
 			todo_files ${FILES[@]} || echo -e "[${RED}Error${NC}] $ARG not found"
 		done
 	fi
@@ -185,9 +188,8 @@ todo() {
 
 runtest() {
 	[[ $# -gt 0 ]] || die "No testbench"
-	[[ -z $ARG_TRACE ]] && ARG_TRACE=traces/`basename "${1%.v}.vcd"`
+	[[ -z $ARG_TRACE ]] || CFLAGS="$CFLAGS -DTRACEFILE=\"$ARG_TRACE\""
 	FILE=${1%.v}.v
-	CFLAGS="$CFLAGS -DTRACEFILE=\"$ARG_TRACE\""
 	compile $FILE 2> build/tmp || die "Unable to build"
 	build/`basename ${1%.v}`
 	[[ $ARG_GTK -eq 1 ]] || exit 0
@@ -212,8 +214,9 @@ testbench() {
 }
 
 run() {
-	TEMP=`getopt -o gt:m:o: -- "$@"`
+	TEMP=`getopt -o gx:t:m:d: -- "$@"`
 	ARG_GTK=0
+	ARG_MAIN="test/cpu_tb.v"
 	eval set -- "$TEMP"
 	mkdir -p build
 	while true ; do
@@ -227,9 +230,8 @@ run() {
 		esac
 	done
 	[[ $# -gt 0 ]] || die "No program"
-	[[ -z $ARG_MAIN ]] && ARG_MAIN="test/cpu_tb.v"
-	[[ -z $ARG_OUTPUT ]] || CFLAGS="$CFLAGS -DMEMDATA_OUT=\"$ARG_OUTPUT\""
-	CFLAGS="$CFLAGS -DMEMDATA_IN=\"$1\" -DMEMDATA_LEN=`wc -l $1`"
+	[[ -z $ARG_OUTPUT ]] || CFLAGS="$CFLAGS -DMEMDUMP=\"$ARG_OUTPUT\""
+	CFLAGS="$CFLAGS -DMEMDATA=\"$1\" -DMEMSIZE=`wc -l $1`"
 	runtest "$ARG_MAIN"
 }
 

@@ -1,9 +1,5 @@
 `include "regfile.v"
 
-`ifndef TRACEFILE
-`define TRACEFILE "traces/regfile_tb.vcd"
-`endif
-
 // Register File Testbench
 module regfile_tb;
 
@@ -19,8 +15,10 @@ regfile file(.reset(reset), .clk(clk), .regwrite(regwrite), .rreg1(rreg1), .rreg
 always #5 clk = !clk;
 
 initial begin
+	`ifdef TRACEFILE
 	$dumpfile(`TRACEFILE);
 	$dumpvars(0, regfile_tb);
+	`endif
 	
 	# 2 reset <= 1;
 

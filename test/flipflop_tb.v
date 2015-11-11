@@ -1,9 +1,5 @@
 `include "flipflop.v"
 
-`ifndef TRACEFILE
-`define TRACEFILE "traces/flipflop_tb.vcd"
-`endif
-
 // Flip Flop Testbench
 module flipflop_tb;
 
@@ -19,8 +15,10 @@ fflop #(.N(8)) ff1(.clk(clk), .reset(reset), .we(we), .in(in), .out(out));
 always #5 clk = !clk;
 
 initial begin
+	`ifdef TRACEFILE
 	$dumpfile(`TRACEFILE)
 	$dumpvars(0, flipflop_tb);
+	`endif
 
 	$display("in\tout\twe\tclear\tclk");
 	$display("--\t---\t--\t-----\t---");

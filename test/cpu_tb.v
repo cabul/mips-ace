@@ -1,9 +1,5 @@
 `include "cpu.v"
 
-`ifndef TRACEFILE
-`define TRACEFILE "traces/cpu_tb.vcd"
-`endif
-
 // Simple CPU
 module cpu_tb;
 
@@ -15,8 +11,11 @@ cpu cpu(.clk(clk), .reset(reset));
 always #5 clk = !clk;
 
 initial begin
+	`ifdef TRACEFILE
 	$dumpfile(`TRACEFILE);
 	$dumpvars(0, cpu_tb);
+	`endif
+
 	reset <= 1;
 	# 10 reset <= 0;
 

@@ -20,9 +20,10 @@ icache icache(
 always #5 clk = !clk;
 
 initial begin
-	// Generate Trace
-	$dumpfile("traces/icache_tb.vcd");
+	`ifdef TRACEFILE
+	$dumpfile(`TRACEFILE);
 	$dumpvars(0, icache_tb);
+	`endif
 
 	# 10 addr <= 32'h00400040;
 	# 10 addr <= 32'h0030e042;

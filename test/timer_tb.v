@@ -1,9 +1,5 @@
 `include "timer.v"
 
-`ifndef TRACEFILE
-`define TRACEFILE "traces/timer_tb.vcd"
-`endif
-
 // Timer Testbench
 module timer_tb;
 
@@ -18,8 +14,10 @@ timer timer(
 always # 5 clk = !clk;
 
 initial begin
+	`ifdef TRACEFILE
 	$dumpfile(`TRACEFILE);
 	$dumpvars(0, timer_tb);
+	`endif
 
 	$monitor("%d", signal);
 	# 200 $finish;

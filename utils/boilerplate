@@ -16,16 +16,14 @@ case $1 in
 		mkdir -p "test/$DIRNAME"
 		echo -e "//TODO Testbench $1" >> $FILE
 		echo -e "" >> $FILE
-		echo -e "\`ifndef TRACEFILE" >> $FILE
-		echo -e "\`define TRACEFILE \"traces/`basename ${1}`.vcd\"" >> $FILE
-		echo -e "\`endif" >> $FILE
 		echo -e "" >> $FILE
 		echo -e "module $1;" >> $FILE
 		echo -e "" >> $FILE
 		echo -e "initial begin" >> $FILE
-		echo -e "\t// Generate Trace" >> $FILE
+		echo -e "\t\`ifdef TRACEFILE" >> $FILE
 		echo -e "\t\$dumpfile(\`TRACEFILE);" >> $FILE
 		echo -e "\t\$dumpvars(0, $1);" >> $FILE
+		echo -e "\t\`endif" >> $FILE
 		echo -e "end" >> $FILE
 		echo -e "" >> $FILE
 		echo -e "endmodule" >> $FILE
