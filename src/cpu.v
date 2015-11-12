@@ -50,7 +50,7 @@ flipflop #(.N(32)) pc (
 memory imem (
 	.clk(clk),
 	.reset(reset),
-	.addr(pc_out),
+	.address(pc_out),
 	.rdata(if_instr),
 	.wdata(0),
 	.memwrite(0),
@@ -224,7 +224,7 @@ assign pc_src = mem_isbranch & mem_aluz;
 memory dmem (
 	.clk(clk),
 	.reset(reset),
-	.addr(mem_alures),
+	.address(mem_alures),
 	.rdata(mem_memout),
 	.wdata(mem_data_rt),
 	.memwrite(mem_memwrite),

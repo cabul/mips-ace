@@ -8,7 +8,7 @@ echo 'Setup done'
 return 0
 }
 
-cd $ROOTDIR
+[[ -z $ROOTDIR ]] || cd $ROOTDIR
 
 NC='\033[0m'
 RED='\033[31m'
@@ -249,7 +249,7 @@ run() {
 		esac
 	done
 	[[ $# -gt 0 ]] || die "No program"
-	utils/memformat $1 > build/memory.hex 2> build/memory.log || {
+	utils/memformat $1 > build/memory.dat 2> build/memory.log || {
 		[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
 		die "Bad memory"
 	}
