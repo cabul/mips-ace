@@ -12,7 +12,7 @@
 `include "comparator.v"
 `include "control_unit.v"
 
-/// Central Processing Unit
+// Central Processing Unit
 module cpu(
 	input wire clk,
 	input wire reset
@@ -56,6 +56,7 @@ flipflop #(.N(32)) pc (
 	.out(pc_out)
 );
 
+//TODO Update memory
 memory #(.DATA(DATA)) imem (
 	.clk(clk),
 	.reset(reset),
