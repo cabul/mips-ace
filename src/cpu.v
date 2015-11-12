@@ -36,13 +36,13 @@ reg if_id_we = 1;
 
 assign if_pc_next = pc_out + 4;
 
-multiplexer pc_mux_1(
-	.select(pc_src),
+multiplexer pc_bmux(
+	.select(pc_take_branch),
 	.in_data({mem_pc_branch, if_pc_next}),
 	.out_data(pc_interm)
 );
 
-multiplexer pc_mux_2(
+multiplexer pc_jmux(
 	.select(mem_isjump),
 	.in_data({ex_pc_jump, pc_interm}),
 	.out_data(pc_in)
@@ -235,9 +235,9 @@ wire [31:0] mem_data_rt;
 wire [31:0] mem_memout;
 wire [31:0] mem_pc_jump;
 wire [4:0] mem_wreg;
-wire pc_src;
+wire pc_take_branch;
 
-assign pc_src = mem_isbranch & mem_aluz;
+assign pc_take_branch = mem_isbranch & mem_aluz;
 
 memory #(.DATA(DATA)) dmem (
 	.clk(clk),
