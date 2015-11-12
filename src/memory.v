@@ -3,31 +3,60 @@
 
 `include "defines.v"
 
+`define MEMORY_LINE (WIDTH*8)-1:0
+`define MEMORY_DB $clog2(DEPTH)
+`define MEMORY_WB $clog2(WIDTH)
+
 //TODO Update doc
 module memory(
 	input wire clk,
 	input wire reset,
 	input wire [31:0] addr,
-	input wire [31:0] wdata,
+	input wire [`MEMORY_LINE] wdata,
 	input wire memwrite,
 	input wire memread,
-	output reg [31:0] rdata = 0
+	output reg [`MEMORY_LINE] rdata = 0
 );
 
-parameter MEMDATA_IN = "data/default";
-parameter MEMDATA_LEN = 16;
+///////////////////////////////
+//                           //
+//           WIDTH           //
+//        +---------->       //
+//        | ........         //
+//        | ........         //
+//  DEPTH | ........         //
+//        | ........         //
+//        | ........         //
+//        v                  //
+//                           //  
+// SIZE = DEPTH * WIDTH      //
+//                           //
+// DEPTH BITS = log2(DEPTH)  //
+// WIDTH BITS = log2(WIDTH)  //
+//                           //
+// USED BITS = DB + WB       //
+//                           //
+///////////////////////////////
 
-reg [31:0] mem [0:MEMDATA_LEN-1];
+parameter WIDTH = 4;      // Bytes per line
+parameter DEPTH = 'h1000; // Number of lines
+parameter DATA  = "build/memory.hex"; // Careful with this
 
-initial begin
-	$readmemh(MEMDATA_IN, mem);
-end
+wire [`MEMORY_DB-1:0] index;
+assign index = addr[`MEMORY_DB+`MEMORY_WB-1:`MEMORY_WB];
 
+reg [`MEMORY_LINE] mem [0:DEPTH-1];
+
+//TODO Address out of bounds
 always @(posedge clk) begin
+	if (reset) begin
+		$readmemh(DATA, mem);
+	end
+	// Always operate on a memory line
 	if (memread) 
-		rdata <= mem[addr[$clog2(MEMDATA_LEN)-1:2]][31:0];
-	if (memwrite) 
-		mem[addr[$clog2(MEMDATA_LEN)-1:2]] <= wdata;
+		rdata <= mem[index][`MEMORY_LINE];
+	if (memwrite)
+		mem[index] <= wdata;
 end
 
 endmodule

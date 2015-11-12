@@ -58,10 +58,11 @@ details() {
 			echo 'syntax checking'
 			;;
 		test)
-			echo 'usage: ace test [-g] [-t <trace>] <testbench>'
+			echo 'usage: ace test [-v] [-g] [-t <trace>] <testbench>'
 			echo
 			echo '   -t   Writes trace to <trace>'
 			echo '   -g   Graphical mode (GTKWave)'
+			echo '   -v   Verbose mode'
 			echo
 			echo 'All testbenches are located in the test folder.'
 			echo 'GTKWave needs a valid trace file'
@@ -81,9 +82,8 @@ details() {
 			echo
 			echo '   -t   Name for tracefile'
 			echo '   -g   Graphical mode (GTKWave)'
-			echo '   -d   Location for memory dump'
 			echo '   -m   Main module (default: cpu_tb)'
-			echo '   -x   Exit after x seconds (default: 100000)'
+			echo '   -v   Verbose mode'
 			echo
 			echo 'This command builds the cpu and runs a program against it.'
 			echo 'You can either use assembly source code or a hexadecimal'
@@ -199,7 +199,10 @@ todo() {
 runtest() {
 	[[ -z $ARG_TRACE ]] || CFLAGS="$CFLAGS -DTRACEFILE=\"$ARG_TRACE\""
 	FILE=${1%.v}.v
-	compile $FILE 2> build/compile.log || die "Unable to build"
+	compile $FILE 2> build/compile.log || {
+		[[ $ARG_VERBOSE -eq 1 ]] && cat build/compile.log
+		die "Unable to build"
+	}
 	build/run.vvp
 	[[ $ARG_GTK -eq 1 ]] && [[ -z $ARG_TRACE ]] && die 'Option -g ignored'
 	[[ $ARG_GTK -eq 1 ]] || exit 0
@@ -208,14 +211,16 @@ runtest() {
 }
 
 testbench() {
-	TEMP=`getopt -o gt: -- "$@"`
+	TEMP=`getopt -o vgt: -- "$@"`
 	ARG_GTK=0
+	ARG_VERBOSE=0
 	ARG_TRACE=
 	eval set -- "$TEMP"
 	mkdir -p build
 	while true ; do
 		case "$1" in
 			-g) ARG_GTK=1 ; shift ;;
+			-v) ARG_VERBOSE=1 ; shift ;;
 			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
@@ -226,26 +231,28 @@ testbench() {
 }
 
 run() {
-	TEMP=`getopt -o gx:t:m:d: -- "$@"`
+	TEMP=`getopt -o vgt:m:d: -- "$@"`
 	ARG_GTK=0
+	ARG_VERBOSE=0
 	ARG_MAIN="test/cpu_tb.v"
 	ARG_TRACE=
-	ARG_OUTPUT=
 	eval set -- "$TEMP"
 	mkdir -p build
 	while true ; do
 		case "$1" in
 			-g) ARG_GTK=1 ; shift ;;
+			-v) ARG_VERBOSE=1 ; shift ;;
 			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
 			-m) ARG_MAIN=${2%.v}.v ; shift 2 ;;
-			-o) ARG_OUTPUT=$2 ; shift 2 ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
 		esac
 	done
 	[[ $# -gt 0 ]] || die "No program"
-	[[ -z $ARG_OUTPUT ]] || CFLAGS="$CFLAGS -DMEMDUMP=\"$ARG_OUTPUT\""
-	CFLAGS="$CFLAGS -DMEMDATA=\"$1\" -DMEMSIZE=`wc -l $1`"
+	utils/memformat $1 > build/memory.hex 2> build/memory.log || {
+		[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
+		die "Bad memory"
+	}
 	runtest "$ARG_MAIN"
 }
 
