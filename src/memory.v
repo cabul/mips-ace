@@ -3,19 +3,6 @@
 
 `include "defines.v"
 
-//
-// Main Memory
-// 
-// Description:
-//
-// A basic memory implementation.
-// On startup loads data from file.
-// Currently does not allow to write data.
-// 
-// Ports:
-// clk - Clock signal
-// addr - Memory address
-// data - Data output
 //TODO Update doc
 module memory(
 	input wire clk,
@@ -27,9 +14,8 @@ module memory(
 	output reg [31:0] rdata = 0
 );
 
-parameter MEMDATA_IN = `MEMDATA_IN;
-//parameter MEMDATA_OUT = `MEMDATA_OUT
-parameter MEMDATA_LEN = `MEMDATA_LEN;
+parameter MEMDATA_IN = "data/default";
+parameter MEMDATA_LEN = 16;
 
 reg [31:0] mem [0:MEMDATA_LEN-1];
 

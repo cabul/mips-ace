@@ -1,4 +1,5 @@
 `include "memory.v"
+`include "defines.v"
 
 // Memory Testbench
 module memory_tb;
@@ -10,11 +11,19 @@ wire [31:0] rdata;
 
 always #5 clk = !clk;
 
-memory mem(.clk(clk), .addr(addr), .data(instr));
+memory mem(
+	.clk(clk),
+	.reset(reset),
+	.addr(addr),
+	.rdata(rdata),
+	.wdata(32'b0),
+	.memwrite(0),
+	.memread(1)
+);
 
 initial begin
 	`ifdef TRACEFILE
-	$dumpfile(`TRACEFILE)
+	$dumpfile(`TRACEFILE);
 	$dumpvars(0, memory_tb);
 	`endif
 	

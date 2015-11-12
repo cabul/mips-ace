@@ -1,0 +1,67 @@
+$date
+	Wed Nov 11 23:32:46 2015
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module memory_tb $end
+$var wire 32 ! rdata [31:0] $end
+$var reg 32 " addr [31:0] $end
+$var reg 1 # clk $end
+$var reg 1 $ reset $end
+$scope module mem $end
+$var wire 32 % addr [31:0] $end
+$var wire 1 & clk $end
+$var wire 1 ' memread $end
+$var wire 1 ( memwrite $end
+$var wire 1 ) reset $end
+$var wire 32 * wdata [31:0] $end
+$var reg 32 + rdata [31:0] $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+b0 +
+b0 *
+0)
+0(
+1'
+0&
+b0 %
+0$
+0#
+b0 "
+b0 !
+$end
+#2
+b100 "
+b100 %
+#5
+1#
+1&
+#10
+0#
+0&
+#12
+b1000 "
+b1000 %
+#15
+1#
+1&
+#20
+0#
+0&
+#22
+b1100 "
+b1100 %
+#25
+1#
+1&
+#30
+0#
+0&
+#32
