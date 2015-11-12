@@ -43,7 +43,7 @@ multiplexer pc_mux_1(
 );
 
 multiplexer pc_mux_2(
-	.select(mem_jump),
+	.select(mem_isjump),
 	.in_data({ex_pc_jump, pc_interm}),
 	.out_data(pc_in)
 );
@@ -91,7 +91,7 @@ wire id_memwrite;
 wire id_isbranch;
 wire [1:0] id_aluop;
 wire id_alusrc;
-wire id_jump;
+wire id_isjump;
 wire [31:0] id_imm;
 wire [31:0] id_pc_jump;
 wire [31:0] id_data_rs;
@@ -112,7 +112,7 @@ control_unit control (
 	.memwrite(id_memwrite),
 	.alusrc(id_alusrc),
 	.regwrite(id_regwrite),
-	.jump(id_jump)
+	.jump(id_isjump)
 );
 
 regfile regfile(
@@ -132,11 +132,11 @@ flipflop #(.N(180)) id_ex (
 	.reset(reset),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
-        	id_isbranch, id_regdst, id_aluop, id_alusrc, id_jump,
+        	id_isbranch, id_regdst, id_aluop, id_alusrc, id_isjump,
         	id_pc_next, id_data_rs, id_data_rt, id_imm, id_pc_jump,
         	id_instr[20:16], id_instr[15:11]}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        	ex_isbranch, ex_regdst, ex_aluop, ex_alusrc, ex_jump,
+        	ex_isbranch, ex_regdst, ex_aluop, ex_alusrc, ex_isjump,
         	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm, ex_pc_jump,
         	dst_rt, dst_rd})
 );
@@ -157,7 +157,7 @@ wire ex_regdst;
 wire [1:0] ex_aluop;
 wire [3:0] aluop;
 wire ex_alusrc;
-wire ex_jump;
+wire ex_isjump;
 wire [31:0] ex_pc_next;
 wire [31:0] ex_data_rs;
 wire [31:0] ex_data_rt;
@@ -207,10 +207,10 @@ flipflop #(.N(141)) ex_mem (
 	.reset(reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        	ex_isbranch, ex_jump, ex_pc_branch, ex_pc_jump, ex_aluovf, ex_aluz,
+        	ex_isbranch, ex_isjump, ex_pc_branch, ex_pc_jump, ex_aluovf, ex_aluz,
         	ex_alures, ex_data_rt, ex_wreg}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
-        	mem_isbranch, mem_jump, mem_pc_branch, mem_pc_jump, mem_aluovf, mem_aluz,
+        	mem_isbranch, mem_isjump, mem_pc_branch, mem_pc_jump, mem_aluovf, mem_aluz,
         	mem_alures, mem_data_rt, mem_wreg})
 );
 
@@ -227,7 +227,7 @@ wire mem_memtoreg;
 wire mem_memread;
 wire mem_memwrite;
 wire mem_isbranch;
-wire mem_jump;
+wire mem_isjump;
 wire mem_aluz;
 wire mem_aluovf;
 wire [31:0] mem_alures;
