@@ -31,10 +31,11 @@ module flipflop(
 );
 
 parameter N = 1;
+parameter INIT = {N{1'b0}};
 
 always @(posedge clk) begin
 	if (reset)
-		out <= {N{1'b0}};
+		out <= INIT;
 	else if (we)
 		out <= in;
 	else
