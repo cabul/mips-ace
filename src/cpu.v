@@ -29,15 +29,22 @@ parameter DATA = "data/mem_data.hex";
 wire [31:0] if_pc_next;
 wire [31:0] if_instr;
 wire [31:0] pc_in;
+wire [31:0] pc_interm;
 wire [31:0] pc_out;
 reg pc_we = 1;
 reg if_id_we = 1;
 
 assign if_pc_next = pc_out + 4;
 
-multiplexer pc_mux(
+multiplexer pc_mux_1(
 	.select(pc_src),
 	.in_data({mem_pc_branch, if_pc_next}),
+	.out_data(pc_interm)
+);
+
+multiplexer pc_mux_2(
+	.select(mem_jump),
+	.in_data({ex_pc_jump, pc_interm}),
 	.out_data(pc_in)
 );
 
@@ -83,13 +90,16 @@ wire id_memwrite;
 wire id_isbranch;
 wire [1:0] id_aluop;
 wire id_alusrc;
+wire id_jump;
 wire [31:0] id_imm;
+wire [31:0] id_pc_jump;
 wire [31:0] id_data_rs;
 wire [31:0] id_data_rt;
 reg id_ex_we = 1;
 
 assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
-
+assign id_pc_jump = {id_pc_next[31:28], id_instr[25:0], 2'b00};
+ 
 control_unit control (
 	.opcode(id_instr[31:26]),
 	.funct(id_instr[5:0]),
@@ -100,7 +110,8 @@ control_unit control (
 	.aluop(id_aluop),
 	.memwrite(id_memwrite),
 	.alusrc(id_alusrc),
-	.regwrite(id_regwrite)
+	.regwrite(id_regwrite),
+	.jump(id_jump)
 );
 
 regfile regfile(
@@ -115,17 +126,17 @@ regfile regfile(
 	.wdata(wb_wdata)
 );
 
-flipflop #(.N(147)) id_ex (
+flipflop #(.N(180)) id_ex (
 	.clk(clk),
 	.reset(reset),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
-        	id_isbranch, id_regdst, id_aluop, id_alusrc, 
-        	id_pc_next, id_data_rs, id_data_rt, id_imm,
+        	id_isbranch, id_regdst, id_aluop, id_alusrc, id_jump,
+        	id_pc_next, id_data_rs, id_data_rt, id_imm, id_pc_jump,
         	id_instr[20:16], id_instr[15:11]}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        	ex_isbranch, ex_regdst, ex_aluop, ex_alusrc,
-        	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm,
+        	ex_isbranch, ex_regdst, ex_aluop, ex_alusrc, ex_jump,
+        	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm, ex_pc_jump,
         	dst_rt, dst_rd})
 );
 
@@ -145,10 +156,12 @@ wire ex_regdst;
 wire [1:0] ex_aluop;
 wire [3:0] aluop;
 wire ex_alusrc;
+wire ex_jump;
 wire [31:0] ex_pc_next;
 wire [31:0] ex_data_rs;
 wire [31:0] ex_data_rt;
 wire [31:0] ex_imm;
+wire [31:0] ex_pc_jump;
 wire [4:0] dst_rt;
 wire [4:0] dst_rd;
 wire [4:0] ex_wreg;
@@ -188,15 +201,15 @@ multiplexer #(.N(5)) dst_mux(
 	.out_data(ex_wreg)
 );
 
-flipflop #(.N(108)) ex_mem (
+flipflop #(.N(141)) ex_mem (
 	.clk(clk),
 	.reset(reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        	ex_isbranch, ex_pc_branch, ex_aluovf, ex_aluz,
+        	ex_isbranch, ex_jump, ex_pc_branch, ex_pc_jump, ex_aluovf, ex_aluz,
         	ex_alures, ex_data_rt, ex_wreg}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
-        	mem_isbranch, mem_pc_branch, mem_aluovf, mem_aluz,
+        	mem_isbranch, mem_jump, mem_pc_branch, mem_pc_jump, mem_aluovf, mem_aluz,
         	mem_alures, mem_data_rt, mem_wreg})
 );
 
@@ -213,11 +226,13 @@ wire mem_memtoreg;
 wire mem_memread;
 wire mem_memwrite;
 wire mem_isbranch;
+wire mem_jump;
 wire mem_aluz;
 wire mem_aluovf;
 wire [31:0] mem_alures;
 wire [31:0] mem_data_rt;
 wire [31:0] mem_memout;
+wire [31:0] mem_pc_jump;
 wire [4:0] mem_wreg;
 wire pc_src;
 
