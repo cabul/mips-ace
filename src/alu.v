@@ -32,16 +32,16 @@ parameter N = 32;
 
 always @* begin
 	case (alu_op)
-        `OP_SLL: out <= t << shamt;
-        `OP_SRL: out <= t >> shamt;
-        `OP_SRA: out <= t >>> shamt;
-        `OP_ADD: out <= s + t;
-        `OP_SUB: out <= s - t;
-        `OP_AND: out <= s & t;
-        `OP_OR:  out <= s | t;
-        `OP_XOR: out <= s ^ t;
-        `OP_NOR: out <= ~(s | t);
-        `OP_SLT: out <= (s < t)? 32'd1 : 32'd0;
+        `ALUOP_SLL: out <= t << shamt;
+        `ALUOP_SRL: out <= t >> shamt;
+        `ALUOP_SRA: out <= t >>> shamt;
+        `ALUOP_ADD: out <= s + t;
+        `ALUOP_SUB: out <= s - t;
+        `ALUOP_AND: out <= s & t;
+        `ALUOP_OR:  out <= s | t;
+        `ALUOP_XOR: out <= s ^ t;
+        `ALUOP_NOR: out <= ~(s | t);
+        `ALUOP_SLT: out <= (s < t)? 32'd1 : 32'd0;
 		default:
 			$display("Warning: ALU received unknown alu_op signal: %x", alu_op);
 	endcase

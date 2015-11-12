@@ -1,46 +1,72 @@
 `ifndef _memory
 `define _memory
 
-//
-// Main Memory
-// 
-// Description:
-//
-// A basic memory implementation.
-// On startup loads data from file.
-// Currently does not allow to write data.
-// 
-// Ports:
-// clk - Clock signal
-// addr - Memory address
-// data - Data output
+`include "defines.v"
+
+///////////////////////////////
+//                           //
+//           WIDTH           //
+//        +---------->       //
+//        | ........         //
+//        | ........         //
+//  DEPTH | ........         //
+//        | ........         //
+//        | ........         //
+//        v                  //
+//                           //
+///////////////////////////////
+
+`define MEMORY_LINE (2**(WIDTH+3)-1):0
+
 //TODO Update doc
 module memory(
 	input wire clk,
 	input wire reset,
-	input wire [31:0] addr,
-	input wire [31:0] wdata,
+	input wire [31:0] address,
+	input wire [`MEMORY_LINE] wdata,
 	input wire memwrite,
 	input wire memread,
-	output reg [31:0] rdata = 0
+	output reg [`MEMORY_LINE] rdata = 0
 );
 
-parameter DATA = "mem_data.hex";
-parameter MEM_SIZE = 64; // 16 instructions
-parameter TAG_SIZE = 6;
-// Two least significant bits are ignored
+parameter WIDTH = 4; // 2^WIDTH Bytes per line
+//TODO Real depth
+parameter DEPTH = 4; // 2^DEPTH Number of lines
+parameter DATA  = "build/memory.dat"; // Careful with this
 
-reg [31:0] mem [0:MEM_SIZE/4-1];
+wire [DEPTH-1:0] index;
+assign index = address[DEPTH+WIDTH-1:WIDTH];
 
+reg [`MEMORY_LINE] mem [0:2**DEPTH-1];
+
+`ifdef DEBUG_MEMORY
 initial begin
-	$readmemh(DATA, mem);
+	$display("[MEMORY] Load: %s", DATA);
+	$display("[MEMORY] Width: %d Bytes", 2**WIDTH);
+	$display("[MEMORY] Depth: %d Lines", 2**DEPTH);
+	$display("[MEMORY] Size: %d Bytes", 2**(WIDTH+DEPTH));
+end
+`endif
+
+always @* begin
+	if (memread && ! reset) begin
+		rdata <= mem[index];
+		`ifdef DEBUG_MEMORY
+		$display("[MEMORY] Read  @%x => %x", address, mem[index]);
+		`endif
+	end
 end
 
+//TODO Address out of bounds
+// Always operate on a memory line
 always @(posedge clk) begin
-	if (memread) 
-		rdata <= mem[addr[TAG_SIZE-1:2]][31:0];
-	if (memwrite) 
-		mem[addr[TAG_SIZE-1:2]] <= wdata;
+	if (reset) $readmemh(DATA, mem);
+	else if (memwrite) begin
+		mem[index] <= wdata;
+		`ifdef DEBUG_MEMORY
+		$display("[MEMORY] Write @%x <= %x", address, wdata);
+		`endif
+	end
 end
 
 endmodule

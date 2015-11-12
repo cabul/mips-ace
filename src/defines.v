@@ -16,15 +16,22 @@
 
 // ALU operations
 
-`define OP_AND 4'b0000
-`define OP_OR  4'b0001
-`define OP_ADD 4'b0010
-`define OP_SLL 4'b0100
-`define OP_SUB 4'b0110
-`define OP_SLT 4'b0111
-`define OP_SRL 4'b1000
-`define OP_SRA 4'b1001
-`define OP_XOR 4'b1010
-`define OP_NOR 4'b1100
+`define ALUOP_AND 4'b0000
+`define ALUOP_OR  4'b0001
+`define ALUOP_ADD 4'b0010
+`define ALUOP_SLL 4'b0100
+`define ALUOP_SUB 4'b0110
+`define ALUOP_SLT 4'b0111
+`define ALUOP_SRL 4'b1000
+`define ALUOP_SRA 4'b1001
+`define ALUOP_XOR 4'b1010
+`define ALUOP_NOR 4'b1100
+
+// Opcodes
+`define OP_ADDI 6'h8
+`define OP_LW   6'h23
+`define OP_SW   6'h2b
+`define OP_BEQ  6'h4
+`define OP_J    6'h2
 
 `endif

@@ -39,8 +39,6 @@ always @(posedge clk) begin
 		out <= INIT;
 	else if (we)
 		out <= in;
-	else
-		out <= out;
 end
 
 endmodule

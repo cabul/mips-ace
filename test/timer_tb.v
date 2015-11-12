@@ -14,8 +14,10 @@ timer timer(
 always # 5 clk = !clk;
 
 initial begin
-	$dumpfile("traces/timer_tb.vcd");
+	`ifdef TRACEFILE
+	$dumpfile(`TRACEFILE);
 	$dumpvars(0, timer_tb);
+	`endif
 
 	$monitor("%d", signal);
 	# 200 $finish;

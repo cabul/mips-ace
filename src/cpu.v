@@ -2,23 +2,18 @@
 `define _cpu
 
 `include "flipflop.v"
-`include "adder.v"
 `include "memory.v"
 `include "regfile.v"
-`include "signextender.v"
 `include "alu.v"
 `include "alucontrol.v"
 `include "multiplexer.v"
-`include "comparator.v"
-`include "control_unit.v"
+`include "control.v"
 
 // Central Processing Unit
 module cpu(
 	input wire clk,
 	input wire reset
 );
-
-parameter DATA = "data/mem_data.hex";
 
 ////////////////////////
 //                    //
@@ -56,11 +51,13 @@ flipflop #(.N(32)) pc (
 	.out(pc_out)
 );
 
-//TODO Update memory
-memory #(.DATA(DATA)) imem (
+memory #(
+	.WIDTH(2),
+	.DEPTH(3)
+) imem (
 	.clk(clk),
 	.reset(reset),
-	.addr(pc_out),
+	.address(pc_out),
 	.rdata(if_instr),
 	.wdata(0),
 	.memwrite(0),
@@ -101,7 +98,7 @@ reg id_ex_we = 1;
 assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 assign id_pc_jump = {id_pc_next[31:28], id_instr[25:0], 2'b00};
  
-control_unit control (
+control control (
 	.opcode(id_instr[31:26]),
 	.funct(id_instr[5:0]),
 	.regdst(id_regdst),
@@ -112,7 +109,7 @@ control_unit control (
 	.memwrite(id_memwrite),
 	.alusrc(id_alusrc),
 	.regwrite(id_regwrite),
-	.jump(id_isjump)
+	.isjump(id_isjump)
 );
 
 regfile regfile(
@@ -239,10 +236,14 @@ wire pc_take_branch;
 
 assign pc_take_branch = mem_isbranch & mem_aluz;
 
-memory #(.DATA(DATA)) dmem (
+
+memory #(
+	.WIDTH(2),
+	.DEPTH(3)
+) dmem (
 	.clk(clk),
 	.reset(reset),
-	.addr(mem_alures),
+	.address(mem_alures),
 	.rdata(mem_memout),
 	.wdata(mem_data_rt),
 	.memwrite(mem_memwrite),

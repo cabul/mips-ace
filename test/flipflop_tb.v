@@ -10,13 +10,15 @@ reg reset = 0;
 reg [7:0] in = {8'b0};
 wire [7:0] out;
 
-fflop #(.N(8)) ff1(.clk(clk), .reset(reset), .we(we), .in(in), .out(out));
+flipflop #(.N(8)) ff1(.clk(clk), .reset(reset), .we(we), .in(in), .out(out));
 
 always #5 clk = !clk;
 
 initial begin
-	$dumpfile("traces/flipflop_tb.vcd");
+	`ifdef TRACEFILE
+	$dumpfile(`TRACEFILE)
 	$dumpvars(0, flipflop_tb);
+	`endif
 
 	$display("in\tout\twe\tclear\tclk");
 	$display("--\t---\t--\t-----\t---");

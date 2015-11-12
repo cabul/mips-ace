@@ -3,7 +3,7 @@
 [[ $# -gt 0 ]] || die "Fatal"
 
 declare -a includes=()
-declare -a todo=("$1")
+declare -a todo=("`basename $1`")
 declare -a results=()
 
 contains() {
@@ -13,12 +13,12 @@ contains() {
 }
 
 die() {
-	utils/log error $1	
+	echo "$@" >&2	
 	exit 1
 }
 
 while [[ ${#todo[@]} -gt 0 ]]; do
-	file=$(find . -name ${todo[0]})
+	file=$(find . -name "${todo[0]}")
 	[[ -f $file ]] || die "${todo[0]} not found"
 	for i in $(grep -e "^\`include" $file | sed -n 's/`include "\(.*\)"/\1/p'); do
 		contains "$i" "${todo[@]}" || contains "$i" "${includes[@]}" || todo+=("$i")

@@ -1,0 +1,33 @@
+[*]
+[*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
+[*] Thu Nov 12 17:10:00 2015
+[*]
+[dumpfile] "/home/cabul/Miri/pa/mips/traces/jump.vcd"
+[dumpfile_mtime] "Thu Nov 12 17:08:54 2015"
+[dumpfile_size] 1095789
+[savefile] "/home/cabul/Miri/pa/mips/traces/jump.gtkw"
+[timestart] 0
+[size] 958 1024
+[pos] -1 -1
+*-4.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] cpu_tb.
+[treeopen] cpu_tb.cpu.
+[sst_width] 197
+[signals_width] 142
+[sst_expanded] 1
+[sst_vpaned_height] 302
+@28
+cpu_tb.cpu.clk
+cpu_tb.cpu.reset
+@22
+cpu_tb.cpu.pc_out[31:0]
+@23
+cpu_tb.cpu.pc_in[31:0]
+@28
+cpu_tb.cpu.mem_isjump
+cpu_tb.cpu.ex_isjump
+cpu_tb.cpu.id_isjump
+@22
+cpu_tb.cpu.if_instr[31:0]
+[pattern_trace] 1
+[pattern_trace] 0

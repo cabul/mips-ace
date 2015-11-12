@@ -15,9 +15,10 @@ multiplexer mux(
 	.select(1'b0));
 
 initial begin
-	// Generate Trace
-	$dumpfile("traces/multiplexer_tb.vcd");
+	`ifdef TRACEFILE
+	$dumpfile(`TRACEFILE);
 	$dumpvars(0, multiplexer_tb);
+	`endif
 
 	# 1
 	$display("%d <- c", c);

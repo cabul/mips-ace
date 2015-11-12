@@ -15,8 +15,10 @@ regfile file(.reset(reset), .clk(clk), .regwrite(regwrite), .rreg1(rreg1), .rreg
 always #5 clk = !clk;
 
 initial begin
-	$dumpfile("traces/regfile_tb.vcd");
+	`ifdef TRACEFILE
+	$dumpfile(`TRACEFILE);
 	$dumpvars(0, regfile_tb);
+	`endif
 	
 	# 2 reset <= 1;
 

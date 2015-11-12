@@ -1,0 +1,47 @@
+#!/bin/bash
+
+die() {
+	echo "$@" >&2
+	exit 1
+}
+
+[[ $# -gt 0 ]] || die "No arguments"
+[[ -f $1 ]] || die "Not a file"
+
+hex2dec() {
+	echo $((16#$1))
+}
+
+POSITION=0
+WORDS=0
+MEMSIZE=`hex2dec 20`
+WIDTH=1
+NUMLINE=1
+
+printword() {
+	printf "$1"
+	(( POSITION += 4 ))
+	(( WORDS += 1 ))
+	[[ $WORDS -lt $WIDTH ]] || { WORDS=0 ; echo ; }
+}
+
+while read LINE ; do
+	LINE=`echo "$LINE" | sed 's/\s\s*//g' | sed 's/;.*//g'`
+	[[ $LINE != '' ]] || { (( NUMLINE++ )) ; continue ; }
+	[[ `echo $LINE | grep -E '[a-fA-F0-9]{8}:[a-fA-F0-9]{8}'` == $LINE ]] \
+		|| die "Line $NUMLINE: Wrong format"
+	HADDRESS=`echo "$LINE" | cut -f1 -d:`
+	ADDRESS=`hex2dec $HADDRESS`
+	DATA=`echo "$LINE" | cut -f2 -d:`
+	[[ $ADDRESS -lt $MEMSIZE ]] || die "Line $NUMLINE: Address 0x$HADDRESS out of bounds"
+	[[ $ADDRESS -ge $POSITION ]] || die "Line $NUMLINE: Address 0x$HADDRESS out of order"
+	while [[ $POSITION -lt $ADDRESS ]] ; do
+		printword "00000000"
+	done
+	printword "$DATA"
+	(( NUMLINE++ ))
+done < $1
+
+while [[ $POSITION -lt $MEMSIZE ]] ; do
+	printword "00000000"
+done
