@@ -21,6 +21,7 @@
 //
 // Parameters:
 // N - Data size
+// INIT - Default value (set on reset)
 //
 module flipflop(
 	input wire clk,
