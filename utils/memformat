@@ -14,7 +14,7 @@ hex2dec() {
 
 POSITION=0
 WORDS=0
-MEMSIZE=`hex2dec 2000`
+MEMSIZE=`hex2dec 20`
 WIDTH=4
 LINENO=1
 
@@ -35,9 +35,9 @@ while read LINE ; do
 	DATA=`echo "$LINE" | cut -f2 -d:`
 	[[ $ADDRESS -lt $MEMSIZE ]] || die "Line $LINENO: Address 0x$HADDRESS out of bounds"
 	[[ $ADDRESS -ge $POSITION ]] || die "Line $LINENO: Address 0x$HADDRESS out of order"
-	while [[ $START -lt $ADDRESS ]] ; do
+	while [[ $POSITION -lt $ADDRESS ]] ; do
 		printword "00000000"
-		(( START += 4 ))
+		(( POSITION += 4 ))
 	done
 	printword "$DATA"
 	(( LINENO++ ))
