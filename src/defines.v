@@ -33,5 +33,13 @@
 `define OP_SW   6'h2b
 `define OP_BEQ  6'h4
 `define OP_J    6'h2
+`define OP_ANDI 6'hc
+`define OP_ORI	6'hd
+`define OP_SLTI	6'ha
+`define OP_BNE	6'h5
+`define OP_LB	6'h20
+`define OP_LUI	6'hf
+`define OP_SB	6'h28
+
 
 `endif
