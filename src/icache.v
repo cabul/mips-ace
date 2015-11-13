@@ -9,7 +9,7 @@
 module icache(
 	input wire clk,
 	input wire reset,
-	input wire[31:0] address,
+	input wire[31:0] addr,
 	output wire[31:0] data,
 	output reg hit = 0
 );
@@ -24,9 +24,9 @@ wire[31-SETS-BLOCKSIZE:0] tag;
 wire[SETS-1:0] set; // index
 wire[BLOCKSIZE-1:0] offset;
 
-assign offset = address[BLOCKSIZE-1:0];
-assign set = address[BLOCKSIZE+SETS-1:BLOCKSIZE];
-assign tag = address[31:BLOCKSIZE+SETS];
+assign offset = addr[BLOCKSIZE-1:0];
+assign set = addr[BLOCKSIZE+SETS-1:BLOCKSIZE];
+assign tag = addr[31:BLOCKSIZE+SETS];
 
 reg valids[ASSOC-1:0][SETS-1:0];
 reg[31-SETS-BLOCKSIZE:0] tags[ASSOC-1:0][SETS-1:0];

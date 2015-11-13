@@ -16,52 +16,51 @@
 //                           //
 ///////////////////////////////
 
-`define MEMORY_LINE (2**(WIDTH+3)-1):0
-
-//TODO Update doc
 module memory(
+	`ifdef DEBUG
+	output wire [WIDTH*DEPTH-1:0] dbg_mem,
+	`endif
 	input wire clk,
 	input wire reset,
-	input wire [31:0] address,
-	input wire [`MEMORY_LINE] wdata,
+	input wire [ADDR-1:0] addr,
+	input wire [WIDTH-1:0] wdata,
 	input wire memwrite,
 	input wire memread,
-	output reg [`MEMORY_LINE] rdata = 0
+	output reg [WIDTH-1:0] rdata = {WIDTH{1'b0}}
 );
 
-parameter WIDTH = 4; // 2^WIDTH Bytes per line
-//TODO Real depth
-parameter DEPTH = 4; // 2^DEPTH Number of lines
+parameter WIDTH = 128;
+parameter DEPTH = 4; 
+parameter ADDR = 32;
+localparam WB = $clog2(WIDTH); // Width bits
+localparam DB = $clog2(DEPTH); // Depth bits
+
 parameter DATA  = "build/memory.dat"; // Careful with this
 
-wire [DEPTH-1:0] index;
-assign index = address[DEPTH+WIDTH-1:WIDTH];
-
-reg [`MEMORY_LINE] mem [0:2**DEPTH-1];
-
 `ifdef DEBUG
-initial begin
-	$display("[MEMORY] Load: %s", DATA);
-	$display("[MEMORY] Width: %d Bytes", 2**WIDTH);
-	$display("[MEMORY] Depth: %d Lines", 2**DEPTH);
-	$display("[MEMORY] Size: %d Bytes", 2**(WIDTH+DEPTH));
+genvar j;
+generate
+for (j = 0; j < DEPTH; j = j + 1) begin
+	assign dbg_mem[WIDTH*j+WIDTH-1:WIDTH*j] = mem[DEPTH-1-j];
 end
+endgenerate
 `endif
 
+wire [DB-1:0] index;
+assign index = addr[DB+WB-1:WB];
+
+reg [WIDTH-1:0] mem [0:DEPTH-1];
+
 always @* begin
-	if (memread && ! reset) begin
+	if (memread && !reset) begin
 		rdata <= mem[index];
-		`DMSG(("[MEMORY] Read @%x => %x", address, mem[index]))
 	end
 end
 
-//TODO Address out of bounds
-// Always operate on a memory line
 always @(posedge clk) begin
 	if (reset) $readmemh(DATA, mem);
 	else if (memwrite) begin
 		mem[index] <= wdata;
-		`DMSG(("[MEMORY] Write @%x <= %x", address, wdata))
 	end
 end
 

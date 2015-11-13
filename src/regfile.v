@@ -28,7 +28,7 @@ reg [WIDTH-1:0] mem [DEPTH-1:0];
 genvar j;
 generate
 for (j = 0; j < DEPTH; j = j + 1) begin
-	assign dbg_mem[WIDTH*j+WIDTH-1:WIDTH*j] = mem[j];
+	assign dbg_mem[WIDTH*j+WIDTH-1:WIDTH*j] = mem[DEPTH-1-j];
 end
 endgenerate
 `endif

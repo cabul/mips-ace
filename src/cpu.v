@@ -57,7 +57,7 @@ memory #(
 ) imem (
 	.clk(clk),
 	.reset(reset),
-	.address(pc_out),
+	.addr(pc_out),
 	.rdata(if_instr),
 	.wdata(0),
 	.memwrite(0),
@@ -241,7 +241,7 @@ memory #(
 ) dmem (
 	.clk(clk),
 	.reset(reset),
-	.address(mem_alures),
+	.addr(mem_alures),
 	.rdata(mem_memout),
 	.wdata(mem_data_rt),
 	.memwrite(mem_memwrite),
