@@ -24,81 +24,60 @@
 // wreg - Write to this register
 // wdata - Write this data
 module regfile(
+	`ifdef DEBUG
+	output wire [WIDTH*DEPTH-1:0] dbg_mem,
+	`endif
 	input wire clk,
 	input wire reset,
-	input wire [4:0] rreg1, rreg2,
-	output reg [31:0] rdata1 = 32'b0,
-	output reg [31:0] rdata2 = 32'b0,
+	input wire [ADDR-1:0] rreg1, rreg2,
+	output reg [WIDTH-1:0] rdata1 = {WIDTH{1'b0}},
+	output reg [WIDTH-1:0] rdata2 = {WIDTH{1'b0}},
 	input wire regwrite,
-	input wire [4:0] wreg,
-	input wire [31:0] wdata
+	input wire [ADDR-1:0] wreg,
+	input wire [WIDTH:0] wdata
 );
 
-reg [31:0] mem [0:31];
+parameter WIDTH = 32;
+parameter DEPTH = 32;
+localparam ADDR = $clog2(WIDTH);
+integer i;
+
+reg [WIDTH-1:0] mem [DEPTH-1:0];
+
+`ifdef DEBUG
+genvar j;
+generate
+for (j = 0; j < DEPTH; j = j + 1) begin
+	assign dbg_mem[WIDTH*j+WIDTH-1:WIDTH*j] = mem[j];
+end
+endgenerate
+`endif
 
 always @* begin
-	if (rreg1 == 5'b0)
-		rdata1 <= 32'b0;
-	/* This enables bypass
-	else if(regwrite && wreg == rreg1)
-		rdata1 <= wdata;
-	*/
+	if (rreg1 == {ADDR{1'b0}})
+		rdata1 <= {WIDTH{1'b0}};
 	else begin
-		rdata1 <= mem[rreg1][31:0];
-		`DMSG(("[REGFILE] Read $%d => %x", rreg1, mem[rreg1][31:0]))
+		rdata1 <= mem[rreg1][WIDTH-1:0];
+		`DMSG(("[REGFILE] Read $%d => %x", rreg1, mem[rreg1][WIDTH-1:0]))
 	end
 end
 
 always @* begin
-	if (rreg2 == 5'b0)
-		rdata2 <= 32'b0;
-	/* This enables bypass
-	else if(regwrite && wreg == rreg2)
-		rdata2 <= wdata;
-	*/
+	if (rreg2 == {ADDR{1'b0}})
+		rdata2 <= {WIDTH{1'b0}};
 	else begin
-		rdata2 <= mem[rreg2][31:0];
-		`DMSG(("[REGFILE] Read $%d => %x", rreg2, mem[rreg2][31:0]))
+		rdata2 <= mem[rreg2][WIDTH-1:0];
+		`DMSG(("[REGFILE] Read $%d => %x", rreg2, mem[rreg2][WIDTH-1:0]))
 	end
 end
 
 always @(posedge clk) begin
 	if (reset) begin
-		//TODO Prettify
-		mem[0] <= 0;
-		mem[1] <= 0;
-		mem[2] <= 0;
-		mem[3] <= 0;
-		mem[4] <= 0;
-		mem[5] <= 0;
-		mem[6] <= 0;
-		mem[7] <= 0;
-		mem[8] <= 0;
-		mem[9] <= 0;
-		mem[10] <= 0;
-		mem[11] <= 0;
-		mem[12] <= 0;
-		mem[13] <= 0;
-		mem[14] <= 0;
-		mem[15] <= 0;
-		mem[16] <= 0;
-		mem[17] <= 0;
-		mem[18] <= 0;
-		mem[19] <= 0;
-		mem[20] <= 0;
-		mem[21] <= 0;
-		mem[22] <= 0;
-		mem[23] <= 0;
-		mem[24] <= 0;
-		mem[25] <= 0;
-		mem[26] <= 0;
-		mem[27] <= 0;
-		mem[28] <= 0;
-		mem[29] <= 0;
-		mem[30] <= 0;
-		mem[31] <= 0;
+		for (i = 0; i < DEPTH; i = i+1) begin
+			mem[i] <= {WIDTH{1'b0}};
+		end
 	end
-	else if (regwrite && wreg != 5'b0) begin
+	else if (regwrite && wreg != {ADDR{1'b0}}) begin
 		mem[wreg] <= wdata;
 		`DMSG(("[REGFILE] Write $%d <= %x", wreg, wdata))
 	end

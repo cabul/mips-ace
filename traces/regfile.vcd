@@ -1,0 +1,154 @@
+$date
+	Fri Nov 13 20:01:15 2015
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module regfile_tb $end
+$var wire 32 ! rdata1 [31:0] $end
+$var wire 32 " rdata2 [31:0] $end
+$var reg 1 # clk $end
+$var reg 1 $ regwrite $end
+$var reg 1 % reset $end
+$var reg 5 & rreg1 [4:0] $end
+$var reg 5 ' rreg2 [4:0] $end
+$var reg 32 ( wdata [31:0] $end
+$var reg 5 ) wreg [4:0] $end
+$scope module file $end
+$var wire 1 * clk $end
+$var wire 1024 + dbg_mem [1023:0] $end
+$var wire 1 , regwrite $end
+$var wire 1 - reset $end
+$var wire 5 . rreg1 [4:0] $end
+$var wire 5 / rreg2 [4:0] $end
+$var wire 33 0 wdata [32:0] $end
+$var wire 5 1 wreg [4:0] $end
+$var integer 32 2 i [31:0] $end
+$var reg 32 3 rdata1 [31:0] $end
+$var reg 32 4 rdata2 [31:0] $end
+$scope begin genblk1 $end
+$upscope $end
+$scope begin genblk01 $end
+$upscope $end
+$scope begin genblk001 $end
+$upscope $end
+$scope begin genblk0001 $end
+$upscope $end
+$scope begin genblk00001 $end
+$upscope $end
+$scope begin genblk000001 $end
+$upscope $end
+$scope begin genblk0000001 $end
+$upscope $end
+$scope begin genblk00000001 $end
+$upscope $end
+$scope begin genblk000000001 $end
+$upscope $end
+$scope begin genblk0000000001 $end
+$upscope $end
+$scope begin genblk00000000001 $end
+$upscope $end
+$scope begin genblk000000000001 $end
+$upscope $end
+$scope begin genblk0000000000001 $end
+$upscope $end
+$scope begin genblk00000000000001 $end
+$upscope $end
+$scope begin genblk000000000000001 $end
+$upscope $end
+$scope begin genblk0000000000000001 $end
+$upscope $end
+$scope begin genblk00000000000000001 $end
+$upscope $end
+$scope begin genblk000000000000000001 $end
+$upscope $end
+$scope begin genblk0000000000000000001 $end
+$upscope $end
+$scope begin genblk00000000000000000001 $end
+$upscope $end
+$scope begin genblk000000000000000000001 $end
+$upscope $end
+$scope begin genblk0000000000000000000001 $end
+$upscope $end
+$scope begin genblk00000000000000000000001 $end
+$upscope $end
+$scope begin genblk000000000000000000000001 $end
+$upscope $end
+$scope begin genblk0000000000000000000000001 $end
+$upscope $end
+$scope begin $gen1[25] $end
+$upscope $end
+$scope begin $gen1[26] $end
+$upscope $end
+$scope begin $gen1[27] $end
+$upscope $end
+$scope begin $gen1[28] $end
+$upscope $end
+$scope begin $gen1[29] $end
+$upscope $end
+$scope begin $gen1[30] $end
+$upscope $end
+$scope begin $gen1[31] $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+b0 4
+b0 3
+bx 2
+b0 1
+b0 0
+b0 /
+b0 .
+0-
+0,
+bz +
+0*
+b0 )
+b0 (
+b0 '
+b0 &
+0%
+0$
+0#
+b0 "
+b0 !
+$end
+#2
+1%
+1-
+#5
+b0 +
+b100000 2
+1#
+1*
+#10
+0#
+0*
+#12
+1$
+1,
+b1 )
+b1 1
+b1110 (
+b1110 0
+0%
+0-
+#13
+b1 &
+b1 .
+#15
+b1110 3
+b1110 !
+b111000000000000000000000000000000000 +
+1#
+1*
+#20
+0#
+0*
+#23
