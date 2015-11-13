@@ -1116,16 +1116,16 @@
      borderopacity="1.0"
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
-     inkscape:zoom="1"
-     inkscape:cx="346.69617"
-     inkscape:cy="308.96313"
+     inkscape:zoom="1.4142136"
+     inkscape:cx="537.75844"
+     inkscape:cy="431.4339"
      inkscape:document-units="px"
-     inkscape:current-layer="layer1"
+     inkscape:current-layer="layer3"
      showgrid="false"
      inkscape:window-width="1920"
-     inkscape:window-height="1025"
-     inkscape:window-x="0"
-     inkscape:window-y="30"
+     inkscape:window-height="1055"
+     inkscape:window-x="1920"
+     inkscape:window-y="0"
      inkscape:window-maximized="1"
      inkscape:snap-global="true"
      showguides="true"
@@ -2002,19 +2002,19 @@
        transform="translate(319.61312,174.43386)" />
     <path
        style="fill:none;stroke:#000000;stroke-width:1;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker5491-89)"
-       d="m 424.91806,285.23941 117.0279,0 0,81.3493 -50.3946,0 0,40.15223"
+       d="m 424.91806,297.23941 117.0279,0 0,69.3493 -50.3946,0 0,40.15223"
        id="path6022-6"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.99999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker5491-89)"
-       d="m 425.23602,272.2187 189.29606,0 0,233.22719 -114.28209,0 0,-15.51992"
+       d="m 425.23602,283.7187 189.29606,0 0,221.72719 -114.28209,0 0,-15.51992"
        id="path6022-6-6"
        inkscape:connector-curvature="0"
-       sodipodi:nodetypes="ccc" />
+       sodipodi:nodetypes="ccccc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.99999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker5491-89)"
-       d="m 425.35197,259.9253 202.79607,0 0,312.53509 -150.93234,0 0,-17.43799"
+       d="m 425.35197,270.4253 202.79607,0 0,302.03509 -150.93234,0 0,-17.43799"
        id="path6022-6-6-0"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
@@ -2202,7 +2202,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.99999976px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker5491);display:inline"
-       d="m 727.98857,327.79338 17.7357,0 0,-186.76418 -683.47785,0 -0.49444,89.78557"
+       d="m 727.98857,327.79338 17.7357,0 0,-186.76418 -639.47785,0 -0.49444,121.28557"
        id="path5606-9-5-7-3-9-5-6-7-6-9-4-4"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
@@ -2322,7 +2322,7 @@
        sodipodi:nodetypes="ccccccc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.99999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker5491-89);display:inline"
-       d="m 665.28176,352.38917 126.21889,0 0,-234.68501 -769.121365,0 0,136.09586 29.313848,0"
+       d="m 665.28176,352.38917 126.21889,0 0,-234.68501 -769.121365,0 0,162.59586 78.313845,0"
        id="path6022-6-6-0-1-3-6"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
@@ -2436,14 +2436,8 @@
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cc" />
     <path
-       sodipodi:nodetypes="cc"
-       inkscape:connector-curvature="0"
-       id="path3728"
-       d="m 425.71862,301.81502 214.539,0"
-       style="fill:none;stroke:#000000;stroke-width:0.99999994px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1;marker-end:url(#marker5491)" />
-    <path
        style="fill:none;stroke:#000000;stroke-width:0.99999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker5491-89);display:inline"
-       d="m 664.56096,302.86657 114.21889,0 0,-197.68501 -768.12136,0 0,175.59586 87.64317,0"
+       d="m 425.56096,253.36657 87.21889,0 0,-148.18501 -502.12136,0 0,148.09586 42.64317,0"
        id="path6022-6-6-0-1-3-6-8"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="cccccc" />
@@ -2492,7 +2486,7 @@
        sodipodi:nodetypes="cc" />
     <path
        style="fill:none;stroke:#000000;stroke-width:0.99999994;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-opacity:1;stroke-dasharray:none;marker-end:url(#marker5491-89);display:inline"
-       d="m 664.245,265.09575 107.14783,0 0,-136.52206 -665.05026,0 0,132.43291"
+       d="m 424.745,258.59575 107.14783,0 0,-130.02206 -470.05026,0 0,103.43291"
        id="path6022-6-6-0-1-3-6-8-0"
        inkscape:connector-curvature="0"
        sodipodi:nodetypes="ccccc" />
@@ -2603,14 +2597,14 @@
     <text
        xml:space="preserve"
        style="font-size:6.36625862px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;font-family:Sans"
-       x="92.737854"
-       y="295.8179"
+       x="47.737854"
+       y="269.52499"
        id="text5885"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5887"
-         x="92.737854"
-         y="295.8179">pc_jmux</tspan></text>
+         x="47.737854"
+         y="269.52499">pc_jmux</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:16.15663528px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;font-family:Sans"
@@ -3019,24 +3013,24 @@
     <text
        xml:space="preserve"
        style="font-size:6.2625103px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="435.17911"
-       y="291.93362"
+       x="432.17911"
+       y="293.43362"
        id="text5835-3-3-9-7"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5837-5-2-6-4"
-         x="435.17911"
-         y="291.93362">ex_alusrc</tspan></text>
+         x="432.17911"
+         y="293.43362">ex_alusrc</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:6.2625103px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="434.18561"
+       x="431.68561"
        y="279.48505"
        id="text5835-3-3-5"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5837-5-2-3"
-         x="434.18561"
+         x="431.68561"
          y="279.48505">ex_aluop[2]</tspan></text>
     <rect
        style="fill:#ffffff;fill-opacity:1;stroke:none"
@@ -3059,13 +3053,13 @@
     <text
        xml:space="preserve"
        style="font-size:6.2625103px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="434.87268"
+       x="433.37268"
        y="266.23505"
        id="text5835-3-3-9-1-9"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5837-5-2-6-5-9"
-         x="434.87268"
+         x="433.37268"
          y="266.23505">ex_regdst</tspan></text>
     <g
        transform="translate(74.195368,0.75069514)"
@@ -3522,14 +3516,14 @@
     <text
        xml:space="preserve"
        style="font-size:6.2625103px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="429.18274"
-       y="254.11003"
+       x="537.68274"
+       y="245.61005"
        id="text5835-3-3-9-1-7-2-0-2"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5837-5-2-6-5-3-06-8-6"
-         x="429.18274"
-         y="254.11003">ex_isjump</tspan></text>
+         x="537.68274"
+         y="245.61005">ex_isjump</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:5.3836503px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
@@ -3579,36 +3573,25 @@
     <text
        sodipodi:linespacing="125%"
        id="text3742"
-       y="308.23807"
-       x="430.43262"
+       y="181.73807"
+       x="459.43262"
        style="font-size:6.2625103px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
        xml:space="preserve"><tspan
-         y="308.23807"
-         x="430.43262"
+         y="181.73807"
+         x="459.43262"
          id="tspan3744"
          sodipodi:role="line">ex_pc_jump[32]</tspan></text>
     <text
        xml:space="preserve"
        style="font-size:6.36625862px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="43.443115"
-       y="267.62653"
+       x="91.943115"
+       y="294.62653"
        id="text5885-86"
        sodipodi:linespacing="125%"><tspan
          sodipodi:role="line"
          id="tspan5887-9"
-         x="43.443115"
-         y="267.62653">pc_bmux</tspan></text>
-    <text
-       xml:space="preserve"
-       style="font-size:6.2625103px;font-style:normal;font-weight:normal;line-height:125%;letter-spacing:0px;word-spacing:0px;fill:#ff0000;fill-opacity:1;stroke:none;display:inline;font-family:Sans"
-       x="673.48956"
-       y="261.23502"
-       id="text5835-3-3-9-1-7-0-2-8-6"
-       sodipodi:linespacing="125%"><tspan
-         sodipodi:role="line"
-         id="tspan5837-5-2-6-5-3-0-0-8-2"
-         x="673.48956"
-         y="261.23502">mem_isjump</tspan></text>
+         x="91.943115"
+         y="294.62653">pc_bmux</tspan></text>
     <g
        style="display:inline"
        id="g8210-3"
