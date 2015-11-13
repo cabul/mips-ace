@@ -25,8 +25,9 @@ always @* begin
                 `FN_XOR: aluop_out <= `ALUOP_XOR;
                 `FN_NOR: aluop_out <= `ALUOP_NOR;
                 `FN_SLT: aluop_out <= `ALUOP_SLT;
-                default:
-                    $display("[WARNING] ALU Control received unknown funct signal %x", funct);
+                //default:
+					// This warns on I and J type instructions
+                    //$display("[WARNING] ALU Control received unknown funct signal %x", funct);
             endcase
 		default:
 			$display("[WARNING] ALU Control received unknown aluop signal %x", aluop_in);

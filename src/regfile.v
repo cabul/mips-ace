@@ -4,9 +4,6 @@
 `include "defines.v"
 
 module regfile(
-	`ifdef DEBUG
-	output wire [WIDTH*DEPTH-1:0] dbg_mem,
-	`endif
 	input wire clk,
 	input wire reset,
 	input wire [ADDR-1:0] rreg1, rreg2,
@@ -24,7 +21,9 @@ integer i;
 
 reg [WIDTH-1:0] mem [DEPTH-1:0];
 
-`ifdef DEBUG
+// Unrolling for debug port
+`ifdef DEBUG_REGFILE
+wire [WIDTH*DEPTH-1:0] dbg_mem;
 genvar j;
 generate
 for (j = 0; j < DEPTH; j = j + 1) begin
@@ -36,31 +35,24 @@ endgenerate
 always @* begin
 	if (rreg1 == {ADDR{1'b0}})
 		rdata1 <= {WIDTH{1'b0}};
-	else begin
+	else
 		rdata1 <= mem[rreg1][WIDTH-1:0];
-		`DMSG(("[REGFILE] Read $%d => %x", rreg1, mem[rreg1][WIDTH-1:0]))
-	end
 end
 
 always @* begin
 	if (rreg2 == {ADDR{1'b0}})
 		rdata2 <= {WIDTH{1'b0}};
-	else begin
+	else
 		rdata2 <= mem[rreg2][WIDTH-1:0];
-		`DMSG(("[REGFILE] Read $%d => %x", rreg2, mem[rreg2][WIDTH-1:0]))
-	end
 end
 
 always @(posedge clk) begin
-	if (reset) begin
+	if (reset)
 		for (i = 0; i < DEPTH; i = i+1) begin
 			mem[i] <= {WIDTH{1'b0}};
 		end
-	end
-	else if (regwrite && wreg != {ADDR{1'b0}}) begin
+	else if (regwrite && wreg != {ADDR{1'b0}})
 		mem[wreg] <= wdata;
-		`DMSG(("[REGFILE] Write $%d <= %x", wreg, wdata))
-	end
 end
 
 endmodule

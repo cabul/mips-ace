@@ -52,8 +52,8 @@ flipflop #(.N(32)) pc (
 );
 
 memory #(
-	.WIDTH(2),
-	.DEPTH(3)
+	.WIDTH(32),
+	.DEPTH(8)
 ) imem (
 	.clk(clk),
 	.reset(reset),
@@ -236,8 +236,8 @@ assign pc_take_branch = mem_isbranch & mem_aluz;
 
 
 memory #(
-	.WIDTH(2),
-	.DEPTH(3)
+	.WIDTH(32),
+	.DEPTH(8)
 ) dmem (
 	.clk(clk),
 	.reset(reset),

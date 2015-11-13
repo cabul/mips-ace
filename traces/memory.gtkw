@@ -1,9 +1,9 @@
 [*]
 [*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
-[*] Fri Nov 13 19:36:19 2015
+[*] Fri Nov 13 20:19:32 2015
 [*]
 [dumpfile] "/home/cabul/Miri/pa/mips/traces/memory.vcd"
-[dumpfile_mtime] "Fri Nov 13 19:35:26 2015"
+[dumpfile_mtime] "Fri Nov 13 20:19:24 2015"
 [dumpfile_size] 1832
 [savefile] "/home/cabul/Miri/pa/mips/traces/memory.gtkw"
 [timestart] 0
@@ -12,12 +12,11 @@
 *-5.300395 28 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] memory_tb.
 [sst_width] 197
-[signals_width] 727
+[signals_width] 318
 [sst_expanded] 1
 [sst_vpaned_height] 313
-@23
-memory_tb.mem.dbg_mem[63:0]
 @22
+memory_tb.mem.dbg_mem[63:0]
 memory_tb.addr[31:0]
 @28
 memory_tb.reset

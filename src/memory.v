@@ -17,9 +17,6 @@
 ///////////////////////////////
 
 module memory(
-	`ifdef DEBUG
-	output wire [WIDTH*DEPTH-1:0] dbg_mem,
-	`endif
 	input wire clk,
 	input wire reset,
 	input wire [ADDR-1:0] addr,
@@ -32,22 +29,31 @@ module memory(
 parameter WIDTH = 128;
 parameter DEPTH = 4; 
 parameter ADDR = 32;
-localparam WB = $clog2(WIDTH); // Width bits
+localparam WB = $clog2(WIDTH) - 3; // Width bits (address in bytes)
 localparam DB = $clog2(DEPTH); // Depth bits
 
 parameter DATA  = "build/memory.dat"; // Careful with this
 
-`ifdef DEBUG
+// Unrolling for debug port
+`ifdef DEBUG_MEMORY
+wire [WIDTH*DEPTH-1:0] dbg_mem;
 genvar j;
 generate
 for (j = 0; j < DEPTH; j = j + 1) begin
 	assign dbg_mem[WIDTH*j+WIDTH-1:WIDTH*j] = mem[DEPTH-1-j];
 end
 endgenerate
+
+initial begin
+	$display("[MEMORY] Size: %d bytes", WIDTH * DEPTH / 8);
+	$display("[MEMORY] Width: %d bits", WIDTH);
+	$display("[MEMORY] Depth: %d lines", DEPTH);
+	$display("[MEMORY] Address: %d bits", ADDR);
+end
 `endif
 
 wire [DB-1:0] index;
-assign index = addr[DB+WB-1:WB];
+assign index = addr[DB+WB-1:WB]; // Get whole line
 
 reg [WIDTH-1:0] mem [0:DEPTH-1];
 

@@ -1,12 +1,12 @@
-`ifndef _icache
-`define _icache
+`ifndef _cache
+`define _cache
 
 `include "multiplexer.v"
 
-///////////////////////
-// Instruction Cache //
-///////////////////////
-module icache(
+///////////
+// Cache //
+//////////
+module cache(
 	input wire clk,
 	input wire reset,
 	input wire[31:0] addr,

@@ -1,0 +1,47 @@
+[*]
+[*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
+[*] Fri Nov 13 21:03:36 2015
+[*]
+[dumpfile] "/home/cabul/Miri/pa/mips/traces/verbose_adds.vcd"
+[dumpfile_mtime] "Fri Nov 13 21:03:30 2015"
+[dumpfile_size] 1245779
+[savefile] "/home/cabul/Miri/pa/mips/traces/verbose_adds.gtkw"
+[timestart] 0
+[size] 1920 1055
+[pos] -1 -1
+*-6.000000 90 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] cpu_tb.
+[treeopen] cpu_tb.cpu.
+[sst_width] 197
+[signals_width] 252
+[sst_expanded] 1
+[sst_vpaned_height] 313
+@29
+cpu_tb.cpu.clk
+@28
+cpu_tb.reset
+@200
+-IMEM
+@28
+cpu_tb.cpu.imem.index[2:0]
+@22
+cpu_tb.cpu.imem.addr[31:0]
+cpu_tb.cpu.imem.rdata[31:0]
+@200
+-REG
+@22
+cpu_tb.cpu.regfile.dbg_mem[1023:0]
+[color] 3
+cpu_tb.cpu.regfile.rreg1[4:0]
+[color] 3
+cpu_tb.cpu.regfile.rdata1[31:0]
+[color] 3
+cpu_tb.cpu.regfile.rreg2[4:0]
+[color] 3
+cpu_tb.cpu.regfile.rdata2[31:0]
+[color] 2
+cpu_tb.cpu.regfile.wreg[4:0]
+[color] 2
+cpu_tb.cpu.regfile.wdata[32:0]
+[pattern_trace] 1
+[pattern_trace] 0
