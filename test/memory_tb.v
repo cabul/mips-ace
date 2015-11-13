@@ -16,7 +16,7 @@ always #5 clk = !clk;
 
 memory #(
 	.DATA("test/memory_tb.dat"),
-	.WIDTH(64), .DEPTH(4)
+	.WIDTH(16), .DEPTH(4)
 ) mem(
 	.clk(clk),
 	.reset(reset),
