@@ -58,11 +58,12 @@ details() {
 			echo 'syntax checking'
 			;;
 		test)
-			echo 'usage: ace test [-v] [-g] [-t <trace>] <testbench>'
+			echo 'usage: ace test [-v] [-d] [-g] [-t <trace>] <testbench>'
 			echo
 			echo '   -t   Writes trace to <trace>'
 			echo '   -g   Graphical mode (GTKWave)'
 			echo '   -v   Verbose mode'
+			echo '   -d   Add DEBUG flag'
 			echo
 			echo 'All testbenches are located in the test folder.'
 			echo 'GTKWave needs a valid trace file'
@@ -78,12 +79,13 @@ details() {
 			echo 'usage: ace clean'
 			;;
 		run)
-			echo 'usage: ace run [-t <trace>] [-g] [-o <output>] [-m <main>] <program>'
+			echo 'usage: ace run [-t <trace>] [-d] [-v] [-g] [-m <main>] <program>'
 			echo
 			echo '   -t   Name for tracefile'
 			echo '   -g   Graphical mode (GTKWave)'
 			echo '   -m   Main module (default: cpu_tb)'
 			echo '   -v   Verbose mode'
+			echo '   -d   Add DEBUG flag'
 			echo
 			echo 'This command builds the cpu and runs a program against it.'
 			echo 'You can either use assembly source code or a hexadecimal'
@@ -198,6 +200,7 @@ todo() {
 
 runtest() {
 	[[ -z $ARG_TRACE ]] || CFLAGS="$CFLAGS -DTRACEFILE=\"$ARG_TRACE\""
+	[[ $ARG_DEBUG -eq 0 ]] || CFLAGS="$CFLAGS -DDEBUG"
 	FILE=${1%.v}.v
 	compile $FILE 2> build/compile.log || {
 		[[ $ARG_VERBOSE -eq 1 ]] && cat build/compile.log
@@ -211,14 +214,16 @@ runtest() {
 }
 
 testbench() {
-	TEMP=`getopt -o vgt: -- "$@"`
+	TEMP=`getopt -o dvgt: -- "$@"`
 	ARG_GTK=0
+	ARG_DEBUG=0
 	ARG_VERBOSE=0
 	ARG_TRACE=
 	eval set -- "$TEMP"
 	mkdir -p build
 	while true ; do
 		case "$1" in
+			-d) ARG_DEBUG=1 ; shift ;;
 			-g) ARG_GTK=1 ; shift ;;
 			-v) ARG_VERBOSE=1 ; shift ;;
 			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
@@ -231,8 +236,9 @@ testbench() {
 }
 
 run() {
-	TEMP=`getopt -o vgt:m:d: -- "$@"`
+	TEMP=`getopt -o dvgt:m:d: -- "$@"`
 	ARG_GTK=0
+	ARG_DEBUG=0
 	ARG_VERBOSE=0
 	ARG_MAIN="test/cpu_tb.v"
 	ARG_TRACE=
@@ -240,6 +246,7 @@ run() {
 	mkdir -p build
 	while true ; do
 		case "$1" in
+			-d) ARG_DEBUG=1 ; shift ;;
 			-g) ARG_GTK=1 ; shift ;;
 			-v) ARG_VERBOSE=1 ; shift ;;
 			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
