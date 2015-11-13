@@ -1,5 +1,5 @@
 $date
-	Fri Nov 13 15:07:12 2015
+	Fri Nov 13 15:19:40 2015
 $end
 $version
 	Icarus Verilog
@@ -146,9 +146,9 @@ $var wire 1 ." we $end
 $var reg 180 /" out [179:0] $end
 $upscope $end
 $scope module alucontrol $end
-$var wire 2 0" alu_op_in [1:0] $end
-$var wire 6 1" func [5:0] $end
-$var reg 4 2" alu_op_out [3:0] $end
+$var wire 2 0" aluop_in [1:0] $end
+$var wire 6 1" funct [5:0] $end
+$var reg 4 2" aluop_out [3:0] $end
 $upscope $end
 $scope module t_mux $end
 $var wire 64 3" in_data [63:0] $end
@@ -156,7 +156,7 @@ $var wire 1 + select $end
 $var reg 32 4" out_data [31:0] $end
 $upscope $end
 $scope module alu $end
-$var wire 4 5" alu_op [3:0] $end
+$var wire 4 5" aluop [3:0] $end
 $var wire 32 6" s [31:0] $end
 $var wire 5 7" shamt [4:0] $end
 $var wire 32 8" t [31:0] $end

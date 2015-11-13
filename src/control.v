@@ -104,7 +104,7 @@ always @* begin
 			isjump <= 1;
 			end
 		default:
-			$display("Warning: Control Unit received unknown opcode signal");
+			$display("[WARNING] Control Unit received unknown opcode signal %x", opcode);
 	endcase
 end
 

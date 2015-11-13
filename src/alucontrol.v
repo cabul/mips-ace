@@ -4,9 +4,9 @@
 `include "defines.v"
 
 module alucontrol(
-	input wire [5:0] func,
+	input wire [5:0] funct,
 	input wire [1:0] aluop_in,
-	output reg [3:0] aluop_out
+	output reg [3:0] aluop_out = 0
 );
 
 always @* begin
@@ -14,7 +14,7 @@ always @* begin
 		2'b00: aluop_out <= `ALUOP_ADD;
 		2'b01: aluop_out <= `ALUOP_SUB;
 		2'b10:
-            case (func)
+            case (funct)
                 `FN_SLL: aluop_out <= `ALUOP_SLL;
                 `FN_SRL: aluop_out <= `ALUOP_SRL;
                 `FN_SRA: aluop_out <= `ALUOP_SRA;
@@ -26,10 +26,10 @@ always @* begin
                 `FN_NOR: aluop_out <= `ALUOP_NOR;
                 `FN_SLT: aluop_out <= `ALUOP_SLT;
                 default:
-                    $display("Warning: ALUcontrol received unknown func signal.");
+                    $display("[WARNING] ALU Control received unknown funct signal %x", funct);
             endcase
 		default:
-			$display("Warning: ALUcontrol received unknown op_in signal.");
+			$display("[WARNING] ALU Control received unknown aluop signal %x", aluop_in);
 	endcase
 end
 

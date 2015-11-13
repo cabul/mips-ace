@@ -172,7 +172,7 @@ wire [31:0] ex_pc_branch;
 assign ex_pc_branch = ex_pc_next + (ex_imm << 2);
 
 alucontrol alucontrol(
-	.func(ex_imm[5:0]),
+	.funct(ex_imm[5:0]),
 	.aluop_in(ex_aluop),
 	.aluop_out(aluop)
 );
