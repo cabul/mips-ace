@@ -39,7 +39,7 @@ assign index = address[DEPTH+WIDTH-1:WIDTH];
 
 reg [`MEMORY_LINE] mem [0:2**DEPTH-1];
 
-`ifdef DEBUG_MEMORY
+`ifdef DEBUG
 initial begin
 	$display("[MEMORY] Load: %s", DATA);
 	$display("[MEMORY] Width: %d Bytes", 2**WIDTH);
@@ -51,9 +51,7 @@ end
 always @* begin
 	if (memread && ! reset) begin
 		rdata <= mem[index];
-		`ifdef DEBUG_MEMORY
-		$display("[MEMORY] Read  @%x => %x", address, mem[index]);
-		`endif
+		`DMSG(("[MEMORY] Read @%x => %x", address, mem[index]))
 	end
 end
 
@@ -63,9 +61,7 @@ always @(posedge clk) begin
 	if (reset) $readmemh(DATA, mem);
 	else if (memwrite) begin
 		mem[index] <= wdata;
-		`ifdef DEBUG_MEMORY
-		$display("[MEMORY] Write @%x <= %x", address, wdata);
-		`endif
+		`DMSG(("[MEMORY] Write @%x <= %x", address, wdata))
 	end
 end
 

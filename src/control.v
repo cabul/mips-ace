@@ -33,7 +33,7 @@ module control(
 	output reg [1:0] aluop = 0,
 	output reg alusrc = 0,
 	output reg isjump = 0
-	);
+);
 
 always @* begin
 	case(opcode)
