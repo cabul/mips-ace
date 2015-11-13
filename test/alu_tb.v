@@ -7,7 +7,7 @@ wire zero;
 wire [31:0] out;
 
 alu alu(
-	.alu_op(6'b100000),
+	.aluop(6'b100000),
 	.s(32'd100),
 	.t(32'd130),
 	.shamt(32'd0),

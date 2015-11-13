@@ -5,26 +5,26 @@
 
 module alucontrol(
 	input wire [5:0] func,
-	input wire [1:0] alu_op_in,
-	output reg [3:0] alu_op_out
+	input wire [1:0] aluop_in,
+	output reg [3:0] aluop_out
 );
 
 always @* begin
-	case (alu_op_in)
-		2'b00: alu_op_out <= `ALUOP_ADD;
-		2'b01: alu_op_out <= `ALUOP_SUB;
+	case (aluop_in)
+		2'b00: aluop_out <= `ALUOP_ADD;
+		2'b01: aluop_out <= `ALUOP_SUB;
 		2'b10:
             case (func)
-                `FN_SLL: alu_op_out <= `ALUOP_SLL;
-                `FN_SRL: alu_op_out <= `ALUOP_SRL;
-                `FN_SRA: alu_op_out <= `ALUOP_SRA;
-                `FN_ADD: alu_op_out <= `ALUOP_ADD;
-                `FN_SUB: alu_op_out <= `ALUOP_SUB;
-                `FN_AND: alu_op_out <= `ALUOP_AND;
-                `FN_OR:  alu_op_out <= `ALUOP_OR;
-                `FN_XOR: alu_op_out <= `ALUOP_XOR;
-                `FN_NOR: alu_op_out <= `ALUOP_NOR;
-                `FN_SLT: alu_op_out <= `ALUOP_SLT;
+                `FN_SLL: aluop_out <= `ALUOP_SLL;
+                `FN_SRL: aluop_out <= `ALUOP_SRL;
+                `FN_SRA: aluop_out <= `ALUOP_SRA;
+                `FN_ADD: aluop_out <= `ALUOP_ADD;
+                `FN_SUB: aluop_out <= `ALUOP_SUB;
+                `FN_AND: aluop_out <= `ALUOP_AND;
+                `FN_OR:  aluop_out <= `ALUOP_OR;
+                `FN_XOR: aluop_out <= `ALUOP_XOR;
+                `FN_NOR: aluop_out <= `ALUOP_NOR;
+                `FN_SLT: aluop_out <= `ALUOP_SLT;
                 default:
                     $display("Warning: ALUcontrol received unknown func signal.");
             endcase

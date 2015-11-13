@@ -19,7 +19,7 @@
 // out - alu ouput
 // 
 module alu(
-	input wire [3:0] alu_op,
+	input wire [3:0] aluop,
 	input wire [N-1:0] s,
 	input wire [N-1:0] t,
 	input wire [4:0] shamt,
@@ -31,7 +31,7 @@ module alu(
 parameter N = 32;
 
 always @* begin
-	case (alu_op)
+	case (aluop)
         `ALUOP_SLL: out <= t << shamt;
         `ALUOP_SRL: out <= t >> shamt;
         `ALUOP_SRA: out <= t >>> shamt;
@@ -43,7 +43,7 @@ always @* begin
         `ALUOP_NOR: out <= ~(s | t);
         `ALUOP_SLT: out <= (s < t)? 32'd1 : 32'd0;
 		default:
-			$display("Warning: ALU received unknown alu_op signal: %x", alu_op);
+			$display("%4t Warning: ALU received unknown alu_op signal: %x", $time, aluop);
 	endcase
     
     zero     <= (out == 32'd0) ? 1'b1 : 1'b0;

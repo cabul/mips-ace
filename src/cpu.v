@@ -66,7 +66,7 @@ memory #(
 
 flipflop #(.N(64)) if_id (
 	.clk(clk),
-	.reset(reset),
+	.reset(reset | ex_isjump | mem_isbranch),
 	.we(if_id_we),
 	.in({if_pc_next, if_instr}),
 	.out({id_pc_next, id_instr})
@@ -126,7 +126,7 @@ regfile regfile(
 
 flipflop #(.N(180)) id_ex (
 	.clk(clk),
-	.reset(reset),
+	.reset(reset | ex_isjump | mem_isbranch),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
         	id_isbranch, id_regdst, id_aluop, id_alusrc, id_isjump,
@@ -173,8 +173,8 @@ assign ex_pc_branch = ex_pc_next + (ex_imm << 2);
 
 alucontrol alucontrol(
 	.func(ex_imm[5:0]),
-	.alu_op_in(ex_aluop),
-	.alu_op_out(aluop)
+	.aluop_in(ex_aluop),
+	.aluop_out(aluop)
 );
 
 multiplexer t_mux (
@@ -184,7 +184,7 @@ multiplexer t_mux (
 );
 
 alu alu(
-	.alu_op(aluop),
+	.aluop(aluop),
 	.s(ex_data_rs),
 	.t(data_t),
 	.shamt(ex_imm[10:6]),
@@ -201,7 +201,7 @@ multiplexer #(.N(5)) dst_mux(
 
 flipflop #(.N(108)) ex_mem (
 	.clk(clk),
-	.reset(reset),
+	.reset(reset | mem_isbranch),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
         	ex_isbranch, ex_pc_branch,  ex_aluovf, ex_aluz,
