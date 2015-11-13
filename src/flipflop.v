@@ -1,7 +1,6 @@
 `ifndef _flipflop
 `define _flipflop
 
-//
 // Flip Flop
 //
 // Saves data during one clock cycle
@@ -22,7 +21,6 @@
 // Parameters:
 // N - Data size
 // INIT - Default value (set on reset)
-//
 module flipflop(
 	input wire clk,
 	input wire reset,
