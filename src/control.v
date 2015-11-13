@@ -3,24 +3,6 @@
 
 `include "defines.v"
 
-///
-/// control_unit
-///
-/// This unit is asynchronus
-///
-/// Ports:
-/// opcode - Instruction opcode
-/// funct - Instruction function code
-/// regwrite - Control signal regwrite
-/// memtoreg - Control signal memtoreg
-/// memread - Control signal memread
-/// memwrite- Control signal memwrite
-/// isbranch - Control signal isbranch
-/// regdst - Control signal regdst
-/// aluop - Control signal aluop
-/// alusrc - Control signal alusrc
-/// isjump - Control signal isjump
-///
 module control(
 	input wire [5:0] opcode,
 	input wire [5:0] funct,
