@@ -31,15 +31,15 @@ reg if_id_we = 1;
 
 assign if_pc_next = pc_out + 4;
 
-multiplexer pc_bmux(
-	.select(pc_take_branch),
-	.in_data({mem_pc_branch, if_pc_next}),
+multiplexer pc_jmux(
+	.select(ex_isjump),
+	.in_data({ex_pc_jump, if_pc_next}),
 	.out_data(pc_interm)
 );
 
-multiplexer pc_jmux(
-	.select(mem_isjump),
-	.in_data({ex_pc_jump, pc_interm}),
+multiplexer pc_bmux(
+	.select(pc_take_branch),
+	.in_data({mem_pc_branch, pc_interm}),
 	.out_data(pc_in)
 );
 
@@ -66,7 +66,7 @@ memory #(
 
 flipflop #(.N(64)) if_id (
 	.clk(clk),
-	.reset(reset),
+	.reset(reset | ex_isjump | mem_isbranch),
 	.we(if_id_we),
 	.in({if_pc_next, if_instr}),
 	.out({id_pc_next, id_instr})
@@ -126,7 +126,7 @@ regfile regfile(
 
 flipflop #(.N(180)) id_ex (
 	.clk(clk),
-	.reset(reset),
+	.reset(reset | ex_isjump | mem_isbranch),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
         	id_isbranch, id_regdst, id_aluop, id_alusrc, id_isjump,
@@ -172,9 +172,9 @@ wire [31:0] ex_pc_branch;
 assign ex_pc_branch = ex_pc_next + (ex_imm << 2);
 
 alucontrol alucontrol(
-	.func(ex_imm[5:0]),
-	.alu_op_in(ex_aluop),
-	.alu_op_out(aluop)
+	.funct(ex_imm[5:0]),
+	.aluop_in(ex_aluop),
+	.aluop_out(aluop)
 );
 
 multiplexer t_mux (
@@ -184,7 +184,7 @@ multiplexer t_mux (
 );
 
 alu alu(
-	.alu_op(aluop),
+	.aluop(aluop),
 	.s(ex_data_rs),
 	.t(data_t),
 	.shamt(ex_imm[10:6]),
@@ -199,15 +199,15 @@ multiplexer #(.N(5)) dst_mux(
 	.out_data(ex_wreg)
 );
 
-flipflop #(.N(141)) ex_mem (
+flipflop #(.N(108)) ex_mem (
 	.clk(clk),
-	.reset(reset),
+	.reset(reset | mem_isbranch),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        	ex_isbranch, ex_isjump, ex_pc_branch, ex_pc_jump, ex_aluovf, ex_aluz,
+        	ex_isbranch, ex_pc_branch,  ex_aluovf, ex_aluz,
         	ex_alures, ex_data_rt, ex_wreg}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
-        	mem_isbranch, mem_isjump, mem_pc_branch, mem_pc_jump, mem_aluovf, mem_aluz,
+        	mem_isbranch,  mem_pc_branch, mem_aluovf, mem_aluz,
         	mem_alures, mem_data_rt, mem_wreg})
 );
 
@@ -224,13 +224,11 @@ wire mem_memtoreg;
 wire mem_memread;
 wire mem_memwrite;
 wire mem_isbranch;
-wire mem_isjump;
 wire mem_aluz;
 wire mem_aluovf;
 wire [31:0] mem_alures;
 wire [31:0] mem_data_rt;
 wire [31:0] mem_memout;
-wire [31:0] mem_pc_jump;
 wire [4:0] mem_wreg;
 wire pc_take_branch;
 

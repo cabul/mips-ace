@@ -1,7 +1,8 @@
 `ifndef _regfile
 `define _regfile
 
-//
+`include "defines.v"
+
 // Register File
 //
 // 32 General purpose registers of 32 bits.
@@ -22,12 +23,12 @@
 // regwrite - On 1 write to register
 // wreg - Write to this register
 // wdata - Write this data
-//
 module regfile(
 	input wire clk,
 	input wire reset,
 	input wire [4:0] rreg1, rreg2,
-	output reg [31:0] rdata1, rdata2,
+	output reg [31:0] rdata1 = 32'b0,
+	output reg [31:0] rdata2 = 32'b0,
 	input wire regwrite,
 	input wire [4:0] wreg,
 	input wire [31:0] wdata
@@ -35,26 +36,30 @@ module regfile(
 
 reg [31:0] mem [0:31];
 
-always @(*) begin
+always @* begin
 	if (rreg1 == 5'b0)
 		rdata1 <= 32'b0;
 	/* This enables bypass
 	else if(regwrite && wreg == rreg1)
 		rdata1 <= wdata;
 	*/
-  else
-	  rdata1 <= mem[rreg1][31:0];
+	else begin
+		rdata1 <= mem[rreg1][31:0];
+		`DMSG(("[REGFILE] Read $%d => %x", rreg1, mem[rreg1][31:0]))
+	end
 end
 
-always @(*) begin
+always @* begin
 	if (rreg2 == 5'b0)
 		rdata2 <= 32'b0;
 	/* This enables bypass
 	else if(regwrite && wreg == rreg2)
 		rdata2 <= wdata;
 	*/
-  else
-	  rdata2 <= mem[rreg2][31:0];
+	else begin
+		rdata2 <= mem[rreg2][31:0];
+		`DMSG(("[REGFILE] Read $%d => %x", rreg2, mem[rreg2][31:0]))
+	end
 end
 
 always @(posedge clk) begin
@@ -93,8 +98,10 @@ always @(posedge clk) begin
 		mem[30] <= 0;
 		mem[31] <= 0;
 	end
-	else if (regwrite && wreg != 5'b0)
+	else if (regwrite && wreg != 5'b0) begin
 		mem[wreg] <= wdata;
+		`DMSG(("[REGFILE] Write $%d <= %x", wreg, wdata))
+	end
 end
 
 endmodule

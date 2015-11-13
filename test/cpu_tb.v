@@ -17,7 +17,7 @@ initial begin
 	`endif
 
 	reset <= 1;
-	# 12 reset <= 0;
+	# 10 reset <= 0;
 
 
 	# 10000 $finish;

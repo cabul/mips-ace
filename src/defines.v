@@ -42,4 +42,11 @@
 `define OP_SB	6'h28
 
 
+// Debug macros
+`ifdef DEBUG
+	`define DMSG(M) $display M ;
+`else
+	`define DMSG(M)
+`endif
+
 `endif
