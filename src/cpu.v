@@ -5,14 +5,32 @@
 `include "memory.v"
 `include "regfile.v"
 `include "alu.v"
-`include "alucontrol.v"
 `include "multiplexer.v"
 `include "control.v"
+`include "fwdcontrol.v"
+`include "alucontrol.v"
 
 // Central Processing Unit
 module cpu(
 	input wire clk,
 	input wire reset
+);
+
+////////////////////////
+//                    //
+//       Global       //
+//                    //
+////////////////////////
+
+fwdcontrol fwdcontrol(
+	.rs(dst_rs),
+	.rt(dst_rt),
+    .mem_dst(mem_wreg),
+    .wb_dst(wb_wreg),
+    .mem_rw(mem_regwrite),
+    .wb_rw(wb_regwrite),
+	.ctrl_s(aluctrl_s),
+    .ctrl_t(aluctrl_t)
 );
 
 ////////////////////////
@@ -124,18 +142,18 @@ regfile regfile(
 	.wdata(wb_wdata)
 );
 
-flipflop #(.N(180)) id_ex (
+flipflop #(.N(185)) id_ex (
 	.clk(clk),
 	.reset(reset | ex_isjump | mem_isbranch),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
         	id_isbranch, id_regdst, id_aluop, id_alusrc, id_isjump,
         	id_pc_next, id_data_rs, id_data_rt, id_imm, id_pc_jump,
-        	id_instr[20:16], id_instr[15:11]}),
+        	id_instr[20:16], id_instr[15:11], id_instr[25:21]}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
         	ex_isbranch, ex_regdst, ex_aluop, ex_alusrc, ex_isjump,
         	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm, ex_pc_jump,
-        	dst_rt, dst_rd})
+        	dst_rt, dst_rd, dst_rs})
 );
 
 ////////////////////////
@@ -151,6 +169,8 @@ wire ex_memread;
 wire ex_memwrite;
 wire ex_isbranch;
 wire ex_regdst;
+wire [1:0] aluctrl_s;
+wire [1:0] aluctrl_t;
 wire [1:0] ex_aluop;
 wire [3:0] aluop;
 wire ex_alusrc;
@@ -159,9 +179,12 @@ wire [31:0] ex_pc_next;
 wire [31:0] ex_data_rs;
 wire [31:0] ex_data_rt;
 wire [31:0] ex_imm;
+wire [31:0] alu_s;
+wire [31:0] alu_t;
 wire [31:0] ex_pc_jump;
 wire [4:0] dst_rt;
 wire [4:0] dst_rd;
+wire [4:0] dst_rs;
 wire [4:0] ex_wreg;
 wire ex_aluz;
 wire ex_aluovf;
@@ -183,10 +206,22 @@ multiplexer t_mux (
 	.out_data(data_t)
 );
 
+multiplexer #(.X(3)) alu_s_mux (
+	.select(aluctrl_s),
+	.in_data({mem_alures, wb_wdata, ex_data_rs}),
+	.out_data(alu_s)
+);
+
+multiplexer #(.X(3)) alu_t_mux (
+	.select(aluctrl_t),
+	.in_data({mem_alures, wb_wdata, data_t}),
+	.out_data(alu_t)
+);
+
 alu alu(
 	.aluop(aluop),
-	.s(ex_data_rs),
-	.t(data_t),
+	.s(alu_s),
+	.t(alu_t),
 	.shamt(ex_imm[10:6]),
 	.zero(ex_aluz),
 	.overflow(ex_aluovf),
