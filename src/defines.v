@@ -28,6 +28,7 @@
 `define ALUOP_NOR 4'b1100
 
 // Opcodes
+
 `define OP_ADDI 6'h8
 `define OP_LW   6'h23
 `define OP_SW   6'h2b
@@ -35,6 +36,7 @@
 `define OP_J    6'h2
 
 // Debug macros
+
 `ifdef DEBUG
 	`define DMSG(M) $display M ;
 `else
