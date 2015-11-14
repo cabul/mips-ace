@@ -25,12 +25,12 @@ module cpu(
 fwdcontrol fwdcontrol(
 	.rs(dst_rs),
 	.rt(dst_rt),
-    .mem_dst(mem_wreg),
-    .wb_dst(wb_wreg),
-    .mem_rw(mem_regwrite),
-    .wb_rw(wb_regwrite),
+	.mem_dst(mem_wreg),
+	.wb_dst(wb_wreg),
+	.mem_rw(mem_regwrite),
+	.wb_rw(wb_regwrite),
 	.ctrl_s(aluctrl_s),
-    .ctrl_t(aluctrl_t)
+	.ctrl_t(aluctrl_t)
 );
 
 ////////////////////////
