@@ -1,0 +1,205 @@
+$date
+	Fri Nov 13 21:19:24 2015
+$end
+$version
+	Icarus Verilog
+$end
+$timescale
+	1s
+$end
+$scope module memory_tb $end
+$var wire 16 ! rdata [15:0] $end
+$var reg 32 " addr [31:0] $end
+$var reg 1 # clk $end
+$var reg 1 $ memread $end
+$var reg 1 % memwrite $end
+$var reg 1 & reset $end
+$var reg 16 ' wdata [15:0] $end
+$scope module mem $end
+$var wire 32 ( addr [31:0] $end
+$var wire 1 ) clk $end
+$var wire 64 * dbg_mem [63:0] $end
+$var wire 2 + index [1:0] $end
+$var wire 1 , memread $end
+$var wire 1 - memwrite $end
+$var wire 1 . reset $end
+$var wire 16 / wdata [15:0] $end
+$var reg 16 0 rdata [15:0] $end
+$scope begin genblk1 $end
+$upscope $end
+$scope begin genblk01 $end
+$upscope $end
+$scope begin genblk001 $end
+$upscope $end
+$scope begin genblk0001 $end
+$upscope $end
+$upscope $end
+$upscope $end
+$enddefinitions $end
+#0
+$dumpvars
+bx 0
+bx /
+1.
+0-
+1,
+b0 +
+bz *
+0)
+b0 (
+bx '
+1&
+0%
+1$
+0#
+b0 "
+bx !
+$end
+#5
+b10001001000100011001101000100010101010110011001110111 *
+1#
+1)
+#10
+b10001 0
+b10001 !
+0&
+0.
+0#
+0)
+#15
+1#
+1)
+#20
+0#
+0)
+#22
+b1000 "
+b1000 (
+#25
+1#
+1)
+#30
+0#
+0)
+#32
+b10001000110011 0
+b10001000110011 !
+b1 +
+b10000 "
+b10000 (
+#35
+1#
+1)
+#40
+0#
+0)
+#42
+b11000 "
+b11000 (
+#45
+1#
+1)
+#50
+0#
+0)
+#52
+b0 +
+b0 '
+b0 /
+b0 "
+b0 (
+0$
+0,
+1%
+1-
+#55
+b1000100011001101000100010101010110011001110111 *
+1#
+1)
+#60
+0#
+0)
+#62
+b1 '
+b1 /
+b1000 "
+b1000 (
+#65
+b1001000100011001101000100010101010110011001110111 *
+1#
+1)
+#70
+0#
+0)
+#72
+b1 +
+b10 '
+b10 /
+b10000 "
+b10000 (
+#75
+b1000000000000001001000100010101010110011001110111 *
+1#
+1)
+#80
+0#
+0)
+#82
+b11 '
+b11 /
+b11000 "
+b11000 (
+#85
+b1000000000000001101000100010101010110011001110111 *
+1#
+1)
+#90
+0#
+0)
+#92
+b1 0
+b1 !
+b0 +
+1$
+1,
+0%
+0-
+b0 "
+b0 (
+#95
+1#
+1)
+#100
+0#
+0)
+#102
+b1000 "
+b1000 (
+#105
+1#
+1)
+#110
+0#
+0)
+#112
+b11 0
+b11 !
+b1 +
+b10000 "
+b10000 (
+#115
+1#
+1)
+#120
+0#
+0)
+#122
+b11000 "
+b11000 (
+#125
+1#
+1)
+#130
+0#
+0)
+#132

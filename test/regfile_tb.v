@@ -10,7 +10,17 @@ reg [4:0] rreg1 = 5'b0, rreg2 = 5'b0, wreg = 5'b0;
 reg [31:0] wdata = 32'b0;
 wire [31:0] rdata1, rdata2;
 
-regfile file(.reset(reset), .clk(clk), .regwrite(regwrite), .rreg1(rreg1), .rreg2(rreg2), .wreg(wreg), .wdata(wdata), .rdata1(rdata1), .rdata2(rdata2));
+regfile file(
+	.reset(reset),
+	.clk(clk),
+	.regwrite(regwrite), 
+	.rreg1(rreg1), 
+	.rreg2(rreg2), 
+	.wreg(wreg), 
+	.wdata(wdata), 
+	.rdata1(rdata1), 
+	.rdata2(rdata2)
+);
 
 always #5 clk = !clk;
 

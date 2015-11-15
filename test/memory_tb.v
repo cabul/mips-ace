@@ -6,7 +6,7 @@ module memory_tb;
 
 reg clk = 0;
 reg reset = 0;
-reg [31:0] address = 32'b0;
+reg [31:0] addr = 32'b0;
 reg memwrite = 0;
 reg memread = 1;
 wire [15:0] rdata;
@@ -16,11 +16,11 @@ always #5 clk = !clk;
 
 memory #(
 	.DATA("test/memory_tb.dat"),
-	.WIDTH(3), .DEPTH(2)
+	.WIDTH(16), .DEPTH(4)
 ) mem(
 	.clk(clk),
 	.reset(reset),
-	.address(address),
+	.addr(addr),
 	.rdata(rdata),
 	.wdata(wdata),
 	.memwrite(memwrite),
@@ -35,41 +35,41 @@ initial begin
 
 	$display("Clock    Address     Read");
 	$display("-----    -------     ----");
-	$monitor("%x        %x    %x", clk, address, rdata);
+	$monitor("%x        %x    %x", clk, addr, rdata);
 
 	reset <= 1;
 	# 10 reset <= 0;
 
-	#2  address <= 32'h00;
-	#10 address <= 32'h08;
-	#10 address <= 32'h10;
-	#10 address <= 32'h18;
+	#2  addr <= 32'h00;
+	#10 addr <= 32'h08;
+	#10 addr <= 32'h10;
+	#10 addr <= 32'h18;
 	#10 begin
 		memwrite <= 1;
 		memread <= 0;
-		address <= 32'h00;
+		addr <= 32'h00;
 		wdata <= 16'h0;
 	end
 	#10 begin
-		address <= 32'h08;
+		addr <= 32'h08;
 		wdata <= 16'h1;
 	end
 	#10 begin
-		address <= 32'h10;
+		addr <= 32'h10;
 		wdata <= 16'h2;
 	end
 	#10 begin
-		address <= 32'h18;
+		addr <= 32'h18;
 		wdata <= 16'h3;
 	end
 	#10 begin
-		address <= 32'h00;
+		addr <= 32'h00;
 		memwrite <= 0;
 		memread <= 1;
 	end
-	#10 address <= 32'h08;
-	#10 address <= 32'h10;
-	#10 address <= 32'h18;
+	#10 addr <= 32'h08;
+	#10 addr <= 32'h10;
+	#10 addr <= 32'h18;
 	#10 $finish;
 end
 
