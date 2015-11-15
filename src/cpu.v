@@ -86,7 +86,7 @@ wire id_memtoreg;
 wire id_memread;
 wire id_memwrite;
 wire id_isbranch;
-wire [1:0] id_aluop;
+wire [3:0] id_aluop;
 wire id_alusrc;
 wire id_isjump;
 wire [31:0] id_imm;
@@ -124,7 +124,7 @@ regfile regfile(
 	.wdata(wb_wdata)
 );
 
-flipflop #(.N(180)) id_ex (
+flipflop #(.N(182)) id_ex (
 	.clk(clk),
 	.reset(reset | ex_isjump | mem_isbranch),
 	.we(id_ex_we),
@@ -151,7 +151,7 @@ wire ex_memread;
 wire ex_memwrite;
 wire ex_isbranch;
 wire ex_regdst;
-wire [1:0] ex_aluop;
+wire [3:0] ex_aluop;
 wire [3:0] aluop;
 wire ex_alusrc;
 wire ex_isjump;
@@ -199,7 +199,7 @@ multiplexer #(.N(5)) dst_mux(
 	.out_data(ex_wreg)
 );
 
-flipflop #(.N(108)) ex_mem (
+flipflop #(.N(110)) ex_mem (
 	.clk(clk),
 	.reset(reset | mem_isbranch),
 	.we(ex_mem_we),

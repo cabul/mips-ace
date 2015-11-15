@@ -3,46 +3,56 @@
 
 // Functions
 
-`define FN_SLL 6'b000000
-`define FN_SRL 6'b000010
-`define FN_SRA 6'b000011
-`define FN_ADD 6'b100000
-`define FN_SUB 6'b100010
-`define FN_AND 6'b100100
-`define FN_OR  6'b100101
-`define FN_XOR 6'b100110
-`define FN_NOR 6'b100111
-`define FN_SLT 6'b101010
+`define FN_ADD 6'h20
+`define FN_SUB 6'h22
+`define FN_AND 6'h24
+`define FN_NOR 6'h27
+`define FN_OR  6'h25
+`define FN_XOR 6'h26
+`define FN_SLL 6'h0
+`define FN_SRL 6'h2
+`define FN_SRA 6'h3
+`define FN_SLT 6'h2a
+`define FN_MUL 6'h18
+`define FN_DIV 6'h1a
 
 // ALU operations
 
-`define ALUOP_AND 4'b0000
-`define ALUOP_OR  4'b0001
-`define ALUOP_ADD 4'b0010
-`define ALUOP_SLL 4'b0100
-`define ALUOP_SUB 4'b0110
-`define ALUOP_SLT 4'b0111
-`define ALUOP_SRL 4'b1000
-`define ALUOP_SRA 4'b1001
-`define ALUOP_XOR 4'b1010
-`define ALUOP_NOR 4'b1100
+`define ALUOP_AND 4'h0
+`define ALUOP_OR  4'h1
+`define ALUOP_ADD 4'h2
+`define ALUOP_NOR 4'h3
+`define ALUOP_SLL 4'h4
+`define ALUOP_SUB 4'h6
+`define ALUOP_SLT 4'h7
+`define ALUOP_SRL 4'h8
+`define ALUOP_SRA 4'h9
+`define ALUOP_XOR 4'ha
+`define ALUOP_BEQ 4'hb
+`define ALUOP_BNE 4'hc
+`define ALUOP_LUI 4'hd
+`define ALUOP_MUL 4'he
+`define ALUOP_DIV 4'hf
 
 // Opcodes
-`define OP_ADDI 6'h8
-`define OP_LW   6'h23
-`define OP_SW   6'h2b
-`define OP_BEQ  6'h4
-`define OP_J    6'h2
-`define OP_ANDI 6'hc
-`define OP_ORI	6'hd
-`define OP_SLTI	6'ha
-`define OP_BNE	6'h5
-`define OP_LB	6'h20
-`define OP_LUI	6'hf
-`define OP_SB	6'h28
 
+`define OP_RTYPE	6'h0
+`define OP_ADDI 	6'h8
+`define OP_ANDI 	6'hc
+`define OP_ORI		6'hd
+`define OP_XORI		6'he
+`define OP_SLTI		6'ha
+`define OP_BEQ  	6'h4
+`define OP_BNE		6'h5
+`define OP_J    	6'h2
+`define OP_LB		6'h20
+`define OP_LUI		6'hf
+`define OP_LW   	6'h23
+`define OP_SB		6'h28
+`define OP_SW   	6'h2b
 
 // Debug macros
+
 `ifdef DEBUG
 	`define DMSG(M) $display M ;
 `else
