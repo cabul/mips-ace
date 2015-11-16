@@ -142,7 +142,7 @@ regfile regfile(
 	.wdata(wb_wdata)
 );
 
-flipflop #(.N(185)) id_ex (
+flipflop #(.N(187)) id_ex (
 	.clk(clk),
 	.reset(reset | ex_isjump | mem_isbranch),
 	.we(id_ex_we),
