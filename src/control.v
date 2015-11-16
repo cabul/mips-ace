@@ -26,7 +26,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 1;
-			regdst   <= 0;
 			alusrc   <= 0;
 			aluop    <= 0;
 			isjump   <= 0;
@@ -38,7 +37,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 1;
 			aluop    <= 1;
 			isjump   <= 0;
@@ -50,7 +48,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 1;
 			aluop    <= 1;
 			isjump   <= 0;
@@ -62,7 +59,6 @@ always @* begin
 			memwrite <= 1;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 1;
 			aluop    <= 1;
 			isjump   <= 0;
@@ -74,7 +70,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 0;
 			aluop    <= 1;
 			isjump   <= 1;
@@ -86,7 +81,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 1;
 			isjump   <= 0;
 		end
@@ -97,7 +91,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 1;
 			aluop    <= 1;
 			isjump   <= 0;
@@ -109,7 +102,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 1;
 			aluop    <= 1;
 			isjump   <= 0;
@@ -121,7 +113,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 1;
 			aluop    <= 1;
 			isjump   <= 0;
@@ -133,7 +124,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 1;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 0;
 			aluop    <= 1;
 			isjump   <= 0;
@@ -145,7 +135,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 1;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 0;
 			aluop    <= 1;
 			isjump   <= 0;
@@ -157,7 +146,6 @@ always @* begin
 			memwrite <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
-			regdst   <= 1;
 			alusrc   <= 1;
 			aluop    <= 1;
 			isjump   <= 0;
