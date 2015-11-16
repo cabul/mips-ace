@@ -5,9 +5,9 @@ module fwdcontrol(
 	input wire [4:0] rs,
 	input wire [4:0] rt,
 	input wire [4:0] mem_dst,
-    	input wire [4:0] wb_dst,
-    	input wire mem_rw,
-    	input wire wb_rw,
+   	input wire [4:0] wb_dst,
+   	input wire mem_rw,
+   	input wire wb_rw,
 	output reg [1:0] ctrl_s = 2'b0,
 	output reg [1:0] ctrl_t = 2'b0
 );
