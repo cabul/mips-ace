@@ -113,6 +113,8 @@ wire id_aluop;
 wire id_alusrc;
 wire id_isjump;
 wire [31:0] id_imm;
+wire [31:0] alu_s;
+wire [31:0] alu_t;
 wire [31:0] id_pc_jump;
 wire [31:0] id_data_rs;
 wire [31:0] id_data_rt;
