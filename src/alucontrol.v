@@ -12,23 +12,6 @@ module alucontrol(
 
 always @* begin
 	if (aluop_in) begin
-		case (funct)
-			`FN_SLL: aluop_out <= `ALUOP_SLL;
-			`FN_SRL: aluop_out <= `ALUOP_SRL;
-			`FN_SRA: aluop_out <= `ALUOP_SRA;
-			`FN_ADD: aluop_out <= `ALUOP_ADD;
-			`FN_SUB: aluop_out <= `ALUOP_SUB;
-			`FN_AND: aluop_out <= `ALUOP_AND;
-			`FN_OR:  aluop_out <= `ALUOP_OR;
-			`FN_XOR: aluop_out <= `ALUOP_XOR;
-			`FN_NOR: aluop_out <= `ALUOP_NOR;
-			`FN_SLT: aluop_out <= `ALUOP_SLT;
-			`FN_MUL: aluop_out <= `ALUOP_MUL;
-			`FN_DIV: aluop_out <= `ALUOP_DIV;
-			default:
-				$display("[WARNING] ALU Control received unknown funct signal %x", funct);
-		endcase
-	end else begin
 		case (opcode)
 			`OP_ADDI: aluop_out <= `ALUOP_ADD;
 			`OP_ANDI: aluop_out <= `ALUOP_AND;
@@ -44,6 +27,23 @@ always @* begin
 			`OP_LUI:  aluop_out <= `ALUOP_LUI;
 			default:
 				$display("[WARNING] ALU Control received unknown opcode signal %x", opcode);
+		endcase
+	end else begin
+		case (funct)
+			`FN_SLL: aluop_out <= `ALUOP_SLL;
+			`FN_SRL: aluop_out <= `ALUOP_SRL;
+			`FN_SRA: aluop_out <= `ALUOP_SRA;
+			`FN_ADD: aluop_out <= `ALUOP_ADD;
+			`FN_SUB: aluop_out <= `ALUOP_SUB;
+			`FN_AND: aluop_out <= `ALUOP_AND;
+			`FN_OR:  aluop_out <= `ALUOP_OR;
+			`FN_XOR: aluop_out <= `ALUOP_XOR;
+			`FN_NOR: aluop_out <= `ALUOP_NOR;
+			`FN_SLT: aluop_out <= `ALUOP_SLT;
+			`FN_MUL: aluop_out <= `ALUOP_MUL;
+			`FN_DIV: aluop_out <= `ALUOP_DIV;
+			default:
+				$display("[WARNING] ALU Control received unknown funct signal %x", funct);
 		endcase
 	end
 end
