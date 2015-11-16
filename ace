@@ -221,7 +221,7 @@ testbench() {
 	mkdir -p build
 	while true ; do
 		case "$1" in
-			-d) CFLAGS="$CFLAGS $2" ; shift 2 ;;
+			-d) CFLAGS="$CFLAGS -D$2" ; shift 2 ;;
 			-g) ARG_GTK=1 ; shift ;;
 			-v) ARG_VERBOSE=1 ; shift ;;
 			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
