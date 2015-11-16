@@ -4,8 +4,10 @@
 module fwdcontrol(
 	input wire [4:0] rs,
 	input wire [4:0] rt,
+	input wire [4:0] ex_dst,
 	input wire [4:0] mem_dst,
    	input wire [4:0] wb_dst,
+   	input wire ex_rw,
    	input wire mem_rw,
    	input wire wb_rw,
 	output reg [1:0] ctrl_s = 2'b0,
@@ -14,29 +16,40 @@ module fwdcontrol(
 
 // TODO logic could be optimized, but whocaresxddd
 
+// 00 -> Regfile
+// 01 -> Ex data
+// 10 -> Mem data
+// 11 -> Wb data
+
 always @* begin
 	// Default
     
 	ctrl_s = 2'b0;
 	ctrl_t = 2'b0;
 
-	// EX hazards
+	// WB hazards
 
-	if ((mem_rw == 1'b1) && (mem_dst != 5'b0) && (mem_dst == rs))
-		ctrl_s = 2'b10;
+	if (wb_rw && (wb_dst != 5'b0) && (wb_dst == rs)) 
+		ctrl_s = 2'b11;
 
-	if ((mem_rw == 1'b1) && (mem_dst != 5'b0) && (mem_dst == rt))
-		ctrl_t = 2'b10;
+	if (wb_rw && (wb_dst != 5'b0) && (wb_dst == rt))
+		ctrl_t = 2'b11;
 
 	// MEM hazards
 
-	if ((wb_rw == 1'b1) && (wb_dst != 5'b0) && (wb_dst == rs) && 
-			!((mem_rw == 1'b1) && (mem_dst != 5'b0) && (mem_dst == rs)))
+	if (mem_rw && (mem_dst != 5'b0) && (mem_dst == rs))
+		ctrl_s = 2'b10;
+
+	if (mem_rw && (mem_dst != 5'b0) && (mem_dst == rt))
+		ctrl_t = 2'b10;
+
+	// EX hazards
+	if (ex_rw && (ex_dst != 5'b0) && (ex_dst == rs))
 		ctrl_s = 2'b01;
 
-	if ((wb_rw == 1'b1) && (wb_dst != 5'b0) && (wb_dst == rt) &&
-			!((mem_rw == 1'b1) && (mem_dst != 5'b0) && (mem_dst == rt)))
+	if (ex_rw && (ex_dst != 5'b0) && (ex_dst == rt))
 		ctrl_t = 2'b01;
+
 end
 
 endmodule
