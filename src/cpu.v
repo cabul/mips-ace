@@ -71,7 +71,7 @@ flipflop #(.N(32)) pc (
 
 memory #(
 	.WIDTH(32),
-	.DEPTH(8)
+	.DEPTH(32)
 ) imem (
 	.clk(clk),
 	.reset(reset),
@@ -104,7 +104,7 @@ wire id_memtoreg;
 wire id_memread;
 wire id_memwrite;
 wire id_isbranch;
-wire [3:0] id_aluop;
+wire id_aluop;
 wire id_alusrc;
 wire id_isjump;
 wire [31:0] id_imm;
@@ -142,18 +142,18 @@ regfile regfile(
 	.wdata(wb_wdata)
 );
 
-flipflop #(.N(187)) id_ex (
+flipflop #(.N(190)) id_ex (
 	.clk(clk),
 	.reset(reset | ex_isjump | mem_isbranch),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
         	id_isbranch, id_regdst, id_aluop, id_alusrc, id_isjump,
-        	id_pc_next, id_data_rs, id_data_rt, id_imm, id_pc_jump,
-        	id_instr[20:16], id_instr[15:11], id_instr[25:21]}),
+        	id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
+			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21]}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
         	ex_isbranch, ex_regdst, ex_aluop, ex_alusrc, ex_isjump,
-        	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm, ex_pc_jump,
-        	dst_rt, dst_rd, dst_rs})
+        	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm, ex_opcode,
+			ex_pc_jump, dst_rt, dst_rd, dst_rs})
 );
 
 ////////////////////////
@@ -171,7 +171,7 @@ wire ex_isbranch;
 wire ex_regdst;
 wire [1:0] aluctrl_s;
 wire [1:0] aluctrl_t;
-wire [3:0] ex_aluop;
+wire ex_aluop;
 wire [3:0] aluop;
 wire ex_alusrc;
 wire ex_isjump;
@@ -191,11 +191,13 @@ wire ex_aluovf;
 wire [31:0] ex_alures;
 wire [31:0] data_t;
 wire [31:0] ex_pc_branch;
+wire [5:0] ex_opcode;
 
 assign ex_pc_branch = ex_pc_next + (ex_imm << 2);
 
 alucontrol alucontrol(
 	.funct(ex_imm[5:0]),
+	.opcode(ex_opcode),
 	.aluop_in(ex_aluop),
 	.aluop_out(aluop)
 );
@@ -272,7 +274,7 @@ assign pc_take_branch = mem_isbranch & mem_aluz;
 
 memory #(
 	.WIDTH(32),
-	.DEPTH(8)
+	.DEPTH(32)
 ) dmem (
 	.clk(clk),
 	.reset(reset),

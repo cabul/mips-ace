@@ -5,7 +5,7 @@
 
 ///////////
 // Cache //
-//////////
+///////////
 module cache(
 	input wire clk,
 	input wire reset,
