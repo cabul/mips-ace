@@ -10,8 +10,8 @@ module fwdcontrol(
    	input wire ex_rw,
    	input wire mem_rw,
    	input wire wb_rw,
-	output reg [1:0] ctrl_s = 2'b0,
-	output reg [1:0] ctrl_t = 2'b0
+	output reg [1:0] ctrl_rs = 2'b0,
+	output reg [1:0] ctrl_rt = 2'b0
 );
 
 // TODO logic could be optimized, but whocaresxddd
@@ -24,31 +24,31 @@ module fwdcontrol(
 always @* begin
 	// Default
     
-	ctrl_s = 2'b0;
-	ctrl_t = 2'b0;
+	ctrl_rs = 2'b0;
+	ctrl_rt = 2'b0;
 
 	// WB hazards
 
 	if (wb_rw && (wb_dst != 5'b0) && (wb_dst == rs)) 
-		ctrl_s = 2'b11;
+		ctrl_rs = 2'b11;
 
 	if (wb_rw && (wb_dst != 5'b0) && (wb_dst == rt))
-		ctrl_t = 2'b11;
+		ctrl_rt = 2'b11;
 
 	// MEM hazards
 
 	if (mem_rw && (mem_dst != 5'b0) && (mem_dst == rs))
-		ctrl_s = 2'b10;
+		ctrl_rs = 2'b10;
 
 	if (mem_rw && (mem_dst != 5'b0) && (mem_dst == rt))
-		ctrl_t = 2'b10;
+		ctrl_rt = 2'b10;
 
 	// EX hazards
 	if (ex_rw && (ex_dst != 5'b0) && (ex_dst == rs))
-		ctrl_s = 2'b01;
+		ctrl_rs = 2'b01;
 
 	if (ex_rw && (ex_dst != 5'b0) && (ex_dst == rt))
-		ctrl_t = 2'b01;
+		ctrl_rt = 2'b01;
 
 end
 
