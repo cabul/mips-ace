@@ -151,13 +151,13 @@ regfile regfile(
 	.wdata(wb_wdata)
 );
 
-multiplexer #(.X(3)) alu_s_mux (
+multiplexer #(.X(4)) alu_s_mux (
 	.select(aluctrl_s),
 	.in_data({wb_wdata, mem_wdata, ex_alures, id_data_rs}),
 	.out_data(alu_s)
 );
 
-multiplexer #(.X(3)) alu_t_mux (
+multiplexer #(.X(4)) alu_t_mux (
 	.select(aluctrl_t),
 	.in_data({wb_wdata, mem_wdata, ex_alures, id_data_rt}),
 	.out_data(alu_t)
