@@ -28,6 +28,7 @@ always @* begin
 			regdst   <= 1;
 			regdst   <= 0;
 			alusrc   <= 0;
+			aluop    <= 0;
 			isjump   <= 0;
 		end
 		`OP_ADDI: begin
@@ -39,6 +40,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 1;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_LW: begin
@@ -50,6 +52,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 1;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_SW:	begin
@@ -61,6 +64,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 1;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_J: begin
@@ -72,6 +76,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 0;
+			aluop    <= 1;
 			isjump   <= 1;
 		end
 		`OP_ANDI: begin
@@ -94,6 +99,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 1;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_XORI: begin
@@ -105,6 +111,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 1;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_SLTI: begin
@@ -116,6 +123,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 1;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_BEQ: begin
@@ -127,6 +135,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 0;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_BNE: begin
@@ -138,6 +147,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 0;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_LUI: begin
@@ -149,6 +159,7 @@ always @* begin
 			regdst   <= 0;
 			regdst   <= 1;
 			alusrc   <= 1;
+			aluop    <= 1;
 			isjump   <= 0;
 		end
 		default:
