@@ -16,7 +16,8 @@ module regfile(
 
 parameter WIDTH = 32;
 parameter DEPTH = 32;
-localparam ADDR = $clog2(WIDTH);
+// Bits used to address a register
+localparam ADDR = $clog2(DEPTH);
 integer i;
 
 reg [WIDTH-1:0] mem [DEPTH-1:0];

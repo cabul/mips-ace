@@ -29,10 +29,13 @@ module memory(
 parameter WIDTH = 128;
 parameter DEPTH = 4; 
 parameter ADDR = 32;
-localparam WB = $clog2(WIDTH) - 3; // Width bits (address in bytes)
+localparam WB = $clog2(WIDTH) - 3; // Width bits (address is in bytes)
 localparam DB = $clog2(DEPTH); // Depth bits
 
-parameter DATA  = "build/memory.dat"; // Careful with this
+// This parameter is the name of the hexfile that is loaded on startup.
+// You usually do not! need to change this parameter manually, since
+// the file is generated from the program passed to ace.
+parameter DATA  = "build/memory.dat";
 
 // Unrolling for debug port
 `ifdef DEBUG_MEMORY
@@ -57,6 +60,7 @@ assign index = addr[DB+WB-1:WB]; // Get whole line
 
 reg [WIDTH-1:0] mem [0:DEPTH-1];
 
+//TODO Add delay/latency
 always @* begin
 	if (memread && !reset) begin
 		rdata <= mem[index];
