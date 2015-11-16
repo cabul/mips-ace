@@ -63,6 +63,9 @@ reg [WIDTH-1:0] mem [0:DEPTH-1];
 //TODO Add delay/latency
 always @* begin
 	if (memread && !reset) begin
+		`ifdef DEBUG // lw $X, 0xffffffff == exit
+		if (addr == {ADDR{1'b1}}) # 20 $finish; else // Wait 2 cycles
+		`endif
 		rdata <= mem[index];
 	end
 end
@@ -70,6 +73,8 @@ end
 always @(posedge clk) begin
 	if (reset) $readmemh(DATA, mem);
 	else if (memwrite) begin
+		`ifdef DEBUG // sw $X, 0xffffffff == print $X
+		if (addr == {ADDR{1'b1}}) $display("[DEBUG] %8x", wdata); else
 		mem[index] <= wdata;
 	end
 end
