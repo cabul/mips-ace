@@ -25,6 +25,10 @@ always @* begin
 			`OP_SB:   aluop_out <= `ALUOP_ADD;
 			`OP_SW:   aluop_out <= `ALUOP_ADD;
 			`OP_LUI:  aluop_out <= `ALUOP_LUI;
+			// Ignore
+			`OP_J:    aluop_out <= aluop_out;
+			`OP_RTYPE:
+				$display("[WARNING] ALU Control received unexpected OP_RTYPE");
 			default:
 				$display("[WARNING] ALU Control received unknown opcode signal %x", opcode);
 		endcase
