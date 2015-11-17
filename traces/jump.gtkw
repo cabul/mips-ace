@@ -1,33 +1,64 @@
 [*]
 [*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
-[*] Thu Nov 12 17:10:00 2015
+[*] Tue Nov 17 12:42:53 2015
 [*]
-[dumpfile] "/home/cabul/Miri/pa/mips/traces/jump.vcd"
-[dumpfile_mtime] "Thu Nov 12 17:08:54 2015"
-[dumpfile_size] 1095789
+[dumpfile] "/home/cabul/Miri/pa/mips/traces/branch.vcd"
+[dumpfile_mtime] "Tue Nov 17 12:37:29 2015"
+[dumpfile_size] 28841
 [savefile] "/home/cabul/Miri/pa/mips/traces/jump.gtkw"
 [timestart] 0
-[size] 958 1024
+[size] 1920 1025
 [pos] -1 -1
-*-4.000000 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-5.000000 96 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 197
-[signals_width] 142
+[signals_width] 299
 [sst_expanded] 1
 [sst_vpaned_height] 302
 @28
 cpu_tb.cpu.clk
 cpu_tb.cpu.reset
 @22
-cpu_tb.cpu.pc_out[31:0]
-@23
-cpu_tb.cpu.pc_in[31:0]
-@28
-cpu_tb.cpu.mem_isjump
-cpu_tb.cpu.ex_isjump
-cpu_tb.cpu.id_isjump
-@22
 cpu_tb.cpu.if_instr[31:0]
+cpu_tb.cpu.pc_out[31:0]
+@200
+-Control
+@28
+cpu_tb.cpu.control.isbranch
+cpu_tb.cpu.control.isjump
+@200
+-Regfile
+@22
+cpu_tb.cpu.regfile.dbg_mem[1023:0]
+cpu_tb.cpu.regfile.wreg[4:0]
+cpu_tb.cpu.regfile.wdata[32:0]
+@200
+-ALU
+@22
+alu.s[31:0]
+@23
+alu.t[31:0]
+@22
+alu.aluop[3:0]
+alu.out[31:0]
+@28
+alu.zero
+@200
+-Decode
+@28
+cpu_tb.cpu.id_isbranch
+@200
+-Execute
+@28
+cpu_tb.cpu.ex_isbranch
+cpu_tb.cpu.ex_aluz
+@22
+cpu_tb.cpu.ex_imm[31:0]
+@200
+-Memory
+@28
+cpu_tb.cpu.mem_isbranch
+cpu_tb.cpu.mem_aluz
 [pattern_trace] 1
 [pattern_trace] 0

@@ -89,7 +89,7 @@ memory #(
 
 flipflop #(.N(64)) if_id (
 	.clk(clk),
-	.reset(reset | ex_isjump | mem_isbranch),
+	.reset(reset | ex_isjump | pc_take_branch),
 	.we(if_id_we),
 	.in({if_pc_next, if_instr}),
 	.out({id_pc_next, id_instr})
@@ -165,7 +165,7 @@ multiplexer #(.X(4)) data_rt_mux (
 
 flipflop #(.N(190)) id_ex (
 	.clk(clk),
-	.reset(reset | ex_isjump | mem_isbranch),
+	.reset(reset | ex_isjump | pc_take_branch),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
         	id_isbranch, id_regdst, id_aluop, id_alusrc, id_isjump,
@@ -247,7 +247,7 @@ multiplexer #(.N(5)) dst_mux(
 
 flipflop #(.N(110)) ex_mem (
 	.clk(clk),
-	.reset(reset | mem_isbranch),
+	.reset(reset | pc_take_branch),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
         	ex_isbranch, ex_pc_branch,  ex_aluovf, ex_aluz,
