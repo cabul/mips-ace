@@ -64,7 +64,7 @@ reg [WIDTH-1:0] mem [0:DEPTH-1];
 always @* begin
 	if (memread && !reset) begin
 		`ifdef DEBUG // lw $X, 0xffffffff == exit
-		if (addr[15:0] == 16'b1) # 20 $finish; else // Wait 2 cycles
+		if (& addr) # 20 $finish; else // Wait 2 cycles
 		`endif
 		rdata <= mem[index];
 	end
@@ -74,7 +74,8 @@ always @(posedge clk) begin
 	if (reset) $readmemh(DATA, mem);
 	else if (memwrite) begin
 		`ifdef DEBUG // sw $X, 0xffffffff == print $X
-		if (addr[15:0] == 16'b1) $display("[DEBUG] %8x", wdata); else
+		if (& addr) $display("[DEBUG] %8x", wdata); else
+		`endif
 		mem[index] <= wdata;
 	end
 end

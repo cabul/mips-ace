@@ -1,19 +1,19 @@
 [*]
 [*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
-[*] Mon Nov 16 16:51:01 2015
+[*] Tue Nov 17 10:57:55 2015
 [*]
-[dumpfile] "/home/cabul/Miri/pa/mips/traces/verbose_adds.vcd"
-[dumpfile_mtime] "Mon Nov 16 16:49:07 2015"
-[dumpfile_size] 1237210
-[savefile] "/home/cabul/Miri/pa/mips/traces/verbose_adds.gtkw"
+[dumpfile] "/home/adrian/mips-ace/traces/hazards.vcd"
+[dumpfile_mtime] "Tue Nov 17 10:57:35 2015"
+[dumpfile_size] 1206874
+[savefile] "/home/adrian/mips-ace/traces/verbose_adds.gtkw"
 [timestart] 0
-[size] 1920 1025
+[size] 1920 1004
 [pos] -1 -1
 *-6.000000 195 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
-[sst_width] 197
-[signals_width] 652
+[sst_width] 223
+[signals_width] 238
 [sst_expanded] 1
 [sst_vpaned_height] 619
 @28
@@ -26,8 +26,22 @@ cpu_tb.cpu.imem.addr[31:0]
 cpu_tb.cpu.imem.rdata[31:0]
 @200
 -REG
+-Flip-Flops
+@28
+cpu_tb.cpu.id_regwrite
+@200
+-DMEM
+@28
+cpu_tb.cpu.clk
+cpu_tb.reset
+@200
+-IMEM
 @22
-cpu_tb.cpu.regfile.dbg_mem[1023:0]
+cpu_tb.cpu.imem.addr[31:0]
+cpu_tb.cpu.imem.rdata[31:0]
+@200
+-REG
+@22
 [color] 3
 cpu_tb.cpu.regfile.rreg1[4:0]
 [color] 3
@@ -42,9 +56,7 @@ cpu_tb.cpu.regfile.wreg[4:0]
 cpu_tb.cpu.regfile.wdata[32:0]
 @200
 -Flip-Flops
-@22
-id_ex.in[190:0]
-@29
+@28
 cpu_tb.cpu.id_regwrite
 [pattern_trace] 1
 [pattern_trace] 0
