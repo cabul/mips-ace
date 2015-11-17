@@ -17,6 +17,7 @@ WORDS=0
 MEMSIZE=128
 WIDTH=1
 NUMLINE=1
+LASTADDR=0
 
 printword() {
 	printf "$1"
@@ -25,16 +26,33 @@ printword() {
 	[[ $WORDS -lt $WIDTH ]] || { WORDS=0 ; echo ; }
 }
 
+tryauto() {
+    NUMLINE=1
+    while read LINE ; do
+        LINE=`echo "$LINE" | sed 's/\s\s*//g' | sed 's/;.*//g'`
+        [[ `echo $LINE | grep -E '^[a-fA-F0-9]{8}$'` == $LINE ]] \
+            || die "Line $NUMLINE: Wrong format"
+        [[ $LINE != '' ]] || { (( NUMLINE++ )); continue; }
+        printword $LINE;
+    done < $1
+    
+    while [[ $POSITION -lt $MEMSIZE ]] ; do
+        printword "00000000"
+    done
+    
+    exit 0
+}
+
 while read LINE ; do
 	LINE=`echo "$LINE" | sed 's/\s\s*//g' | sed 's/;.*//g'`
 	[[ $LINE != '' ]] || { (( NUMLINE++ )) ; continue ; }
-	[[ `echo $LINE | grep -E '[a-fA-F0-9]{8}:[a-fA-F0-9]{8}'` == $LINE ]] \
-		|| die "Line $NUMLINE: Wrong format"
+	[[ `echo $LINE | grep -E '[a-fA-F0-9]{8}:[a-fA-F0-9]{8}'` == $LINE ]] || tryauto $1
 	HADDRESS=`echo "$LINE" | cut -f1 -d:`
 	ADDRESS=`hex2dec $HADDRESS`
 	DATA=`echo "$LINE" | cut -f2 -d:`
 	[[ $ADDRESS -lt $MEMSIZE ]] || die "Line $NUMLINE: Address 0x$HADDRESS out of bounds"
 	[[ $ADDRESS -ge $POSITION ]] || die "Line $NUMLINE: Address 0x$HADDRESS out of order"
+    LASTADDR=ADDRESS
 	while [[ $POSITION -lt $ADDRESS ]] ; do
 		printword "00000000"
 	done
