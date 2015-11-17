@@ -31,8 +31,8 @@ fwdcontrol fwdcontrol(
 	.ex_rw(ex_regwrite & !ex_memtoreg),
 	.mem_rw(mem_regwrite),
 	.wb_rw(wb_regwrite),
-	.ctrl_rs(aluctrl_rs),
-	.ctrl_rt(aluctrl_rt)
+	.ctrl_rs(fwdctrl_rs),
+	.ctrl_rt(fwdctrl_rt)
 );
 
 ////////////////////////
@@ -119,8 +119,8 @@ wire [31:0] id_pc_jump;
 wire [31:0] reg_rs;
 wire [31:0] reg_rt;
 reg id_ex_we = 1;
-wire [1:0] aluctrl_rs;
-wire [1:0] aluctrl_rt;
+wire [1:0] fwdctrl_rs;
+wire [1:0] fwdctrl_rt;
 
 assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 assign id_pc_jump = {id_pc_next[31:28], id_instr[25:0], 2'b00};
@@ -152,13 +152,13 @@ regfile regfile(
 );
 
 multiplexer #(.X(4)) data_rs_mux (
-	.select(aluctrl_rs),
+	.select(fwdctrl_rs),
 	.in_data({wb_wdata, mem_wdata, ex_alures, reg_rs}),
 	.out_data(id_data_rs)
 );
 
 multiplexer #(.X(4)) data_rt_mux (
-	.select(aluctrl_rt),
+	.select(fwdctrl_rt),
 	.in_data({wb_wdata, mem_wdata, ex_alures, reg_rt}),
 	.out_data(id_data_rt)
 );
