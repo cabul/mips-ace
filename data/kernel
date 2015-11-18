@@ -7,35 +7,35 @@
 ; Code starts at line 10, do the math :-)
 ; TODO improve things with functions and stuff...
 
-2010ffff ; addi $s0, $zero, 0xFFFF     // print int & exit
-2011fffe ; addi $s1, $zero, 0xFFFE     // write character
-2012006C ; addi $s2, $zero, 0x6C        // string base address
-8e480000 ; loop:    lw $t0, 0($s2)     // load 4 bytes /// BUAAAAAAAA
-00000000
-00000000
-00000000
-00000000
-1100fffb ; beq $t0, $0, exit         // stop printing if nothing
-22520004 ; addi $s2, $s2, 4          // advance pointer
-310900ff ; andi $t1, $t0, 0xFF       // get first character in word
-ae290000 ; sw $t1, 0($s1)            // print
-00004002 ; srl $t0, $t0, 2           // shift char
-00000000;310900ff ; andi $t1, $t0, 0xFF       // get second character in word
-00000000;ae290000 ; sw $t1, 0($s1)            // print
-00000000;00004002 ; srl $t0, $t0, 2           // shift char
-00000000;310900ff ; andi $t1, $t0, 0xFF       // get third character in word
-00000000;ae290000 ; sw $t1, 0($s1)            // print
-00000000;00004002 ; srl $t0, $t0, 2           // shift char
-00000000;310900ff ; andi $t1, $t0, 0xFF       // get fourth character in word
-00000000;ae290000 ; sw $t1, 0($s1)            // print
-00000000;08000003 ; j loop (recalculate)
-8e000000 ; exit:    lw $zero, 0($s0) // exit
-00000000 ; NOP
-00000000 ; NOP
-00000000 ; NOP
-00000000 ; NOP
-20454341 ; data string (reversed...., anyway we have a bug to fix)
-4b65726e
-656c2030
-2e302e31
-00000000
+2010ffff        ; addi $s0, $zero, 0xFFFF   // print int & exit
+2011fffe        ; addi $s1, $zero, 0xFFFE   // write character
+2012006C        ; addi $s2, $zero, 0x6C     // string base address
+8e480000        ; loop:    lw $t0, 0($s2)   // load 4 bytes
+00000000        ; HAZARD....
+00000000        
+00000000        
+00000000        
+1100fffb        ; beq $t0, $0, exit         // stop printing if nothing
+22520004        ; addi $s2, $s2, 4          // advance pointer
+310900ff        ; andi $t1, $t0, 0xFF       // get first character in word
+ae290000        ; sw $t1, 0($s1)            // print
+00084202        ; srl $t0, $t0, 8           // shift char
+310900ff        ; andi $t1, $t0, 0xFF       // get second character in word
+ae290000        ; sw $t1, 0($s1)            // print
+00084202        ; srl $t0, $t0, 16          // shift char
+310900ff        ; andi $t1, $t0, 0xFF       // get third character in word
+ae290000        ; sw $t1, 0($s1)            // print
+00084202        ; srl $t0, $t0, 2           // shift char
+310900ff        ; andi $t1, $t0, 0xFF       // get fourth character in word
+ae290000        ; sw $t1, 0($s1)            // print
+08000003        ; j loop (recalculate)
+8e000000        ; exit:    lw $zero, 0($s0) // exit
+00000000        ; NOP
+00000000        ; NOP
+00000000        ; NOP
+00000000        ; NOP
+20454341        ; data string (reversed for bug fixing)
+6e72654b
+30206c65
+000A312e
+00000000        ; stop reading criminal scum
