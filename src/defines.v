@@ -59,4 +59,11 @@
 	`define DMSG(M)
 `endif
 
+`ifndef MEMORY_WIDTH
+`define MEMORY_WIDTH 32
+`endif
+`ifndef MEMORY_DEPTH
+`define MEMORY_DEPTH 32
+`endif
+
 `endif

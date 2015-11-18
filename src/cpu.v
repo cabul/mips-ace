@@ -74,10 +74,7 @@ flipflop #(
 	.out(pc_out)
 );
 
-memory #(
-	.WIDTH(32),
-	.DEPTH(32)
-) imem (
+memory imem (
 	.clk(clk),
 	.reset(reset),
 	.addr(pc_out),
@@ -281,10 +278,7 @@ wire pc_take_branch;
 
 assign pc_take_branch = mem_isbranch & mem_aluz;
 
-memory #(
-	.WIDTH(32),
-	.DEPTH(32)
-) dmem (
+memory dmem (
 	.clk(clk),
 	.reset(reset),
 	.addr(mem_alures),

@@ -26,8 +26,8 @@ module memory(
 	output reg [WIDTH-1:0] rdata = {WIDTH{1'b0}}
 );
 
-parameter WIDTH = 128;
-parameter DEPTH = 4; 
+parameter WIDTH = `MEMORY_WIDTH;
+parameter DEPTH = `MEMORY_DEPTH; 
 parameter ADDR = 32;
 localparam WB = $clog2(WIDTH) - 3; // Width bits (address is in bytes)
 localparam DB = $clog2(DEPTH); // Depth bits
