@@ -82,6 +82,7 @@ always @* begin
 			isbranch <= 0;
 			regdst   <= 0;
 			alusrc   <= 1;
+            aluop    <= 1;
 			isjump   <= 0;
 		end
 		`OP_ORI: begin
