@@ -27,7 +27,7 @@ module memory(
 );
 
 parameter WIDTH = 128;
-parameter DEPTH = 4; 
+parameter DEPTH = 8; 
 parameter ADDR = 32;
 localparam WB = $clog2(WIDTH) - 3; // Width bits (address is in bytes)
 localparam DB = $clog2(DEPTH); // Depth bits
