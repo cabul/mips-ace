@@ -15,6 +15,7 @@
 `define FN_SLT 6'h2a
 `define FN_MUL 6'h18
 `define FN_DIV 6'h1a
+`define FN_JR  6'h8
 
 // ALU operations
 
@@ -51,7 +52,6 @@
 `define OP_SB	 6'h28
 `define OP_SW    6'h2b
 `define OP_JAL   6'h3
-`define OP_JR    6'h8
 
 // Debug macros
 
