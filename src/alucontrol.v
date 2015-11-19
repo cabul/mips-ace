@@ -25,8 +25,10 @@ always @* begin
 			`OP_SB:   aluop_out <= `ALUOP_ADD;
 			`OP_SW:   aluop_out <= `ALUOP_ADD;
 			`OP_LUI:  aluop_out <= `ALUOP_LUI;
-			// Ignore
+			// Ignore all these
 			`OP_J:    aluop_out <= aluop_out;
+			`OP_JAL:  aluop_out <= aluop_out;
+			`OP_JR:   aluop_out <= aluop_out;
 			`OP_RTYPE:
 				$display("[WARNING] ALU Control received unexpected OP_RTYPE");
 			default:

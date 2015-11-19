@@ -51,17 +51,8 @@ reg if_id_we = 1;
 
 assign if_pc_next = pc_out + 4;
 
-multiplexer pc_jmux(
-	.select(ex_isjump),
-	.in_data({ex_pc_jump, if_pc_next}),
-	.out_data(pc_interm)
-);
-
-multiplexer pc_bmux(
-	.select(pc_take_branch),
-	.in_data({mem_pc_branch, pc_interm}),
-	.out_data(pc_in)
-);
+assign pc_interm = ex_isjump ? dst_jump : if_pc_next;
+assign pc_in = pc_take_branch ? mem_pc_branch : pc_interm;
 
 flipflop #(
 	.N(32),
@@ -109,6 +100,8 @@ wire id_isbranch;
 wire id_aluop;
 wire id_alusrc;
 wire id_isjump;
+wire id_islink;
+wire id_jumpdst;
 wire [31:0] id_imm;
 wire [31:0] id_data_rs;
 wire [31:0] id_data_rt;
@@ -133,7 +126,9 @@ control control (
 	.memwrite(id_memwrite),
 	.alusrc(id_alusrc),
 	.regwrite(id_regwrite),
-	.isjump(id_isjump)
+	.isjump(id_isjump),
+	.jumpdst(id_jumpdst),
+	.islink(id_islink)
 );
 
 regfile regfile(
@@ -150,26 +145,26 @@ regfile regfile(
 
 multiplexer #(.X(4)) data_rs_mux (
 	.select(fwdctrl_rs),
-	.in_data({wb_wdata, mem_wdata, ex_alures, reg_rs}),
+	.in_data({wb_wdata, mem_wdata, ex_exout, reg_rs}),
 	.out_data(id_data_rs)
 );
 
 multiplexer #(.X(4)) data_rt_mux (
 	.select(fwdctrl_rt),
-	.in_data({wb_wdata, mem_wdata, ex_alures, reg_rt}),
+	.in_data({wb_wdata, mem_wdata, ex_exout, reg_rt}),
 	.out_data(id_data_rt)
 );
 
-flipflop #(.N(190)) id_ex (
+flipflop #(.N(192)) id_ex (
 	.clk(clk),
 	.reset(reset | ex_isjump | pc_take_branch),
 	.we(id_ex_we),
-	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, 
-        	id_isbranch, id_regdst, id_aluop, id_alusrc, id_isjump,
+	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_isbranch,
+        	id_regdst, id_aluop, id_alusrc, id_isjump, id_islink, id_jumpdst,
         	id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21]}),
-	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
-        	ex_isbranch, ex_regdst, ex_aluop, ex_alusrc, ex_isjump,
+	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_isbranch,
+        	ex_regdst, ex_aluop, ex_alusrc, ex_isjump, ex_islink, ex_jumpdst,
         	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode,
 			ex_pc_jump, dst_rt, dst_rd, dst_rs})
 );
@@ -191,6 +186,9 @@ wire ex_aluop;
 wire [3:0] aluop;
 wire ex_alusrc;
 wire ex_isjump;
+wire ex_islink;
+wire ex_jumpdst;
+wire [31:0] dst_jump;
 wire [31:0] ex_pc_next;
 wire [31:0] ex_data_rs;
 wire [31:0] ex_data_rt;
@@ -200,10 +198,12 @@ wire [31:0] ex_pc_jump;
 wire [4:0] dst_rt;
 wire [4:0] dst_rd;
 wire [4:0] dst_rs;
+wire [4:0] dst_reg;
 wire [4:0] ex_wreg;
 wire ex_aluz;
 wire ex_aluovf;
-wire [31:0] ex_alures;
+wire [31:0] alures;
+wire [31:0] ex_exout;
 wire [31:0] data_rt;
 wire [31:0] ex_pc_branch;
 wire [5:0] ex_opcode;
@@ -213,6 +213,8 @@ assign ex_imm = {ex_imm_top, ex_funct};
 
 assign ex_pc_branch = ex_pc_next + (ex_imm << 2);
 
+assign dst_jump = ex_jumpdst ? ex_data_rs : ex_pc_jump;
+
 alucontrol alucontrol(
 	.funct(ex_funct),
 	.opcode(ex_opcode),
@@ -220,11 +222,7 @@ alucontrol alucontrol(
 	.aluop_out(aluop)
 );
 
-multiplexer t_mux (
-	.select(ex_alusrc),
-	.in_data({ex_imm, ex_data_rt}),
-	.out_data(data_rt)
-);
+assign data_rt = ex_alusrc ? ex_imm : ex_data_rt;
 
 alu alu(
 	.aluop(aluop),
@@ -233,8 +231,10 @@ alu alu(
 	.shamt(ex_imm[10:6]),
 	.zero(ex_aluz),
 	.overflow(ex_aluovf),
-	.out(ex_alures)
+	.out(alures)
 );
+
+assign ex_exout = ex_islink ? ex_pc_next : alures;
 
 multiplexer #(.N(5)) dst_mux(
 	.select(ex_regdst),
@@ -242,16 +242,19 @@ multiplexer #(.N(5)) dst_mux(
 	.out_data(ex_wreg)
 );
 
+assign dst_reg = ex_regdst ? dst_rd : dst_rt;
+assign ex_wreg = ex_islink ? 5'd31 : dst_reg;
+
 flipflop #(.N(110)) ex_mem (
 	.clk(clk),
 	.reset(reset | pc_take_branch),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
         	ex_isbranch, ex_pc_branch,  ex_aluovf, ex_aluz,
-        	ex_alures, ex_data_rt, ex_wreg}),
+        	ex_exout, ex_data_rt, ex_wreg}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
         	mem_isbranch,  mem_pc_branch, mem_aluovf, mem_aluz,
-        	mem_alures, mem_data_rt, mem_wreg})
+        	mem_exout, mem_data_rt, mem_wreg})
 );
 
 ////////////////////////
@@ -269,7 +272,7 @@ wire mem_memwrite;
 wire mem_isbranch;
 wire mem_aluz;
 wire mem_aluovf;
-wire [31:0] mem_alures;
+wire [31:0] mem_exout;
 wire [31:0] mem_data_rt;
 wire [31:0] mem_memout;
 wire [4:0] mem_wreg;
@@ -281,18 +284,14 @@ assign pc_take_branch = mem_isbranch & mem_aluz;
 memory dmem (
 	.clk(clk),
 	.reset(reset),
-	.addr(mem_alures),
+	.addr(mem_exout),
 	.rdata(mem_memout),
 	.wdata(mem_data_rt),
 	.memwrite(mem_memwrite),
 	.memread(mem_memread)
 );
 
-multiplexer mem_mux(
-	.select(mem_memtoreg),
-	.in_data({mem_memout, mem_alures}),
-	.out_data(mem_wdata)
-);
+assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
 flipflop #(.N(38)) mem_wb (
 	.clk(clk),
@@ -308,6 +307,8 @@ flipflop #(.N(38)) mem_wb (
 //     Write back     //
 //                    //
 ////////////////////////
+
+
 
 wire wb_regwrite;
 wire [31:0] wb_wdata;
