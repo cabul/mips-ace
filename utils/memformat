@@ -13,7 +13,7 @@ die() {
 # Bits per line
 WIDTH=32
 # Number of lines
-DEPTH=32
+DEPTH=512
 [[ -z $MEMORY_DEPTH ]] || DEPTH=$MEMORY_DEPTH
 [[ -z $MEMORY_WIDTH ]] || WIDTH=$MEMORY_WIDTH
 

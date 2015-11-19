@@ -75,7 +75,7 @@ always @(posedge clk) begin
 	else if (memwrite) begin
 		`ifdef DEBUG // sw $X, 0xffffffff == print $X
 		if (& addr) $display("[DEBUG] %8x", wdata); else
-        if (& addr -1) $write("%c", wdata); else
+		if (& addr -1) $write("%c", wdata); else
 		`endif
 		mem[index] <= wdata;
 	end

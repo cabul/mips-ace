@@ -63,7 +63,7 @@
 `define MEMORY_WIDTH 32
 `endif
 `ifndef MEMORY_DEPTH
-`define MEMORY_DEPTH 32
+`define MEMORY_DEPTH 512
 `endif
 
 `endif
