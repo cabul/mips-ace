@@ -8,6 +8,7 @@
 `include "multiplexer.v"
 `include "control.v"
 `include "fwdcontrol.v"
+`include "hzdcontrol.v"
 `include "alucontrol.v"
 
 // Central Processing Unit
@@ -22,7 +23,9 @@ module cpu(
 //                    //
 ////////////////////////
 
-fwdcontrol fwdcontrol(
+wire stall;
+
+fwdcontrol fwdcontrol (
 	.rs(id_instr[25:21]),
 	.rt(id_instr[20:16]),
 	.ex_dst(ex_wreg),
@@ -33,6 +36,13 @@ fwdcontrol fwdcontrol(
 	.wb_rw(wb_regwrite),
 	.ctrl_rs(fwdctrl_rs),
 	.ctrl_rt(fwdctrl_rt)
+);
+
+hzdcontrol hzdcontrol (
+	.rt(dst_rt),
+	.memtoreg(ex_memtoreg),
+	.instr_top(id_instr[31:16]),
+	.stall(stall)
 );
 
 ////////////////////////
@@ -60,7 +70,7 @@ flipflop #(
 ) pc (
 	.clk(clk),
 	.reset(reset),
-	.we(pc_we),
+	.we(pc_we & !stall),
 	.in(pc_in),
 	.out(pc_out)
 );
@@ -78,7 +88,7 @@ memory imem (
 flipflop #(.N(64)) if_id (
 	.clk(clk),
 	.reset(reset | ex_isjump | pc_take_branch),
-	.we(if_id_we),
+	.we(if_id_we & !stall),
 	.in({if_pc_next, if_instr}),
 	.out({id_pc_next, id_instr})
 );
@@ -157,7 +167,7 @@ multiplexer #(.X(4)) data_rt_mux (
 
 flipflop #(.N(192)) id_ex (
 	.clk(clk),
-	.reset(reset | ex_isjump | pc_take_branch),
+	.reset(reset | ex_isjump | pc_take_branch | stall),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_isbranch,
         	id_regdst, id_aluop, id_alusrc, id_isjump, id_islink, id_jumpdst,
