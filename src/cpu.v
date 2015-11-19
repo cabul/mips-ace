@@ -236,14 +236,8 @@ alu alu(
 
 assign ex_exout = ex_islink ? ex_pc_next : alures;
 
-multiplexer #(.N(5)) dst_mux(
-	.select(ex_regdst),
-	.in_data({dst_rd, dst_rt}),
-	.out_data(ex_wreg)
-);
-
 assign dst_reg = ex_regdst ? dst_rd : dst_rt;
-assign ex_wreg = ex_islink ? 5'd31 : dst_reg;
+assign ex_wreg = ex_islink ? 5'h1f : dst_reg;
 
 flipflop #(.N(110)) ex_mem (
 	.clk(clk),
