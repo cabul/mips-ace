@@ -22,17 +22,34 @@ module control(
 always @* begin
 	case(opcode)
 		`OP_RTYPE: begin
-			regwrite <= 1;
-			memtoreg <= 0;
-			memread  <= 0;
-			memwrite <= 0;
-			isbranch <= 0;
-			regdst   <= 1;
-			alusrc   <= 0;
-			aluop    <= 0;
-			isjump   <= 0;
-			jumpdst  <= 0;
-			islink   <= 0;
+			case(funct)
+				`FN_JR: begin
+					regwrite <= 0;
+					memtoreg <= 0;
+					memread  <= 0;
+					memwrite <= 0;
+					isbranch <= 0;
+					regdst   <= 0;
+					alusrc   <= 0;
+					aluop    <= 0;
+					isjump   <= 1;
+					jumpdst  <= 1;
+					islink   <= 0;
+				end
+				default: begin
+					regwrite <= 1;
+					memtoreg <= 0;
+					memread  <= 0;
+					memwrite <= 0;
+					isbranch <= 0;
+					regdst   <= 1;
+					alusrc   <= 0;
+					aluop    <= 0;
+					isjump   <= 0;
+					jumpdst  <= 0;
+					islink   <= 0;
+				end
+			endcase
 		end
 		`OP_ADDI: begin
 			regwrite <= 1;
@@ -189,19 +206,6 @@ always @* begin
 			isjump   <= 1;
 			jumpdst  <= 0;
 			islink   <= 1;
-		end
-		`OP_JR: begin
-			regwrite <= 0;
-			memtoreg <= 0;
-			memread  <= 0;
-			memwrite <= 0;
-			isbranch <= 0;
-			regdst   <= 0;
-			alusrc   <= 0;
-			aluop    <= 1;
-			isjump   <= 1;
-			jumpdst  <= 1;
-			islink   <= 0;
 		end
 		default:
 			$display("[WARNING] Control Unit received unknown opcode signal %x", opcode);

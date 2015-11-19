@@ -28,7 +28,6 @@ always @* begin
 			// Ignore all these
 			`OP_J:    aluop_out <= aluop_out;
 			`OP_JAL:  aluop_out <= aluop_out;
-			`OP_JR:   aluop_out <= aluop_out;
 			`OP_RTYPE:
 				$display("[WARNING] ALU Control received unexpected OP_RTYPE");
 			default:
@@ -48,6 +47,7 @@ always @* begin
 			`FN_SLT: aluop_out <= `ALUOP_SLT;
 			`FN_MUL: aluop_out <= `ALUOP_MUL;
 			`FN_DIV: aluop_out <= `ALUOP_DIV;
+			`FN_JR:  aluop_out <= aluop_out;
 			default:
 				$display("[WARNING] ALU Control received unknown funct signal %x", funct);
 		endcase
