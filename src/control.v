@@ -202,7 +202,7 @@ always @* begin
 			isbranch <= 0;
 			regdst   <= 0;
 			alusrc   <= 0;
-			aluop    <= 0;
+			aluop    <= 1;
 			isjump   <= 1;
 			jumpdst  <= 0;
 			islink   <= 1;

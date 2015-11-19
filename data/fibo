@@ -1,0 +1,38 @@
+; .text
+
+00000000: 2010ffff        ; addi $s0, $zero, 0xFFFF   // print int & exit
+          2011fffe        ; addi $s1, $zero, 0xFFFE   // write character
+          20120100        ; addi $s2, $zero, 0x100    // string base address
+          201d0200        ; addi $sp, $zero, 0x200    // SP
+          20040005        ; addi $a0, $0, 5
+          ; jal fibo
+          8e480000        ; lw $t0, 0($s2)            // load 4 bytes
+          310900ff        ; andi $t1, $t0, 0xFF       // get first character in word
+          ae290000        ; sw $t1, 0($s1)            // print
+          00084202        ; srl $t0, $t0, 8           // shift char
+          310900ff        ; andi $t1, $t0, 0xFF       // get second character in word
+          ae290000        ; sw $t1, 0($s1)            // print
+          00084202        ; srl $t0, $t0, 16          // shift char
+          310900ff        ; andi $t1, $t0, 0xFF       // get third character in word
+          ae290000        ; sw $t1, 0($s1)            // print
+          ae020000        ; sw $v0, 0($s0)            // print
+          8e000000        ; lw $zero, 0($s0)          // exit
+          ;nop
+          ;nop
+          ;nop
+          ;nop
+          ; fibo: sw $t0, 0($sp)
+          ; addi $sp, $sp, 4
+          ; addi $t0, $0, 2
+          ; beq $a0, $t0, fibo_trivial
+          ; fibo_trivial: 
+          
+          
+
+; .data
+
+00000100: 00203a46        ; "F: "
+00000108: 00000000        ; F[n]
+          00000001        ; F[n+1]
+
+; .stack 0x00000200

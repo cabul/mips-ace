@@ -235,7 +235,6 @@ alu alu(
 );
 
 assign ex_exout = ex_islink ? ex_pc_next : alures;
-
 assign dst_reg = ex_regdst ? dst_rd : dst_rt;
 assign ex_wreg = ex_islink ? 5'h1f : dst_reg;
 
