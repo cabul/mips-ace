@@ -1,38 +1,59 @@
-; .text
+;
+; .text 0x00000000
+;
 
-00000000: 2010ffff        ; addi $s0, $zero, 0xFFFF   // print int & exit
-          2011fffe        ; addi $s1, $zero, 0xFFFE   // write character
-          20120100        ; addi $s2, $zero, 0x100    // string base address
-          201d0200        ; addi $sp, $zero, 0x200    // SP
-          20040005        ; addi $a0, $0, 5
-          ; jal fibo
-          8e480000        ; lw $t0, 0($s2)            // load 4 bytes
-          310900ff        ; andi $t1, $t0, 0xFF       // get first character in word
-          ae290000        ; sw $t1, 0($s1)            // print
-          00084202        ; srl $t0, $t0, 8           // shift char
-          310900ff        ; andi $t1, $t0, 0xFF       // get second character in word
-          ae290000        ; sw $t1, 0($s1)            // print
-          00084202        ; srl $t0, $t0, 16          // shift char
-          310900ff        ; andi $t1, $t0, 0xFF       // get third character in word
-          ae290000        ; sw $t1, 0($s1)            // print
-          ae020000        ; sw $v0, 0($s0)            // print
-          8e000000        ; lw $zero, 0($s0)          // exit
-          ;nop
-          ;nop
-          ;nop
-          ;nop
-          ; fibo: sw $t0, 0($sp)
-          ; addi $sp, $sp, 4
-          ; addi $t0, $0, 2
-          ; beq $a0, $t0, fibo_trivial
-          ; fibo_trivial: 
-          
-          
+00000000:   2010ffff ; mem mapped
+            2011fffe ; mem mapped
+            20120200 ; base addr
+            201d0300 ; sp
+            20040002 ; a0 = 1
+            0c000015 ; fibo(1)
+            8e480000 ;
+            310900ff ;
+            ae290000 ; print char
+            00084202 ;
+            310900ff ; next
+            ae290000 ; print char
+            00084202 ;
+            310900ff ; next
+            ae290000 ; print char
+            ae020000 ; print int
+            8e000000 ; exit
+            
+; fibo
+00000054:   afa80000 ; save t0
+            afbf0004 ; save ra
+            afa4000c ; save a0
+            23bd000c ; inc sp
+            20080001 ; t0 = 1
+            1088000C ; a0 == t0? -> fibo_trivial
+            20080000 ; t0 = 0
+            1088000A ; a0 == t0? -> fibo_trivial
+            2084ffff ; a0--
+            00000000;0c000015 ; fibo(a0) BUG
+            00024020 ; r <- fib(n-1)
+            2084ffff ; a0--
+            00000000;0c000015 ; fibo(a0) BUG
+            01024020 ; r <- r + fib(n-2)
+            afa40008 ; load a0
+            afbf0004 ; load ra
+            afa80000 ; load t0
+            03e00008 ; return
+            
+; fibo_trivial
+            20020001 ; v0 = 1
+            23bdfff4 ; dec sp
+            afa40008 ; load a0
+            afbf0004 ; load ra
+            afa80000 ; load t0
+            03e00008 ; return
 
-; .data
+;
+; .data 0x00000200
+;
 
-00000100: 00203a46        ; "F: "
-00000108: 00000000        ; F[n]
-          00000001        ; F[n+1]
+00000200:   00203a46 ; "F: "
 
-; .stack 0x00000200
+;
+; .stack 0x00000300
+;
