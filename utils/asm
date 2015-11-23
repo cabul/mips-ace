@@ -201,6 +201,8 @@ class Parser(object):
 		elif section == '.text':
 			self.expect(tokens, pos, 'end of line')
 			self.parser = self.parsetext
+		else:
+			raise SyntaxError(self.lineno, 'Invalid section %s' % section)
 	def parsedata(self, tokens):
 		# Detect end of section
 		match = self.lookahead(tokens, 0, 'Meta')
@@ -382,10 +384,10 @@ class Parser(object):
 				binary += self.regToBin(val['rt']) if 'rt' in val else '00000'
 				binary += self.regToBin(val['rd']) if 'rd' in val else '00000'
 				binary += self.numToBin(val['shamt'], 6) if 'shamt' in val else '00000'
-				binary += '{0:05b}'.format(funct)
+				binary += '{0:06b}'.format(funct)
 				pos += 4
 			elif itype == 'I':
-				binary = '{0:05b}'.format(opcode)
+				binary = '{0:06b}'.format(opcode)
 				binary += self.regToBin(val['rs']) if 'rs' in val else '00000'
 				binary += self.regToBin(val['rt']) if 'rt' in val else '00000'
 				if 'imm' in val:
@@ -401,7 +403,7 @@ class Parser(object):
 					pass
 				pos += 4
 			elif itype == 'J':
-				binary = '{0:05b}'.format(opcode)
+				binary = '{0:06b}'.format(opcode)
 				label = val['label'][1]
 				if label not in self.labels:
 					raise SyntaxError(lineno, 'Label %s undefined' % label)

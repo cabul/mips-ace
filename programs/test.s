@@ -4,7 +4,7 @@
 
 # The label 'main' represents the starting point
 main:
-	li $t2, 25		# Load immediate value (25) 
+	li $t2		# Load immediate value (25) 
 	la $t4, value		# Load the word stored at label 'value'
 	lw $t3, 0($t4)		# Load the word stored at label 'value'
 	add $t4, $t2, $t3	# Add
