@@ -1,3 +1,4 @@
+.text
 main:	li $t0, 0
 		li $t1, 10
 		li $t2, 0
@@ -14,3 +15,5 @@ loop:	beq $t0, $t1, out
 
 out:	li $v0, 10
 		syscall
+
+.data

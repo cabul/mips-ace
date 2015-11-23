@@ -96,7 +96,9 @@ details() {
 
 			;;
 		asm)
-			echo 'Not implemented yet'
+			echo 'usage: ace asm <program> [<output>]'
+			echo
+			echo 'Compiles a MIPS program to machine code'
 			;;
 		*)
 			echo "Unrecognized command $1"
@@ -284,6 +286,14 @@ case $CMD in
 	clean) clean ;;
 	test) testbench "$@" ;;
 	run) run "$@" ;;
-	asm) die "Not implemented yet" ;;
+	asm)
+		[[ $# -ge 1 ]] || die 'Not enough arguments'
+		[[ -f $1 ]] || die 'File does not exist'
+		if [[ $# -ge 2 ]] ; then
+			utils/asm $1 > $2
+		else
+			utils/asm $1
+		fi
+		;;
 	*) usage ;;
 esac

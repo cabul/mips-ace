@@ -46,31 +46,26 @@ printword() {
 
 while read LINE ; do
 	# Parse line
-	LINE=(`echo "$LINE" | sed 's/\s\s*//g' | sed 's/;.*//g' | sed 's/:/ /g'`)
-	case ${#LINE[@]} in
-		0) # Empty line
-			(( NUMLINE++ ))
-			continue
-			;;
-		1) # Only data
-			ADDRESS=$POSITION
-			DATA=${LINE[0]}
-			;;
-		2) # Address and data
-			ADDRESS=`hex2dec ${LINE[0]}` || die "Line $NUMLINE: Address has wrong format"
-			DATA=${LINE[1]}
-			;;
-		*)
-			die "Line $NUMLINE: Wrong format"
-	esac
-	# Check address
-	[[ $ADDRESS -lt $MEMSIZE ]] || die "Line $NUMLINE: Address out of bounds"
-	[[ $ADDRESS -ge $POSITION ]] || die "Line $NUMLINE: Address out of order"
-	# Fill empty spaces with 0s
-	while [[ $POSITION -lt $ADDRESS ]] ; do
-		printword "00000000"
-	done
-	printword "$DATA"
+	LINE=`echo "$LINE" | sed 's/\s\s*//g' | sed 's/;.*//g'`
+	if [[ $LINE == '' ]] ; then
+		(( NUMLINE ++ ))
+		continue
+	fi
+	DATA=$LINE
+	ADDRESS=$POSITION
+	HADDRESS=`echo "$LINE" | sed -n 's/\([0-9a-fA-F]*\):.*/\1/p'`
+	if [[ $HADDRESS != '' ]] ; then
+		DATA=`echo "$LINE" | sed 's/[^:]*://'`
+		# Fill empty spaces with 0s
+		ADDRESS=`hex2dec $HADDRESS` || die "Line $NUMLINE: Address has wrong format"
+		[[ $POSITION -gt $ADDRESS ]] && die "Line $NUMLINE: Address out of order"
+		while [[ $POSITION -lt $ADDRESS ]] ; do
+			printword "00000000"
+		done
+	fi
+	# Check memory space
+	[[ $ADDRESS -lt $MEMSIZE ]] || die "Line $NUMLINE: Address $ADDRESS out of bounds"
+	[[ $DATA != '' ]] && printword "$DATA"
 	(( NUMLINE++ ))
 done < $1
 
