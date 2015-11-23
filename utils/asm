@@ -10,8 +10,8 @@ class SyntaxError(Exception):
 		super(SyntaxError, self).__init__(message)
 
 # Configuration
-textinit = 4096
-datainit = 16384
+textinit = 0
+datainit = 512
 
 token_def = [
 #     Name           Pattern            Ignore
