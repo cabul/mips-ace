@@ -73,11 +73,13 @@ end
 always @(posedge clk) begin
 	if (reset) $readmemh(DATA, mem);
 	else if (memwrite) begin
-		`ifdef DEBUG // sw $X, 0xffffffff == print $X
-		if (& addr) begin 
+		`ifdef DEBUG
+		if (addr == 32'hffffffff) begin 
             $display("[DEBUG] %8x", wdata); 
         end else if (addr == 32'hfffffffe) begin
             $write("%c", wdata);
+        end else if (addr == 32'hfffffffd) begin
+            $write("%0d", wdata);
         end else
 		`endif
         
