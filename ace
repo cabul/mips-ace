@@ -117,6 +117,11 @@ check_config() {
 	[[ -z $MEMORY_DEPTH ]] && die 'Memory depth is undefined'
 }
 
+find_for() {
+	TMP="/${1%.v}.v"
+	find . -type f -path ".*${TMP}"
+}
+
 
 # $1 -> file
 compile() {
@@ -158,8 +163,7 @@ check() {
 	else
 		[[ $# -gt 0 ]] || die 'No arguments'
 		for ARG in "$@" ; do
-			ARG=${ARG%.v}.v
-			FILES=(`find . -type f -path "./*${ARG}"`)
+			FILES=(`find_for $ARG`)
 			check_files ${FILES[@]} || echo -e "[${RED}Error${NC}] $ARG not found"
 		done
 	fi
@@ -205,8 +209,7 @@ todo() {
 	else
 		[[ $# -gt 0 ]] || die "No arguments"
 		for ARG in "$@" ; do
-			ARG=${ARG%.v}.v
-			FILES=(`find . -type f -path "./*${ARG}"`)
+			FILES=(`find_for $ARG`)
 			todo_files ${FILES[@]} || echo -e "[${RED}Error${NC}] $ARG not found"
 		done
 	fi
