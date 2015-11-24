@@ -451,7 +451,6 @@ def repl(stream):
 	except SyntaxError as ex:
 		print ex.message
 		parser.printcontext()
-		print 'U mad bro!'
 
 def main():
 	if len(sys.argv) < 2: 
