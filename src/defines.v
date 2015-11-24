@@ -66,13 +66,14 @@
 	`define DMSG(M)
 `endif
 
-// TODO this is not working, values are ignored (wtf)
-
+// This is just fallback
 `ifndef MEMORY_WIDTH
-	`error_MEMORY_WIDTH
+	`error_MEMORY_WIDTH_undef
 `endif
 `ifndef MEMORY_DEPTH
-	`error_MEMORY_DEPTH
+	`error_MEMORY_DEPTH_undef
 `endif
+
+`define MEMORY_DATA "build/memory.raw"
 
 `endif
