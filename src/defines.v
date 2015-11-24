@@ -16,6 +16,7 @@
 `define FN_MUL 6'h18
 `define FN_DIV 6'h1a
 `define FN_JR  6'h8
+`define FN_SYS 6'hc
 
 // ALU operations
 
@@ -53,6 +54,10 @@
 `define OP_SW    6'h2b
 `define OP_JAL   6'h3
 
+`define SYS_PRINT_INT  1
+`define SYS_PRINT_CHAR 11
+`define SYS_EXIT       10
+
 // Debug macros
 
 `ifdef DEBUG
@@ -64,10 +69,10 @@
 // TODO this is not working, values are ignored (wtf)
 
 `ifndef MEMORY_WIDTH
-`define MEMORY_WIDTH 32
+	`error_MEMORY_WIDTH
 `endif
 `ifndef MEMORY_DEPTH
-`define MEMORY_DEPTH 4096
+	`error_MEMORY_DEPTH
 `endif
 
 `endif

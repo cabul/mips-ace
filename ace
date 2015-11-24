@@ -111,12 +111,17 @@ clean() {
 	rm -rf build/
 }
 
+check_config() {
+	[[ -z $MEMORY_WIDTH ]] && die 'Memory width is undefined'
+	[[ -z $MEMORY_DEPTH ]] && die 'Memory depth is undefined'
+}
+
+
 # $1 -> file
 compile() {
 	FILE=$1
 	BUILD=`basename ${1%.v}`
-	[[ -z $MEMORY_DEPTH ]] || CFLAGS="$CFLAGS -DMEMORY_DEPTH=$MEMORY_DEPTH"
-	[[ -z $MEMORY_WIDTH ]] || CFLAGS="$CFLAGS -DMEMORY_WIDTH=$MEMORY_WIDTH"
+	CFLAGS="$CFLAGS -DMEMORY_DEPTH=$MEMORY_DEPTH -DMEMORY_WIDTH=$MEMORY_WIDTH"
 	iverilog -o build/run.vvp $CFLAGS -Isrc -Itest `utils/list-deps $FILE`
 }
 
@@ -238,6 +243,7 @@ testbench() {
 		esac
 	done
 	[[ $# -gt 0 ]] || die "No testbench"
+	check_config
 	runtest "$1"
 }
 
@@ -261,10 +267,36 @@ run() {
 		esac
 	done
 	[[ $# -gt 0 ]] || die "No program"
-	utils/memformat $1 > build/memory.dat 2> build/memory.log || {
-		[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
-		die "Bad memory"
-	}
+	[[ -f $1 ]] || die 'Not a file'
+	check_config
+	FILE_ENDING=${1##*.}
+	case $FILE_ENDING in
+		asm)
+			utils/asm $1 > build/memory.dat 2> build/memory.log
+			if [[ $? -ne 0 ]] ; then
+				[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
+				die 'Unable to assemble program'
+			fi
+			utils/memformat build/memory.dat > build/memory.raw 2> build/memory.log
+			if [[ $? -ne 0 ]] ; then
+				[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
+				die 'Unable to format memory'
+			fi
+			;;
+		dat)
+			utils/memformat $1 > build/memory.raw 2> build/memory.log
+			if [[ $? -ne 0 ]] ; then
+				[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
+				die 'Unable to format memory'
+			fi
+			;;
+		raw)
+			cat $1 > build/memory.raw
+			;;
+		*)
+			die "Unrecognized format $FILE_ENDING"
+			;;
+	esac
 	runtest "$ARG_MAIN"
 }
 

@@ -10,8 +10,8 @@ class SyntaxError(Exception):
 		super(SyntaxError, self).__init__(message)
 
 # Configuration
-textinit = 4096
-datainit = 16384
+textinit = 0
+datainit = 512
 
 token_def = [
 #     Name           Pattern            Ignore
@@ -451,7 +451,7 @@ def repl(stream):
 	except SyntaxError as ex:
 		print ex.message
 		parser.printcontext()
-		print 'I give up!'
+		print 'U mad bro!'
 
 def main():
 	if len(sys.argv) < 2: 

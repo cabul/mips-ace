@@ -35,7 +35,7 @@ localparam DB = $clog2(DEPTH); // Depth bits
 // This parameter is the name of the hexfile that is loaded on startup.
 // You usually do not! need to change this parameter manually, since
 // the file is generated from the program passed to ace.
-parameter DATA  = "build/memory.dat";
+parameter DATA  = "build/memory.raw";
 
 // Unrolling for debug port
 `ifdef DEBUG_MEMORY

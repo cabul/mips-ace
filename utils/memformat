@@ -10,12 +10,10 @@ die() {
 
 # Configuration
 
-# Bits per line
-WIDTH=32
-# Number of lines
-DEPTH=512
-[[ -z $MEMORY_DEPTH ]] || DEPTH=$MEMORY_DEPTH
-[[ -z $MEMORY_WIDTH ]] || WIDTH=$MEMORY_WIDTH
+[[ -z $MEMORY_DEPTH ]] && die "Memory depth is undefined"
+[[ -z $MEMORY_WIDTH ]] && die "Memory width is undefined"
+DEPTH=$MEMORY_DEPTH
+WIDTH=$MEMORY_WIDTH
 
 hex2dec() {
 	# Check if it is a valid number
