@@ -1,64 +1,51 @@
 `ifndef _cache
 `define _cache
 
-`include "multiplexer.v"
-
 ///////////
 // Cache //
 ///////////
-module cache(
+module cache (
 	input wire clk,
 	input wire reset,
-	input wire[31:0] addr,
-	output wire[31:0] data,
+	input wire [31:0] addr,
+	output reg [WIDTH-1:0] data,
 	output reg hit = 0
 );
 
-parameter BLOCKSIZE = 4; // 2^BLOCKSIZE Bytes
-parameter ASSOC = 2; // N-way associative
-parameter SETS = 2; // 2^SETS sets
+parameter WIDTH = 128; // Bits in cache line
+parameter DEPTH = 4; // Number of cache lines
+parameter SETS = 2; // 2-way associative
+localparam WB = $clog2(WIDTH); // Width bits
+localparam DB = $clog2(DEPTH); // Depth bits
 
-wire[ASSOC-1:0] hits;
+wire [SETS-1:0] hits; // Whether any of the sets has the data
 
-wire[31-SETS-BLOCKSIZE:0] tag;
-wire[SETS-1:0] set; // index
-wire[BLOCKSIZE-1:0] offset;
+// address = tag | index | offset
+wire [WB-1:0]     offset; // Offset is ignored!? Fetch whole line
+wire [DB-1:0]     index;
+wire [31-WB-DB:0] tag;
 
-assign offset = addr[BLOCKSIZE-1:0];
-assign set = addr[BLOCKSIZE+SETS-1:BLOCKSIZE];
-assign tag = addr[31:BLOCKSIZE+SETS];
-
-reg valids[ASSOC-1:0][SETS-1:0];
-reg[31-SETS-BLOCKSIZE:0] tags[ASSOC-1:0][SETS-1:0];
-// 2^BLOCKSIZE Bytes
-reg[2**(BLOCKSIZE+3)-1:0] blocks[ASSOC-1:0][SETS-1:0];
-
-reg[2**(BLOCKSIZE+3)-1:0] block;
-
-// setdata[0][set] => tag
-
-multiplexer #(.N(32), .X(BLOCKSIZE-2)) mux(
-	.select(offset[BLOCKSIZE-1:2]),
-	.in_data(block),
-	.out_data(data)
-);
+assign offset = addr[WB-1:0];
+assign index  = addr[WB+DB-1:WB];
+assign tag    = addr[31:WB+DB];
 
 genvar i;
 generate
-for(i=0; i < ASSOC; i = i+1) begin
-	assign hits[i] = (tags[i][set] == tag) && valids[i][set];
-
-	always @(posedge clk) begin
-		if (hits[i]) begin
-			block <= blocks[i][set];
-		end
+	for(i=0; i < SETS; i = i+1) begin
+		// Create set
+		reg valids [0:DEPTH-1];
+		reg [31-WB-DB:0] tags [0:DEPTH-1];
+		reg [WIDTH-1:0] lines [0:DEPTH-1];
+	
+		assign hits[i] = tags[index] == tag && valids[index];
+	
+		// Copy value on hit
+		always @(posedge clk)
+			if (hits[i]) data <= lines[index];
 	end
-end
 endgenerate
 
-always @(posedge clk) begin
-	hit <= | hits;
-end
+always @(posedge clk) hit <= | hits;
 
 endmodule
 
