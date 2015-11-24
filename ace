@@ -271,7 +271,7 @@ run() {
 	check_config
 	FILE_ENDING=${1##*.}
 	case $FILE_ENDING in
-		asm)
+		s|asm)
 			utils/asm $1 > build/memory.dat 2> build/memory.log
 			if [[ $? -ne 0 ]] ; then
 				[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
