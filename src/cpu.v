@@ -2,7 +2,7 @@
 `define _cpu
 
 `include "flipflop.v"
-`include "memory.v"
+`include "memory_sync.v"
 `include "regfile.v"
 `include "alu.v"
 `include "multiplexer.v"
@@ -75,14 +75,13 @@ flipflop #(
 	.out(pc_out)
 );
 
-memory imem (
+memory_sync imem (
 	.clk(clk),
 	.reset(reset),
 	.addr(pc_out),
-	.rdata(if_instr),
-	.wdata(0),
-	.memwrite(0),
-	.memread(1)
+	.data_out(if_instr),
+	.master_enable(1),
+	.read_write(1)
 );
 
 flipflop #(.N(64)) if_id (
@@ -284,14 +283,15 @@ wire pc_take_branch;
 
 assign pc_take_branch = mem_isbranch & mem_aluz;
 
-memory dmem (
+memory_sync dmem (
 	.clk(clk),
 	.reset(reset),
 	.addr(mem_exout),
-	.rdata(mem_memout),
-	.wdata(mem_data_rt),
-	.memwrite(mem_memwrite),
-	.memread(mem_memread)
+	.data_out(mem_memout),
+	.data_in(mem_data_rt),
+	.master_enable(mem_memwrite | mem_memread),
+	.read_write(mem_memread),
+	.byte_enable(4'b1111)
 );
 
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
