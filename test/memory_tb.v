@@ -9,14 +9,14 @@ reg reset = 0;
 reg [31:0] addr = 32'b0;
 reg memwrite = 0;
 reg memread = 1;
-wire [15:0] rdata;
-reg [15:0] wdata;
+wire [31:0] rdata;
+reg [31:0] wdata;
 
 always #5 clk = !clk;
 
 memory #(
-	.DATA("test/memory_tb.dat"),
-	.WIDTH(16), .DEPTH(4)
+	.DATA("test/memory.raw"),
+	.WIDTH(32), .DEPTH(4)
 ) mem(
 	.clk(clk),
 	.reset(reset),
@@ -48,19 +48,19 @@ initial begin
 		memwrite <= 1;
 		memread <= 0;
 		addr <= 32'h00;
-		wdata <= 16'h0;
+		wdata <= 32'h0;
 	end
 	#10 begin
 		addr <= 32'h08;
-		wdata <= 16'h1;
+		wdata <= 32'h1;
 	end
 	#10 begin
 		addr <= 32'h10;
-		wdata <= 16'h2;
+		wdata <= 32'h2;
 	end
 	#10 begin
 		addr <= 32'h18;
-		wdata <= 16'h3;
+		wdata <= 32'h3;
 	end
 	#10 begin
 		addr <= 32'h00;
