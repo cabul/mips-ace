@@ -1,0 +1,37 @@
+; ACE Kernel 0.1
+;
+; PLEASE MY MINIONS IMPLEMENT JAL AND RET, I NEED FUNCTIONS AND STUFF AND IM LAZY
+;
+
+
+; Code starts at line 10, do the math :-)
+; TODO improve things with functions and stuff...
+
+; .text
+00000000: 2010ffff        ; addi $s0, $zero, 0xFFFF   // print int & exit
+          2011fffe        ; addi $s1, $zero, 0xFFFE   // write character
+          20120100        ; addi $s2, $zero, 0x100    // string base address
+          8e480000        ; loop:    lw $t0, 0($s2)   // load 4 bytes 
+          1100000d        ; beq $t0, $0, exit         // stop printing if nothing
+          22520004        ; addi $s2, $s2, 4          // advance pointer
+          310900ff        ; andi $t1, $t0, 0xFF       // get first character in word
+          ae290000        ; sw $t1, 0($s1)            // print
+          00084202        ; srl $t0, $t0, 8           // shift char
+          310900ff        ; andi $t1, $t0, 0xFF       // get second character in word
+          ae290000        ; sw $t1, 0($s1)            // print
+          00084202        ; srl $t0, $t0, 8           // shift char
+          310900ff        ; andi $t1, $t0, 0xFF       // get third character in word
+          ae290000        ; sw $t1, 0($s1)            // print
+          00084202        ; srl $t0, $t0, 8           // shift char
+          310900ff        ; andi $t1, $t0, 0xFF       // get fourth character in word
+          ae290000        ; sw $t1, 0($s1)            // print
+          08000003        ; j loop (recalculate)
+          8e000000        ; exit:    lw $zero, 0($s0) // exit
+
+; .data
+00000100: 20454341        ; data string (reversed for bug fixing)
+          6e72654b
+          30206c65
+          000A312e
+          00000000        ; stop reading criminal scum
+

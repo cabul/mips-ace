@@ -1,0 +1,17 @@
+; .text
+
+00000000: 2010ffff ; addi $s0, $zero, 0xFFFF
+          20120200 ; addi $s2, $zero, 0x200
+          20040069 ; addi $a0, $0, 0x69 
+          0c000009 ; jal print
+          8e000000 ; lw $zero, 0($s0)
+          00000000 ; nop
+          00000000 ; nop
+          00000000 ; nop
+          00000000 ; nop
+          ae040000 ; print: sw $a0, 0($s0)
+          03e00008 ; jr $ra
+
+; .data
+
+00000200: 0a216b4f

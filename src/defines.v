@@ -15,6 +15,8 @@
 `define FN_SLT 6'h2a
 `define FN_MUL 6'h18
 `define FN_DIV 6'h1a
+`define FN_JR  6'h8
+`define FN_SYS 6'hc
 
 // ALU operations
 
@@ -36,20 +38,25 @@
 
 // Opcodes
 
-`define OP_RTYPE	6'h0
-`define OP_ADDI 	6'h8
-`define OP_ANDI 	6'hc
-`define OP_ORI		6'hd
-`define OP_XORI		6'he
-`define OP_SLTI		6'ha
-`define OP_BEQ  	6'h4
-`define OP_BNE		6'h5
-`define OP_J    	6'h2
-`define OP_LB		6'h20
-`define OP_LUI		6'hf
-`define OP_LW   	6'h23
-`define OP_SB		6'h28
-`define OP_SW   	6'h2b
+`define OP_RTYPE 6'h0
+`define OP_ADDI  6'h8
+`define OP_ANDI  6'hc
+`define OP_ORI	 6'hd
+`define OP_XORI	 6'he
+`define OP_SLTI	 6'ha
+`define OP_BEQ   6'h4
+`define OP_BNE	 6'h5
+`define OP_J     6'h2
+`define OP_LB	 6'h20
+`define OP_LUI	 6'hf
+`define OP_LW    6'h23
+`define OP_SB	 6'h28
+`define OP_SW    6'h2b
+`define OP_JAL   6'h3
+
+`define SYS_PRINT_INT  1
+`define SYS_PRINT_CHAR 11
+`define SYS_EXIT       10
 
 // Debug macros
 
@@ -57,6 +64,15 @@
 	`define DMSG(M) $display M ;
 `else
 	`define DMSG(M)
+`endif
+
+// TODO this is not working, values are ignored (wtf)
+
+`ifndef MEMORY_WIDTH
+	`error_MEMORY_WIDTH
+`endif
+`ifndef MEMORY_DEPTH
+	`error_MEMORY_DEPTH
 `endif
 
 `endif

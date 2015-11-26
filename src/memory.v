@@ -26,8 +26,8 @@ module memory(
 	output reg [WIDTH-1:0] rdata = {WIDTH{1'b0}}
 );
 
-parameter WIDTH = 128;
-parameter DEPTH = 4; 
+parameter WIDTH = `MEMORY_WIDTH;
+parameter DEPTH = `MEMORY_DEPTH; 
 parameter ADDR = 32;
 localparam WB = $clog2(WIDTH) - 3; // Width bits (address is in bytes)
 localparam DB = $clog2(DEPTH); // Depth bits
@@ -35,7 +35,7 @@ localparam DB = $clog2(DEPTH); // Depth bits
 // This parameter is the name of the hexfile that is loaded on startup.
 // You usually do not! need to change this parameter manually, since
 // the file is generated from the program passed to ace.
-parameter DATA  = "build/memory.dat";
+parameter DATA  = "build/memory.raw";
 
 // Unrolling for debug port
 `ifdef DEBUG_MEMORY
@@ -73,9 +73,16 @@ end
 always @(posedge clk) begin
 	if (reset) $readmemh(DATA, mem);
 	else if (memwrite) begin
-		`ifdef DEBUG // sw $X, 0xffffffff == print $X
-		if (& addr) $display("[DEBUG] %8x", wdata); else
+		`ifdef DEBUG
+		if (addr == 32'hffffffff) begin 
+            $display("[DEBUG] %8x", wdata); 
+        end else if (addr == 32'hfffffffe) begin
+            $write("%c", wdata);
+        end else if (addr == 32'hfffffffd) begin
+            $write("%0d", wdata);
+        end else
 		`endif
+        
 		mem[index] <= wdata;
 	end
 end

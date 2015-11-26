@@ -1,0 +1,6 @@
+20080001 ; addi $t0, $0, 1
+15000001 ; bne $t0, $0, 1
+20090001 ; addi $t1, $0, 1
+ac08ffff ; print $t0
+ac09ffff ; print $t1
+8c00ffff ; exit

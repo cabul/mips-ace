@@ -20,7 +20,7 @@ initial begin
 	# 15 reset <= 0;
 
 
-	# 10000 $finish;
+	# 30000 $finish;
 end
 
 endmodule

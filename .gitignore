@@ -16,3 +16,5 @@
 
 # Temporary files
 build/
+dump/
+*.pyc

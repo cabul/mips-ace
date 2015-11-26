@@ -1,0 +1,73 @@
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+;;                                                                  ;;
+;; Fibonacci testbench                                              ;;
+;; - Modify a0 value to get the correspondent value in the sequence ;;
+;; - If the execution 'fails', increase simulation time!            ;;
+;; - This program requires DEBUG flag                               ;;
+;;                                                                  ;;
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+
+;
+; .text 0x00000000
+;
+
+; main()
+00000000:   2010ffff ; mem mapped
+            2011fffe ; mem mapped
+            2013fffd ; mem mapped
+            20120200 ; str base addr
+            201d0300 ; sp
+            20040005 ; a0 = 5
+            0c000018 ; fibonacci(a0)
+            8e480000 ;
+            310900ff ;
+            ae290000 ; print char
+            00084202 ;
+            310900ff ; next
+            ae290000 ; print char
+            00084202 ;
+            310900ff ; next
+            ae290000 ; print char
+            ae620000 ; print int
+            00084202 ;
+            310900ff ; next
+            ae290000 ; print char
+            8e000000 ; exit
+            
+; fibonacci(n)
+00000060:   afa80000 ; save t0
+            afbf0004 ; save ra
+            afa40008 ; save a0
+            23bd000c ; inc sp
+            20080002 ; t0 = 2
+            0088402a ; t0 = a0 < t0 ? 1 : 0
+            1500000c ; t0 != 0? -> fibonacci
+            2084ffff ; a0--
+            0c000018 ; fib(n-1)
+            20480000 ; t0 <- fibonacci(n-1)
+            2084ffff ; a0--
+            0c000018 ; fib(n-2)
+            01024020 ; t0 <- t0 + fibonacci(n-2)
+            21020000 ; v0 = t0
+            23bdfff4 ; dec sp
+            8fa40008 ; load a0
+            8fbf0004 ; load ra
+            8fa80000 ; load t0
+            03e00008 ; return
+; fibonacci_base
+            20020001 ; v0 = 1
+            23bdfff4 ; dec sp
+            8fa40008 ; load a0
+            8fbf0004 ; load ra
+            8fa80000 ; load t0
+            03e00008 ; return
+
+;
+; .data 0x00000200
+;
+
+00000200:   0A203a46 ; "\n :F"
+
+;
+; .stack 0x00000300
+;

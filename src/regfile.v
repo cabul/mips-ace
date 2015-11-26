@@ -11,7 +11,7 @@ module regfile(
 	output reg [WIDTH-1:0] rdata2 = {WIDTH{1'b0}},
 	input wire regwrite,
 	input wire [ADDR-1:0] wreg,
-	input wire [WIDTH:0] wdata
+	input wire [WIDTH-1:0] wdata
 );
 
 parameter WIDTH = 32;

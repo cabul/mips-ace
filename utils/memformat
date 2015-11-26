@@ -8,40 +8,66 @@ die() {
 [[ $# -gt 0 ]] || die "No arguments"
 [[ -f $1 ]] || die "Not a file"
 
+# Configuration
+
+[[ -z $MEMORY_DEPTH ]] && die "Memory depth is undefined"
+[[ -z $MEMORY_WIDTH ]] && die "Memory width is undefined"
+DEPTH=$MEMORY_DEPTH
+WIDTH=$MEMORY_WIDTH
+
 hex2dec() {
+	# Check if it is a valid number
+	[[ `echo "$1" | grep -E '[a-fA-F0-9]+'` ]] || return 1
 	echo $((16#$1))
 }
 
+# Script setup
 POSITION=0
 WORDS=0
-MEMSIZE=128
-WIDTH=1
 NUMLINE=1
+# Words per line
+MAXWORDS=`echo "$WIDTH / 32" | bc`
+# Size of memory in Bytes
+MEMSIZE=`echo "$DEPTH * $MAXWORDS * 4" | bc`
+TOPRINT=""
 
 printword() {
-	printf "$1"
+	TOPRINT="$1$TOPRINT"
 	(( POSITION += 4 ))
 	(( WORDS += 1 ))
-	[[ $WORDS -lt $WIDTH ]] || { WORDS=0 ; echo ; }
+	if [[ $WORDS -eq $MAXWORDS ]] ; then
+		WORDS=0
+		echo "$TOPRINT"
+		TOPRINT=""
+	fi
 }
 
 while read LINE ; do
+	# Parse line
 	LINE=`echo "$LINE" | sed 's/\s\s*//g' | sed 's/;.*//g'`
-	[[ $LINE != '' ]] || { (( NUMLINE++ )) ; continue ; }
-	[[ `echo $LINE | grep -E '[a-fA-F0-9]{8}:[a-fA-F0-9]{8}'` == $LINE ]] \
-		|| die "Line $NUMLINE: Wrong format"
-	HADDRESS=`echo "$LINE" | cut -f1 -d:`
-	ADDRESS=`hex2dec $HADDRESS`
-	DATA=`echo "$LINE" | cut -f2 -d:`
-	[[ $ADDRESS -lt $MEMSIZE ]] || die "Line $NUMLINE: Address 0x$HADDRESS out of bounds"
-	[[ $ADDRESS -ge $POSITION ]] || die "Line $NUMLINE: Address 0x$HADDRESS out of order"
-	while [[ $POSITION -lt $ADDRESS ]] ; do
-		printword "00000000"
-	done
-	printword "$DATA"
+	if [[ $LINE == '' ]] ; then
+		(( NUMLINE ++ ))
+		continue
+	fi
+	DATA=$LINE
+	ADDRESS=$POSITION
+	HADDRESS=`echo "$LINE" | sed -n 's/\([0-9a-fA-F]*\):.*/\1/p'`
+	if [[ $HADDRESS != '' ]] ; then
+		DATA=`echo "$LINE" | sed 's/[^:]*://'`
+		# Fill empty spaces with 0s
+		ADDRESS=`hex2dec $HADDRESS` || die "Line $NUMLINE: Address has wrong format"
+		[[ $POSITION -gt $ADDRESS ]] && die "Line $NUMLINE: Address out of order"
+		while [[ $POSITION -lt $ADDRESS ]] ; do
+			printword "00000000"
+		done
+	fi
+	# Check memory space
+	[[ $ADDRESS -lt $MEMSIZE ]] || die "Line $NUMLINE: Address $ADDRESS out of bounds"
+	[[ $DATA != '' ]] && printword "$DATA"
 	(( NUMLINE++ ))
 done < $1
 
+# Fill memory
 while [[ $POSITION -lt $MEMSIZE ]] ; do
 	printword "00000000"
 done

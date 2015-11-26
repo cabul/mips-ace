@@ -68,7 +68,7 @@ always @* begin
         `ALUOP_SLT: begin
 			zero <= 0;
 			overflow <= 0;
-			out <= (s < t)? 32'd1 : 32'd0;
+			out <= (s[31] != t[31]) ? (s[31] > t[31]) : (s < t);
 		end
 		`ALUOP_BEQ: begin
 			overflow <= 0;
