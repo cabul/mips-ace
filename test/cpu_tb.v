@@ -16,11 +16,18 @@ initial begin
 	$dumpvars(0, cpu_tb);
 	`endif
 
+	`ifdef DEBUG
+	$display("[DEBUG] Memory Width = %4d", `MEMORY_WIDTH);
+	$display("[DEBUG] Memory Depth = %4d", `MEMORY_DEPTH);
+	`endif
+
 	reset <= 1;
 	# 15 reset <= 0;
 
-
-	# 30000 $finish;
+	# 300000 begin
+		$display("It's a trap!");
+		$finish;
+	end
 end
 
 endmodule

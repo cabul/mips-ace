@@ -21,17 +21,17 @@ always @* begin
         `ALUOP_SLL: begin
 			zero <= 0;
 			overflow <= 0;
-			out <= t << shamt;
+			out <= s << shamt;
 		end
         `ALUOP_SRL: begin
 			zero <= 0;
 			overflow <= 0;
-			out <= t >> shamt;
+			out <= s >> shamt;
 		end
         `ALUOP_SRA: begin
 			zero <= 0;
 			overflow <= 0;
-			out <= t >>> shamt;
+			out <= s >>> shamt;
 		end
         `ALUOP_ADD: begin
 			zero <= 0;

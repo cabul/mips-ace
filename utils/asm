@@ -27,6 +27,7 @@ token_def = [
 	( 'Comma'      , ','              , False ),
 	( 'OpenPar'    , '\('             , False ),
 	( 'ClosePar'   , '\)'             , False ),
+	( 'Constant'   , '%\w+'           , False ),
 ]
 
 patterns = [ (n,re.compile(p),i) for (n,p,i) in token_def ]
@@ -64,16 +65,17 @@ instructions = {
 }
 
 rules = {
-#   Name        Pattern              Ignore
-	'rs'    : ( 'Register'         , False ),
-	'rt'    : ( 'Register'         , False ),
-	'rd'    : ( 'Register'         , False ),
-	'imm'   : ( 'HexNumber|Number' , False ),
-	'shamt' : ( 'HexNumber|Number' , False ),
-	'label' : ( 'Ident'            , False ),
-	','     : ( 'Comma'            , True  ),
-	'('     : ( 'OpenPar'          , True  ),
-	')'     : ( 'ClosePar'         , True  ),
+#   Name        Pattern                       Ignore
+	'rs'    : ( 'Register'                  , False ),
+	'rt'    : ( 'Register'                  , False ),
+	'rd'    : ( 'Register'                  , False ),
+	'imm'   : ( 'HexNumber|Number|Constant' , False ),
+	'shamt' : ( 'HexNumber|Number|Constant' , False ),
+	'const' : ( 'Constant'                  , False ),
+	'label' : ( 'Ident'                     , False ),
+	','     : ( 'Comma'                     , True  ),
+	'('     : ( 'OpenPar'                   , True  ),
+	')'     : ( 'ClosePar'                  , True  ),
 }
 
 registers = {
@@ -111,6 +113,20 @@ registers = {
 	'31' : 31 , 'ra'   : 31 , 'f31' : 31 ,
 }
 
+constants = {
+	'PRINT_CHAR'  : 0xb, 
+	'PRINT_INT'   : 0x1,
+	'PRINT_FLOAT' : 0x2,
+	'READ_CHAR'   : 0xc,
+	'READ_INT'    : 0x5,
+	'READ_FLOAT'  : 0x6,
+	'EXIT'        : 0xa,
+	'IO_EXIT'     : -1,
+	'IO_CHAR'     : -2,
+	'IO_INT'      : -3,
+	'IO_FLOAT'    : -4,
+	'IO_HEX'      : -5,
+}
 
 def instrLen(opcode, operands):
 	itype = instructions[opcode][0]
@@ -142,15 +158,20 @@ class Parser(object):
 		return '{0:05b}'.format(registers[regname])
 	def intToBin(self, num, nbits):
 		fmt = '{0:0%db}' % nbits
-		if num > int('1'*nbits, 2):
-			raise SyntaxError(self.lineno, 'Number out of bounds')
+		overflow = int('1'*nbits, 2) + 1;
+		if num < 0:
+			num = overflow + num
+		if num >= overflow:
+			raise SyntaxError(self.lineno, 'Number out of bounds %d %d %d'  % (maxnum, num, nbits))
 		return fmt.format(num)
 	def numToBin(self, num, nbits):
 		ntype, ndata = num
-		if ntype == 'HexNumber':
+		if ntype == 'Constant':
+			if not ndata[1:] in constants:
+				raise SyntaxError(self.lineno, 'Constant %s is undefined' % ndata)
+			realnum = constants[ndata[1:]]
+		elif ntype == 'HexNumber':
 			realnum = int(ndata[2:], 16)
-		elif ndata[0] == '-':
-			realnum = int('1'*nbits, 2) + 1 + int(ndata)
 		else:
 			realnum = int(ndata)
 		return self.intToBin(realnum, nbits)
@@ -180,7 +201,7 @@ class Parser(object):
 		ran = range(self.lineno - 1, self.lineno + 2)
 		for i, ln, in enumerate(ran):
 			if len(self.lines) >= ln and ln > 0:
-				print ' %4d | %s' % (ln, self.lines[ln-1]),
+				print >> sys.stderr,  '%s %3d | %s' % ('#' if self.lineno == ln else ' ', ln, self.lines[ln-1]),
 	# Helpers for recursive descent parser
 	def expect(self, tokens, pos, *choices):
 		head = tokens[pos]
@@ -383,7 +404,7 @@ class Parser(object):
 				binary += self.regToBin(val['rs']) if 'rs' in val else '00000'
 				binary += self.regToBin(val['rt']) if 'rt' in val else '00000'
 				binary += self.regToBin(val['rd']) if 'rd' in val else '00000'
-				binary += self.numToBin(val['shamt'], 6) if 'shamt' in val else '00000'
+				binary += self.numToBin(val['shamt'], 5) if 'shamt' in val else '00000'
 				binary += '{0:06b}'.format(funct)
 				pos += 4
 			elif itype == 'I':
@@ -449,8 +470,9 @@ def repl(stream):
 		parser.start()
 		parser.finish()
 	except SyntaxError as ex:
-		print ex.message
+		print >> sys.stderr,  ex.message
 		parser.printcontext()
+		sys.exit(1)
 
 def main():
 	if len(sys.argv) < 2: 

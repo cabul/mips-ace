@@ -60,7 +60,7 @@ details() {
 			echo 'syntax checking'
 			;;
 		test)
-			echo 'usage: ace test [-v] [-d <flag>] [-g] [-t <trace>] <testbench>'
+			echo 'usage: ace test [-d <flag>] [-g] [-t <trace>] <testbench>'
 			echo
 			echo '   -t   Writes trace to <trace>'
 			echo '   -g   Graphical mode (GTKWave)'
@@ -81,12 +81,11 @@ details() {
 			echo 'usage: ace clean'
 			;;
 		run)
-			echo 'usage: ace run [-t <trace>] [-d <flag>] [-v] [-g] [-m <main>] <program>'
+			echo 'usage: ace run [-t <trace>] [-d <flag>] [-g] [-m <main>] <program>'
 			echo
 			echo '   -t   Name for tracefile'
 			echo '   -g   Graphical mode (GTKWave)'
 			echo '   -m   Main module (default: cpu_tb)'
-			echo '   -v   Verbose mode'
 			echo '   -d   Add debug flag'
 			echo
 			echo 'This command builds the cpu and runs a program against it.'
@@ -117,6 +116,11 @@ check_config() {
 	[[ -z $MEMORY_DEPTH ]] && die 'Memory depth is undefined'
 }
 
+find_for() {
+	TMP="/${1%.v}.v"
+	find . -type f -path ".*${TMP}"
+}
+
 
 # $1 -> file
 compile() {
@@ -133,8 +137,8 @@ check_files() {
 			echo -e "[${GREEN}Ok${NC}]    $FILE"
 		else
 			echo -e "[${RED}Error${NC}] $FILE"
-			[[ $ARG_QUIET -eq 1 ]] || cat build/compile.log
 		fi
+		[[ $ARG_QUIET -eq 1 ]] || cat build/compile.log
 	done
 }
 
@@ -158,8 +162,7 @@ check() {
 	else
 		[[ $# -gt 0 ]] || die 'No arguments'
 		for ARG in "$@" ; do
-			ARG=${ARG%.v}.v
-			FILES=(`find . -type f -path "./*${ARG}"`)
+			FILES=(`find_for $ARG`)
 			check_files ${FILES[@]} || echo -e "[${RED}Error${NC}] $ARG not found"
 		done
 	fi
@@ -205,8 +208,7 @@ todo() {
 	else
 		[[ $# -gt 0 ]] || die "No arguments"
 		for ARG in "$@" ; do
-			ARG=${ARG%.v}.v
-			FILES=(`find . -type f -path "./*${ARG}"`)
+			FILES=(`find_for $ARG`)
 			todo_files ${FILES[@]} || echo -e "[${RED}Error${NC}] $ARG not found"
 		done
 	fi
@@ -214,30 +216,30 @@ todo() {
 
 runtest() {
 	[[ -z $ARG_TRACE ]] || CFLAGS="$CFLAGS -DTRACEFILE=\"$ARG_TRACE\""
+	mkdir -p build dump
 	FILE=${1%.v}.v
+	[[ $FILE != "" ]] || die 'No program'
 	compile $FILE 2> build/compile.log || {
-		[[ $ARG_VERBOSE -eq 1 ]] && cat build/compile.log
+		cat build/compile.log >&2
 		die "Unable to build"
 	}
+	cat build/compile.log >&2
 	build/run.vvp
 	[[ $ARG_GTK -eq 1 ]] && [[ -z $ARG_TRACE ]] && die 'Option -g ignored'
 	[[ $ARG_GTK -eq 1 ]] || exit 0
 	ps | grep -sq gtkwave && die "GTKWave already running"
-	gtkwave -A -f $ARG_TRACE >/dev/null 2>&1 &
+	gtkwave -A -f $ARG_TRACE >/dev/null 2>/dev/null &
 }
 
 testbench() {
-	TEMP=`getopt -o d:vgt: -- "$@"`
+	TEMP=`getopt -o d:gt: -- "$@"`
 	ARG_GTK=0
-	ARG_VERBOSE=0
 	ARG_TRACE=
 	eval set -- "$TEMP"
-	mkdir -p build
 	while true ; do
 		case "$1" in
 			-d) CFLAGS="$CFLAGS -D$2" ; shift 2 ;;
 			-g) ARG_GTK=1 ; shift ;;
-			-v) ARG_VERBOSE=1 ; shift ;;
 			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
@@ -249,9 +251,8 @@ testbench() {
 }
 
 run() {
-	TEMP=`getopt -o d:vgt:m:d: -- "$@"`
+	TEMP=`getopt -o d:gt:m:d: -- "$@"`
 	ARG_GTK=0
-	ARG_VERBOSE=0
 	ARG_MAIN="test/cpu_tb.v"
 	ARG_TRACE=
 	eval set -- "$TEMP"
@@ -260,7 +261,6 @@ run() {
 		case "$1" in
 			-d) CFLAGS="$CFLAGS -D$2" ; shift 2 ;;
 			-g) ARG_GTK=1 ; shift ;;
-			-v) ARG_VERBOSE=1 ; shift ;;
 			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
 			-m) ARG_MAIN=${2%.v}.v ; shift 2 ;;
 			--) shift ; break ;;
@@ -275,19 +275,19 @@ run() {
 		s|asm)
 			utils/asm $1 > build/memory.dat 2> build/memory.log
 			if [[ $? -ne 0 ]] ; then
-				[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
+				cat build/memory.log >&2
 				die 'Unable to assemble program'
 			fi
 			utils/memformat build/memory.dat > build/memory.raw 2> build/memory.log
 			if [[ $? -ne 0 ]] ; then
-				[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
+				cat build/memory.log >&2
 				die 'Unable to format memory'
 			fi
 			;;
 		dat)
 			utils/memformat $1 > build/memory.raw 2> build/memory.log
 			if [[ $? -ne 0 ]] ; then
-				[[ $ARG_VERBOSE -eq 1 ]] && cat build/memory.log
+				cat build/memory.log >&2
 				die 'Unable to format memory'
 			fi
 			;;

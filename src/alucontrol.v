@@ -48,6 +48,7 @@ always @* begin
 			`FN_MUL: aluop_out <= `ALUOP_MUL;
 			`FN_DIV: aluop_out <= `ALUOP_DIV;
 			`FN_JR:  aluop_out <= aluop_out;
+			`FN_SYS: aluop_out <= aluop_out;
 			default:
 				$display("[WARNING] ALU Control received unknown funct signal %x", funct);
 		endcase

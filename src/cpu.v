@@ -2,6 +2,7 @@
 `define _cpu
 
 `include "flipflop.v"
+`include "memory_sync.v"
 `include "memory.v"
 `include "regfile.v"
 `include "alu.v"
@@ -10,6 +11,7 @@
 `include "fwdcontrol.v"
 `include "hzdcontrol.v"
 `include "alucontrol.v"
+`include "stdio.v"
 
 // Central Processing Unit
 module cpu(
@@ -75,14 +77,13 @@ flipflop #(
 	.out(pc_out)
 );
 
-memory imem (
+memory_sync imem (
 	.clk(clk),
 	.reset(reset),
 	.addr(pc_out),
-	.rdata(if_instr),
-	.wdata(0),
-	.memwrite(0),
-	.memread(1)
+	.data_out(if_instr),
+	.master_enable(1),
+	.read_write(1)
 );
 
 flipflop #(.N(64)) if_id (
@@ -165,18 +166,18 @@ multiplexer #(.X(4)) data_rt_mux (
 	.out_data(id_data_rt)
 );
 
-flipflop #(.N(192)) id_ex (
+flipflop #(.N(224)) id_ex (
 	.clk(clk),
 	.reset(reset | ex_isjump | pc_take_branch | stall),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_isbranch,
         	id_regdst, id_aluop, id_alusrc, id_isjump, id_islink, id_jumpdst,
         	id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
-			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21]}),
+			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_isbranch,
         	ex_regdst, ex_aluop, ex_alusrc, ex_isjump, ex_islink, ex_jumpdst,
         	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode,
-			ex_pc_jump, dst_rt, dst_rd, dst_rs})
+			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr})
 );
 
 ////////////////////////
@@ -186,6 +187,7 @@ flipflop #(.N(192)) id_ex (
 ////////////////////////
 
 reg ex_mem_we = 1;
+wire [31:0] ex_instr;
 wire ex_regwrite;
 wire ex_memtoreg;
 wire ex_memread;
@@ -248,16 +250,16 @@ assign ex_exout = ex_islink ? ex_pc_next : alures;
 assign dst_reg = ex_regdst ? dst_rd : dst_rt;
 assign ex_wreg = ex_islink ? 5'h1f : dst_reg;
 
-flipflop #(.N(110)) ex_mem (
+flipflop #(.N(140)) ex_mem (
 	.clk(clk),
 	.reset(reset | pc_take_branch),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
         	ex_isbranch, ex_pc_branch,  ex_aluovf, ex_aluz,
-        	ex_exout, ex_data_rt, ex_wreg}),
+        	ex_exout, ex_data_rt, ex_wreg, ex_instr}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
         	mem_isbranch,  mem_pc_branch, mem_aluovf, mem_aluz,
-        	mem_exout, mem_data_rt, mem_wreg})
+        	mem_exout, mem_data_rt, mem_wreg, mem_instr})
 );
 
 ////////////////////////
@@ -267,6 +269,7 @@ flipflop #(.N(110)) ex_mem (
 ////////////////////////
 
 wire [31:0] mem_pc_branch;
+wire [31:0] mem_instr;
 reg mem_wb_we = 1;
 wire mem_regwrite;
 wire mem_memtoreg;
@@ -284,24 +287,41 @@ wire pc_take_branch;
 
 assign pc_take_branch = mem_isbranch & mem_aluz;
 
-memory dmem (
+wire io_mem;
+assign io_mem = & mem_exout[31:26]; // IO when 0xFF....
+wire [31:0] io_out;
+wire [31:0] mem_out;
+
+stdio stdio(
+	.clk(~clk),
+	.reset(reset),
+	.addr(mem_exout[7:0]),
+	.data_out(io_out),
+	.data_in(mem_data_rt),
+	.enable((mem_memwrite | mem_memread) & io_mem),
+	.read_write(mem_memread)
+);
+
+memory_sync dmem (
 	.clk(clk),
 	.reset(reset),
 	.addr(mem_exout),
-	.rdata(mem_memout),
-	.wdata(mem_data_rt),
-	.memwrite(mem_memwrite),
-	.memread(mem_memread)
+	.data_out(mem_out),
+	.data_in(mem_data_rt),
+	.master_enable((mem_memwrite | mem_memread) & ~io_mem),
+	.read_write(mem_memread),
+	.byte_enable(4'b1111)
 );
 
+assign mem_memout = io_mem ? io_out : mem_out;
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
-flipflop #(.N(38)) mem_wb (
+flipflop #(.N(70)) mem_wb (
 	.clk(clk),
 	.reset(reset),
 	.we(mem_wb_we),
-	.in({mem_regwrite, mem_wdata, mem_wreg}),
-	.out({wb_regwrite, wb_wdata, wb_wreg})
+	.in({mem_regwrite, mem_wdata, mem_wreg, mem_instr}),
+	.out({wb_regwrite, wb_wdata, wb_wreg, wb_instr})
 );
 
 
@@ -311,8 +331,7 @@ flipflop #(.N(38)) mem_wb (
 //                    //
 ////////////////////////
 
-
-
+wire [31:0] wb_instr;
 wire wb_regwrite;
 wire [31:0] wb_wdata;
 wire [4:0] wb_wreg;
