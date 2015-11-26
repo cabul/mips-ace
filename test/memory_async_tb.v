@@ -1,7 +1,7 @@
 `include "defines.v"
-`include "mainmemory.v"
+`include "memory_async.v"
 
-module mainmemory_tb;
+module memory_async_tb;
 
 reg reset = 0;
 reg [3:0] addr = 0;
@@ -12,7 +12,7 @@ reg [31:0] data_in = 0;
 wire [31:0] data_out;
 wire ack;
 
-mainmemory #(
+memory_async #(
 	.DATA("test/memory.raw"),
 	.WIDTH(32), .DEPTH(4),
 	.LATENCY(100)
@@ -32,7 +32,7 @@ reg done = 0;
 initial begin
 	`ifdef TRACEFILE
 	$dumpfile(`TRACEFILE);
-	$dumpvars(0, mainmemory_tb);
+	$dumpvars(0, memory_async_tb);
 	`endif
 
 	reset = 1;

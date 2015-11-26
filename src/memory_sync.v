@@ -13,7 +13,7 @@ module memory_sync (
 	input wire read_write,
 	input wire [BYTES-1:0] byte_enable,
 	input wire [WIDTH-1:0] data_in,
-	output reg [WIDTH-1:0] data_out
+	output wire [WIDTH-1:0] data_out
 );
 
 parameter WIDTH = `MEMORY_WIDTH;
@@ -38,45 +38,12 @@ generate
 	end
 endgenerate
 
-`ifdef DEBUG
-integer err;
-`endif
+assign data_out = mem[index];
 
 always @(posedge clk) begin
-	if (reset) begin
-		$readmemh(DATA, mem);
-		data_out = 0;
-	end else if (master_enable) begin
-
-		`ifdef DEBUG
-		if (addr < 'hFFFF_FFF0) begin
-		`endif
-
-		if (read_write)
-			data_out = mem[index];
-		else
-			mem[index] = (mem[index] & ~bit_mask) | (data_in & bit_mask);
-
-		`ifdef DEBUG
-		end else begin
-			$display("--> %x %d", addr, read_write);
-			if (read_write)
-				case (addr[3:0])
-					4'h2: data_out = $fgetc('h8000_0000);
-					4'h1: err = $fscanf('h8000_0000, "%d", data_out);
-					4'h0: err = $fscanf('h8000_0000, "%x", data_out);
-				endcase
-			else
-				case (addr[3:0])
-					4'hF: $finish;
-					4'h2: $write("%c", data_in);
-					4'h1: $write("%d", data_in);
-					4'h0: $display("%x", data_in);
-				endcase
-		end
-		`endif
-
-	end
+	if (reset) $readmemh(DATA, mem);
+	else if (master_enable && !read_write)
+		mem[index] <= (mem[index] & ~bit_mask) | (data_in & bit_mask);
 end
 
 endmodule

@@ -54,9 +54,19 @@
 `define OP_SW    6'h2b
 `define OP_JAL   6'h3
 
-`define SYS_PRINT_INT  1
-`define SYS_PRINT_CHAR 11
-`define SYS_EXIT       10
+`define SYS_PRINT_CHAR  11 
+`define SYS_PRINT_INT    1
+`define SYS_PRINT_FLOAT  2
+`define SYS_READ_CHAR   12
+`define SYS_READ_INT     5
+`define SYS_READ_FLOAT   6
+`define SYS_EXIT        10
+
+`define IO_EXIT  8'hff
+`define IO_CHAR  8'hfe
+`define IO_INT   8'hfd
+`define IO_FLOAT 8'hfc
+`define IO_HEX   8'hfb
 
 // Debug macros
 
