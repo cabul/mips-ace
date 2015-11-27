@@ -58,9 +58,26 @@
 
 // Coprocessor0
 
-`define C0_SR       5'd12
-`define C0_CAUSE    5'd13
-`define C0_EPC      5'd14
+`define C0_SR    5'd12
+`define C0_CAUSE 5'd13
+`define C0_EPC   5'd14
+
+// Coprocessor0 registers offsets
+
+`define C0_SR_EC 2 // Exception Code
+`define C0_SR_PI 8 // Pending Interrupts
+
+// Interrupts (*supported)
+
+`define INT_EXT     0  // External interrupt
+`define INT_ADDRL   4  // Address error exception (load or instruction fetch)
+`define INT_ADDRS   5  // Address error exception (store)
+`define INT_IBUS    6  // Bus error on instruction fetch
+`define INT_DBUS    7  // Bus error on data load or store
+`define INT_SYSCALL 8  // *Syscall exception
+`define INT_BKPT    9  // Breakpoint exception
+`define INT_RI      10 // *Reserved instruction exception
+`define INT_OVF     12 // *Arithmetic overflow exception
 
 // SYS IO
 
