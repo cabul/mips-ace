@@ -17,6 +17,7 @@ case $1 in
 		echo -e "//TODO Testbench $1" >> $FILE
 		echo -e "" >> $FILE
 		echo -e '`include "defines.v"' >> $FILE
+        echo -e '`include "'${1%%_tb}'.v"' >> $FILE
 		echo -e "" >> $FILE
 		echo -e "module $1;" >> $FILE
 		echo -e "" >> $FILE
