@@ -61,6 +61,8 @@ instructions = {
 	'sb'      : ( 'I' , 0x28  , None  , 'rt , imm ( rs )' ),
 	'sw'      : ( 'I' , 0x2b  , None  , 'rt , imm ( rs )' ),
 	'syscall' : ( 'R' , 0x0   , 0xc   , None ),
+	'mfc0'    : ( 'R' , 0x10  , 0x0   , 'rd , rs' ),
+	'mtc0'    : ( 'R' , 0x11  , 0x0   , 'rd , rs' ),
 	'nop'     : ( 'P' , None  , None  , None ),
 }
 
@@ -79,6 +81,7 @@ rules = {
 }
 
 registers = {
+#   Trivial     Normal        Floating P   Coproc0
 	'0'  : 0  , 'zero' : 0  , 'f0'  : 0  ,
 	'1'  : 1  , 'at'   : 1  , 'f1'  : 1  ,
 	'2'  : 2  , 'v0'   : 2  , 'f2'  : 2  ,
@@ -91,9 +94,9 @@ registers = {
 	'9'  : 9  , 't1'   : 9  , 'f9'  : 9  ,
 	'10' : 10 , 't2'   : 10 , 'f10' : 10 ,
 	'11' : 11 , 't3'   : 11 , 'f11' : 11 ,
-	'12' : 12 , 't4'   : 12 , 'f12' : 12 ,
-	'13' : 13 , 't5'   : 13 , 'f13' : 13 ,
-	'14' : 14 , 't6'   : 14 , 'f14' : 14 ,
+	'12' : 12 , 't4'   : 12 , 'f12' : 12 , 'status' : 12 ,
+	'13' : 13 , 't5'   : 13 , 'f13' : 13 , 'cause'  : 13 ,
+	'14' : 14 , 't6'   : 14 , 'f14' : 14 , 'epc'    : 14 ,
 	'15' : 15 , 't7'   : 15 , 'f15' : 15 ,
 	'16' : 16 , 's0'   : 16 , 'f16' : 16 ,
 	'17' : 17 , 's1'   : 17 , 'f17' : 17 ,
@@ -400,7 +403,7 @@ class Parser(object):
 			itype, opcode, funct = instructions[key][:3]
 			binary = '0' * 32
 			if itype == 'R':
-				binary = '000000'
+				binary = '{0:06b}'.format(opcode)
 				binary += self.regToBin(val['rs']) if 'rs' in val else '00000'
 				binary += self.regToBin(val['rt']) if 'rt' in val else '00000'
 				binary += self.regToBin(val['rd']) if 'rd' in val else '00000'

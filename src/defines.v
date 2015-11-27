@@ -53,6 +53,8 @@
 `define OP_SB	 6'h28
 `define OP_SW    6'h2b
 `define OP_JAL   6'h3
+`define OP_MFC0  6'h10
+`define OP_MTC0  6'h11
 
 // Coprocessor0
 

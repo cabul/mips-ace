@@ -216,7 +216,7 @@ wire ex_aluz;
 wire ex_aluovf;
 wire [31:0] alures;
 wire [31:0] ex_exout;
-wire [31:0] data_rt;
+wire [31:0] data_t;
 wire [31:0] ex_pc_branch;
 wire [5:0] ex_opcode;
 wire [5:0] ex_funct;
