@@ -4,10 +4,19 @@ Implementation of a MIPS Processor developed during the course of [Processor Arc
 
 ## Features
 
-- [ ] Fully Pipelined
-- [ ] Virtual Memory Support
-- [ ] Branch Prediction
+- [x] Fully Pipelined
 - [x] Hazard Control
+- [x] 80% of MIPS
+- [ ] Mini OS
+- [ ] Exceptions
+- [ ] Benchmarks
+- [ ] Store Buffer
+- [ ] Cache
+- [ ] Reorder Buffer / History File
+- [ ] Floating Point
+- [ ] Variable Length Pipeline
+- [ ] Virtual Memory
+- [ ] Branch Prediction
 - [ ] Out-of-Order
 
 [Processor Architecture]: http://www.fib.upc.edu/en/masters/miri/syllabus.html?assig=PA-MIRI

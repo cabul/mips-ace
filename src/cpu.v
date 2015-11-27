@@ -234,12 +234,12 @@ alucontrol alucontrol(
 	.aluop_out(aluop)
 );
 
-assign data_rt = ex_alusrc ? ex_imm : ex_data_rt;
+assign data_t = ex_alusrc ? ex_imm : ex_data_rt;
 
 alu alu(
 	.aluop(aluop),
 	.s(ex_data_rs),
-	.t(data_rt),
+	.t(data_t),
 	.shamt(ex_imm[10:6]),
 	.zero(ex_aluz),
 	.overflow(ex_aluovf),
