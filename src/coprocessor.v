@@ -24,7 +24,7 @@ reg [31:0] co_regs [14:12];
 // reg [31:0] cause;  // reg 13
 // reg [31:0] epc;    // reg 14
 
-always @(rreg) begin
+always @* begin
     rdata <= (rreg >= `C0_SR && rreg <= `C0_EPC) ? co_regs[rreg] : 32'd0;
 end
 
