@@ -5,7 +5,7 @@
 
 // Coprocessor 0
 // http://en.wikichip.org/wiki/mips/coprocessor_0
-// mfc0 rt,rd and mtc0 rd,rt
+// mfc0 rs,rd and mtc0 rd,rs
 
 module coprocessor(
     input wire clk,
@@ -18,16 +18,22 @@ module coprocessor(
     output reg [31:0] rdata = 32'd0
 );
 
-reg [31:0] status; // reg 12
-reg [31:0] cause;  // reg 13
-reg [31:0] epc;    // reg 14
+reg [31:0] co_regs [14:12];
+
+// reg [31:0] status; // reg 12
+// reg [31:0] cause;  // reg 13
+// reg [31:0] epc;    // reg 14
+
+always @(rreg) begin
+    rdata <= (rreg >= `C0_SR && rreg <= `C0_EPC) ? co_regs[rreg] : 32'd0;
+end
 
 always @(posedge clk) begin
 	if (reset) begin
-        rdata  <= 32'd0;
-        status <= 32'd0; // TODO fix default value
-        cause  <= 32'd0; // TODO fix default value
-        epc    <= 32'd0; // TODO fix default value
+        rdata <= 32'd0;
+        co_regs[`C0_RS] <= 32'd0; // TODO fix default value
+        co_regs[`C0_CAUSE] <= 32'd0; // TODO fix default value
+        co_regs[`C0_EPC] <= 32'd0; // TODO fix default value
 	end else if (enable) begin
         case (wreg)
             `C0_SR: begin
