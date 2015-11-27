@@ -54,6 +54,14 @@
 `define OP_SW    6'h2b
 `define OP_JAL   6'h3
 
+// Coprocessor0
+
+`define C0_SR       5'd12
+`define C0_CAUSE    5'd13
+`define C0_EPC      5'd14
+
+// SYS IO
+
 `define SYS_PRINT_CHAR  11 
 `define SYS_PRINT_INT    1
 `define SYS_PRINT_FLOAT  2
