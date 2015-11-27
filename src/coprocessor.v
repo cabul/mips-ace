@@ -31,7 +31,7 @@ end
 always @(posedge clk) begin
 	if (reset) begin
         rdata <= 32'd0;
-        co_regs[`C0_RS] <= 32'd0; // TODO fix default value
+        co_regs[`C0_SR] <= 32'd0; // TODO fix default value
         co_regs[`C0_CAUSE] <= 32'd0; // TODO fix default value
         co_regs[`C0_EPC] <= 32'd0; // TODO fix default value
 	end else if (enable) begin
