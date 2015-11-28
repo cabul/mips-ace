@@ -41,10 +41,13 @@ generate
 endgenerate
 
 always @(posedge master_enable) # LATENCY begin
-	if (read_write)
+	if (read_write) begin
 		data_out = mem[index];
-	else
+		`DMSG(("[Memory] read from %x", addr))
+	end else begin
 		mem[index] = (mem[index] & ~bit_mask) | (data_in & bit_mask);
+		`DMSG(("[Memory] write to %x", addr))
+	end
 	ack = 1;
 end
 

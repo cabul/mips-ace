@@ -13,7 +13,7 @@ module memory_sync (
 	input wire read_write,
 	input wire [BYTES-1:0] byte_enable,
 	input wire [WIDTH-1:0] data_in,
-	output wire [WIDTH-1:0] data_out
+	output reg [WIDTH-1:0] data_out
 );
 
 parameter WIDTH = `MEMORY_WIDTH;
@@ -38,12 +38,17 @@ generate
 	end
 endgenerate
 
-assign data_out = mem[index];
-
 always @(posedge clk) begin
-	if (reset) $readmemh(DATA, mem);
-	else if (master_enable && !read_write)
-		mem[index] <= (mem[index] & ~bit_mask) | (data_in & bit_mask);
+	if (reset) begin
+		$readmemh(DATA, mem);
+		data_out <= 0;
+	end
+	else if (master_enable) begin
+		if (read_write)
+			data_out <= mem[index];
+		else
+			mem[index] <= (mem[index] & ~bit_mask) | (data_in & bit_mask);
+	end
 end
 
 endmodule

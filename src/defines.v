@@ -73,7 +73,7 @@
 // Debug macros
 
 `ifdef DEBUG
-	`define DMSG(M) $display M ;
+	`define DMSG(M) begin $write("%4t # ", $time); $display M ; end
 `else
 	`define DMSG(M)
 `endif
