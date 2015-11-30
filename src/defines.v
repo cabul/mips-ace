@@ -20,21 +20,22 @@
 
 // ALU operations
 
-`define ALUOP_AND 4'h0
-`define ALUOP_OR  4'h1
-`define ALUOP_ADD 4'h2
-`define ALUOP_NOR 4'h3
-`define ALUOP_SLL 4'h4
-`define ALUOP_SUB 4'h6
-`define ALUOP_SLT 4'h7
-`define ALUOP_SRL 4'h8
-`define ALUOP_SRA 4'h9
-`define ALUOP_XOR 4'ha
-`define ALUOP_BEQ 4'hb
-`define ALUOP_BNE 4'hc
-`define ALUOP_LUI 4'hd
-`define ALUOP_MUL 4'he
-`define ALUOP_DIV 4'hf
+`define ALUOP_AND 5'h0
+`define ALUOP_OR  5'h1
+`define ALUOP_ADD 5'h2
+`define ALUOP_NOR 5'h3
+`define ALUOP_SLL 5'h4
+`define ALUOP_SUB 5'h6
+`define ALUOP_SLT 5'h7
+`define ALUOP_SRL 5'h8
+`define ALUOP_SRA 5'h9
+`define ALUOP_XOR 5'ha
+`define ALUOP_BEQ 5'hb
+`define ALUOP_BNE 5'hc
+`define ALUOP_LUI 5'hd
+`define ALUOP_MUL 5'he
+`define ALUOP_DIV 5'hf
+`define ALUOP_MOV 5'h10
 
 // Opcodes
 
@@ -55,9 +56,11 @@
 `define OP_JAL   6'h3
 `define OP_MFC0  6'h10
 `define OP_MTC0  6'h11
+`define OP_ERET  6'h12
 
 // Coprocessor0
 
+`define C0_BadAR 5'd8
 `define C0_SR    5'd12
 `define C0_CAUSE 5'd13
 `define C0_EPC   5'd14

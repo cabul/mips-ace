@@ -4,7 +4,7 @@
 `include "defines.v"
 
 module alu(
-	input wire [3:0] aluop,
+	input wire [4:0] aluop,
 	input wire [N-1:0] s,
 	input wire [N-1:0] t,
 	input wire [4:0] shamt,
@@ -105,6 +105,10 @@ always @* begin
 				overflow <= 0;
 			end
 		end
+		`ALUOP_MOV: begin
+			zero <= 0;
+			out <= s;
+		end		
 		default:
 			$display("[WARNING] ALU received unknown aluop signal %x", aluop);
 	endcase

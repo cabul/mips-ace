@@ -61,8 +61,9 @@ instructions = {
 	'sb'      : ( 'I' , 0x28  , None  , 'rt , imm ( rs )' ),
 	'sw'      : ( 'I' , 0x2b  , None  , 'rt , imm ( rs )' ),
 	'syscall' : ( 'R' , 0x0   , 0xc   , None ),
-	'mfc0'    : ( 'R' , 0x10  , 0x0   , 'rt , rd' ),
-	'mtc0'    : ( 'R' , 0x11  , 0x0   , 'rd , rt' ),
+	'mfc0'    : ( 'I' , 0x10  , 0x0   , 'rt , rs' ),
+	'mtc0'    : ( 'I' , 0x11  , 0x0   , 'rt , rs' ),
+	'eret' 	  : ( 'I' , 0x12  , 0x0   , None ),
 	'nop'     : ( 'P' , None  , None  , None ),
 }
 

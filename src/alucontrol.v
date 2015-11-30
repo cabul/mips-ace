@@ -7,7 +7,7 @@ module alucontrol(
 	input wire [5:0] funct,
 	input wire [5:0] opcode,
 	input wire aluop_in,
-	output reg [3:0] aluop_out = 0
+	output reg [4:0] aluop_out = 0
 );
 
 always @* begin
@@ -25,9 +25,11 @@ always @* begin
 			`OP_SB:   aluop_out <= `ALUOP_ADD;
 			`OP_SW:   aluop_out <= `ALUOP_ADD;
 			`OP_LUI:  aluop_out <= `ALUOP_LUI;
-			// Ignore all these
+			`OP_MFC0: aluop_out <= `ALUOP_MOV;
+			`OP_MTC0: aluop_out <= `ALUOP_MOV;
 			`OP_J:    aluop_out <= aluop_out;
 			`OP_JAL:  aluop_out <= aluop_out;
+			`OP_ERET: aluop_out <= aluop_out;
 			`OP_RTYPE:
 				$display("[WARNING] ALU Control received unexpected OP_RTYPE");
 			default:
