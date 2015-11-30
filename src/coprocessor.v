@@ -15,7 +15,8 @@ module coprocessor(
     input wire [4:0] wreg,
     input wire [31:0] wdata,
     input wire [34:0] exception_bus,
-    output reg [31:0] rdata = 32'd0
+    output reg [31:0] rdata = 32'd0,
+    output reg exception = 0    
 );
 
 reg [31:0] co_regs [14:12];
@@ -45,8 +46,15 @@ always @(exception_bus) begin
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[33]}} & (`INT_RI      << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[32]}} & (`INT_SYSCALL << `C0_SR_EC));
     
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[34]}} & (`INT_OVF     << `C0_SR_PI));
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[33]}} & (`INT_RI      << `C0_SR_PI));
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[32]}} & (`INT_SYSCALL << `C0_SR_PI));
+    
     if (| exception_bus[34 -: 3]) begin
         co_regs[`C0_EPC] <= exception_bus[31:0];
+        exception <= 1;
+    end else begin
+        exception <= 0;
     end
 end
 
