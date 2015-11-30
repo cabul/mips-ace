@@ -69,6 +69,8 @@
 
 `define C0_SR_EC 2 // Exception Code
 `define C0_SR_PI 8 // Pending Interrupts
+`define C0_SR_EL 2 // Exception Level
+`define C0_SR_UM 4 // User Mode
 
 // Interrupts (*supported)
 

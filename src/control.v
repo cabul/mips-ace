@@ -22,6 +22,7 @@ module control(
 	output reg exc_ri = 0,
 	output reg exc_sys = 0,
 	output reg cowrite = 0,
+	output reg exc_ret = 0,
 	output reg c0dst = 0
 );
 
@@ -46,6 +47,7 @@ always @* begin
 					exc_sys  <= 0;
 					cowrite  <= 0;
 					c0dst	 <= 0;
+					exc_ret  <= 0;
 				end
 				`FN_SYS: begin
 					regwrite <= 0;
@@ -64,6 +66,7 @@ always @* begin
 					exc_sys  <= 1;
 					cowrite  <= 0;
 					c0dst	 <= 0;
+					exc_ret  <= 0;
 				end
 				default: begin
 					regwrite <= 1;
@@ -82,6 +85,7 @@ always @* begin
 					exc_sys  <= 0;
 					cowrite  <= 0;
 					c0dst	 <= 0;
+					exc_ret  <= 0;
 				end
 			endcase
 		end
@@ -102,6 +106,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_LW: begin
 			regwrite <= 1;
@@ -120,6 +125,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_SW:	begin
 			regwrite <= 0;
@@ -138,6 +144,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_J: begin
 			regwrite <= 0;
@@ -156,6 +163,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_ANDI: begin
 			regwrite <= 1;
@@ -174,6 +182,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_ORI: begin
 			regwrite <= 1;
@@ -192,6 +201,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_XORI: begin
 			regwrite <= 1;
@@ -210,6 +220,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_SLTI: begin
 			regwrite <= 1;
@@ -228,6 +239,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_BEQ: begin
 			regwrite <= 0;
@@ -246,6 +258,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_BNE: begin
 			regwrite <= 0;
@@ -264,6 +277,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_LUI: begin
 			regwrite <= 1;
@@ -282,6 +296,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_JAL: begin
 			regwrite <= 1;
@@ -300,6 +315,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_MFC0: begin
 			regwrite <= 1;
@@ -317,6 +333,7 @@ always @* begin
 			cowrite  <= 0;
 			exc_sys  <= 0;
 			c0dst	 <= 0;
+			exc_ret  <= 0;
 			if(cpu_mode == 1) begin		
 				exc_ri   <= 0;				
 			end else begin
@@ -337,7 +354,8 @@ always @* begin
 			jumpdst  <= 0;
 			islink   <= 0;
 			exc_sys  <= 0;
-			c0dst	 <= 1;	
+			c0dst	 <= 1;
+			exc_ret  <= 0;	
 			if(cpu_mode == 1) begin		
 				exc_ri   <= 0;
 				cowrite  <= 1;				
@@ -363,9 +381,12 @@ always @* begin
 			c0dst	 <= 0;	
 			if(cpu_mode == 1) begin	
 				exc_ri   <= 0;
+				exc_ret  <= 1;
 				//cambiar el PC con el contenido de EPC
-			end else exc_ri   <= 1;
-		end
+			end else begin
+				exc_ri   <= 1;
+				exc_ret  <= 0;
+			end end
 				
 		default:
 			$display("[WARNING] Control Unit received unknown opcode signal %x", opcode);

@@ -58,8 +58,10 @@ hzdcontrol hzdcontrol (
 wire [31:0] if_pc_next;
 wire [31:0] if_instr;
 wire [31:0] pc_in;
+wire [31:0]	pc_real;
 wire [31:0] pc_interm;
 wire [31:0] pc_out;
+wire [31:0]	pc_kernel;
 reg pc_we = 1;
 reg if_id_we = 1;
 
@@ -67,6 +69,8 @@ assign if_pc_next = pc_out + 4;
 
 assign pc_interm = ex_isjump ? dst_jump : if_pc_next;
 assign pc_in = pc_take_branch ? mem_pc_branch : pc_interm;
+assign pc_kernel = select_kernel ? address_kernel : pc_in;
+assign pc_real = id_exc_ret ? epc : pc_kernel;
 
 flipflop #(
 	.N(32),
@@ -75,7 +79,7 @@ flipflop #(
 	.clk(clk),
 	.reset(reset),
 	.we(pc_we & !stall),
-	.in(pc_in),
+	.in(pc_real),
 	.out(pc_out)
 );
 
@@ -127,13 +131,15 @@ wire [31:0] id_pc_jump;
 wire [31:0] reg_rs;
 wire [31:0] reg_rt;
 wire [31:0] id_data_c0;
+wire [31:0] epc;
 reg id_ex_we = 1;
 wire [1:0] fwdctrl_rs;
 wire [1:0] fwdctrl_rt;
 wire cop_reset;
 wire cpu_mode;
 wire select_kernel;
-wire [31:0] connect;
+wire [31:0] address_kernel;
+wire id_exc_ret;
 
 assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 assign id_pc_jump = {id_pc_next[31:28], id_instr[25:0], 2'b00};
@@ -157,6 +163,7 @@ control control (
 	.cowrite(id_cowrite),
 	.c0dst(id_c0dst),
 	.cpu_mode(cpu_mode),
+	.exc_ret(id_exc_ret),
 	.islink(id_islink)
 );
 
@@ -175,14 +182,15 @@ regfile regfile(
 coprocessor coprocessor(
 	.clk(clk),
 	.reset(reset),
-	.cowrite(wb_cowrite),
+	.enable(wb_cowrite),
 	.rreg(id_instr[25:21]),
 	.wreg(wb_wreg),
 	.wdata(wb_wdata),
-	.exception_bus({wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_exc_address, wb_pc_next-32'd4}),
+	.exception_bus({wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_pc_next-32'd4, wb_exc_address}),
 	.cop_reset(cop_reset),
-	.pc_kernel(connect),
+	.pc_kernel(address_kernel),
 	.pc_select(select_kernel),
+	.epc(epc),
 	.rdata(id_data_c0),
 	.cpu_mode(cpu_mode)
 );
@@ -199,17 +207,17 @@ multiplexer #(.X(4)) data_rt_mux (
 	.out_data(id_data_rt)
 );
 
-flipflop #(.N(261)) id_ex (
+flipflop #(.N(262)) id_ex (
 	.clk(clk),
 	.reset(reset | ex_isjump | pc_take_branch | stall | cop_reset),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_isbranch,
         	id_regdst, id_aluop, id_exc_ri, id_exc_sys, id_cowrite, id_alu_s, id_alu_t, 
-			id_isjump, id_islink, id_jumpdst, id_pc_next, id_data_rs, id_data_rt, id_imm, 
+			id_isjump, id_islink, id_jumpdst, id_pc_next, id_data_rs, id_data_rt, id_imm, id_exc_ret,
 			id_instr[31:26], id_data_c0, id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr, id_c0dst}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_isbranch,
         	ex_regdst, ex_aluop, ex_exc_ri, ex_exc_sys, ex_cowrite, ex_alu_s, ex_alu_t, 
-			ex_isjump, ex_islink, ex_jumpdst, ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, 
+			ex_isjump, ex_islink, ex_jumpdst, ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_exc_ret,
 			ex_funct, ex_opcode, ex_data_c0, ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr, ex_c0dst})
 );
 
@@ -238,6 +246,7 @@ wire ex_exc_ri;
 wire ex_exc_sys;
 wire ex_cowrite;
 wire ex_c0dst;
+wire ex_exc_ret;
 wire [31:0] dst_jump;
 wire [31:0] ex_pc_next;
 wire [31:0] ex_data_rs;
