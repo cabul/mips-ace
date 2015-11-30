@@ -55,8 +55,6 @@ always @(exception_bus) begin
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[66]}} & (`INT_OVF     << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[65]}} & (`INT_RI      << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[64]}} & (`INT_SYSCALL << `C0_SR_EC));
-    
-	 
 
 /*
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[34]}} & (`INT_OVF     << `C0_SR_PI));
