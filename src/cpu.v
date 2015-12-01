@@ -185,7 +185,7 @@ coprocessor coprocessor(
 	.rreg(id_instr[25:21]),
 	.wreg(wb_wreg),
 	.wdata(wb_wdata),
-	.exception_bus({wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_pc_next-32'd4, wb_exc_address}),
+	.exception_bus({wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_pc_next, wb_exc_address}),
 	.cop_reset(cop_reset),
 	.pc_kernel(address_kernel),
 	.pc_select(select_kernel),

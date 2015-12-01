@@ -1,16 +1,11 @@
 	.kdata
 exception:	.asciiz 	"  Exception: "
-interrupt:	.asciiz		"  [Interrupt]"
-tlb_fetch:	.asciiz		"  [TLB on Instruction Fetch]"
+tlb_fetch:	.asciiz		"  [TLB on Instruction Fetch]" 
 tlb_data:	.asciiz		"  [TLB on Load or Store]"
 syscll:		.asciiz		"  [Syscall] "
-bkpt:		.asciiz		"  [Breakpoint] "
 reserved:	.asciiz		"  [Reserved instruction] "
 overflow:	.asciiz		"  [Arithmetic overflow] "
 load_exc:	.asciiz		"  [Address Error Exception (load or instruction fetch)]"
-coproces:	.asciiz		"  [Coprocessor Unimplemented]"
-trap:		.asciiz		"  [Trap]"
-fp_exc:		.asciiz		"  [Floating Point Exception]"
 str_exc:	.asciiz		"  [Address Error Exception (store)]"
 unimpl:		.asciiz		"  [Unimplemented]"
 save_reg1:	.word 0
@@ -55,28 +50,11 @@ syscall_jumptable: 		.word print_int, print_float, print_double, print_string, r
 	lw $v0, ($v0)
 	jr $v0
 
-int: #Not implemented
-	la $a0, interrupt
-	li $v0, 4
-	syscall
-
-	mfc0 $a0, $14			# EPC
-	andi $a0, $a0, 0x3		# Is EPC word-aligned?
-	beq $a0, 0, ret_interrupt
-	
-	li $v0 10		# Exit on really bad PC
-	syscall
-
-# Return from (non-interrupt) exception.
-ret_interrupt:
-	la $k0, save_reg1
-	lw $v0, 0($k0)		# Restore other registers
-	la $k0, save_reg2
-	lw $a0, 0($k0)
-	mtc0 $0, $13		# Clear Cause register
-
-	eret
-
+CpU:
+Bp:
+FPE:
+int:
+Tr:
 unimpl1:
 unimpl2:
 unimpl3:
@@ -121,6 +99,11 @@ Ov:
 	syscall
 
 	j epc
+
+RI:
+	li $v0, 4
+	la $a0, reserved
+	syscall
 
 Sys:
 	li $v0, 4
@@ -186,40 +169,11 @@ exit: # Pedir a stdio que finalice la ejecucion
 			j epc
 
 ###########################################################################
-Bp:	#Unimplemented
-	li $v0, 4
-	la $a0, bkpt
-	syscall
-
-	j epc
-
-CpU:
-	li $v0, 4
-	la $a0, coproces
-	syscall
-
-	j epc
-	
-Tr:
-	li $v0, 4
-	la $a0, trap
-	syscall
-
-	j epc
-
-FPE:
-	li $v0, 4
-	la $a0, fp_exc	
-	syscall
-
-	j epc
-
-RI:
-	li $v0, 4
-	la $a0, reserved
-	syscall
 
 epc:
+
+# Añadir que mire las pending interrupts y las trate
+
 	mfc0 $a0, $14			# EPC
 	andi $a0, $a0, 0x3		# Is EPC word-aligned?
 	beq $a0, 0, ret_exception
@@ -228,13 +182,6 @@ epc:
 	syscall
 
 ret_exception:
-# Return from (non-interrupt) exception. Skip offending instruction
-# at EPC to avoid infinite loop.
-#
-	mfc0 $k0, $14		# Bump EPC register
-	addi $k0, $k0, 4	# Skip faulting instruction
-	mtc0 $k0, $14
-
 # Restore registers and reset procesor state
 #
 	la $k0, save_reg1
