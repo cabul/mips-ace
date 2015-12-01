@@ -12,6 +12,8 @@ class SyntaxError(Exception):
 # Configuration
 textinit = 0
 datainit = 512
+ktextinit = 4096
+kdatainit = 8192
 
 token_def = [
 #     Name           Pattern            Ignore
@@ -139,12 +141,28 @@ def instrLen(opcode, operands):
 	if opcode == 'la':   return 8
 	return 4
 
+def dataLen(key, val):
+	if key == '.ascii':
+		return len('%s' % val[1:][:-1].decode('string_escape'))
+	elif key == '.asciiz':
+		return len('%s' % val[1:][:-1].decode('string_escape')) + 1
+	elif key == '.byte':
+		return len(val)
+	elif key == '.half':
+		return len(val) * 2
+	elif key == '.word':
+		return len(val) * 4
+	elif key == '.space':
+		return int(val)
+
 class Parser(object):
 	def __init__(self, stream):
 		self.lines = stream.readlines()
 		self.lineno = 0
 		self.text = []
 		self.data = []
+		self.ktext = []
+		self.kdata = []
 		self.labels = {}
 		self.parser = self.parsetext
 	def start(self):
@@ -174,6 +192,10 @@ class Parser(object):
 			if not ndata[1:] in constants:
 				raise SyntaxError(self.lineno, 'Constant %s is undefined' % ndata)
 			realnum = constants[ndata[1:]]
+		elif ntype == 'Ident':
+			if not ndata in self.labels:
+				raise SyntaxError(self.lineno, 'Label %s unknown' % ndata)
+			realnum = self.labels[ndata]
 		elif ntype == 'HexNumber':
 			realnum = int(ndata[2:], 16)
 		else:
@@ -220,12 +242,14 @@ class Parser(object):
 	# Minimal parser
 	def parseheader(self, tokens):
 		pos, (_, section) = self.expect(tokens, 0, 'Meta')
-		if section == '.data':
+		if section == '.data' or section == '.kdata':
 			self.expect(tokens, pos, 'end of line')
 			self.parser = self.parsedata
-		elif section == '.text':
+			self.section = self.data if section == '.data' else self.kdata
+		elif section == '.text' or section == '.ktext':
 			self.expect(tokens, pos, 'end of line')
 			self.parser = self.parsetext
+			self.section = self.text if section == '.text' else self.ktext
 		else:
 			raise SyntaxError(self.lineno, 'Invalid section %s' % section)
 	def parsedata(self, tokens):
@@ -237,25 +261,25 @@ class Parser(object):
 		if label in self.labels:
 			raise SyntaxError(self.lineno, 'Duplicate label %s' % label)
 		self.labels[label] = 0
-		self.data.append((self.lineno, '@label', label))
+		self.section.append((self.lineno, '@label', label))
 		pos, (_, datatype) = self.expect(tokens, pos, 'Meta')
 		val = None
 		if datatype == '.ascii' or datatype == '.asciiz':
 			pos, (_, val) = self.expect(tokens, pos, 'String')
 		elif datatype == '.byte' or datatype == '.half' or datatype == '.word':
 			val = []
-			pos, num = self.expect(tokens, pos, 'Number', 'HexNumber')
+			pos, num = self.expect(tokens, pos, 'Number', 'HexNumber', 'Ident')
 			val.append(num)
 			more = self.lookahead(tokens, pos, 'Comma')
 			while more:
-				pos, num = self.expect(tokens, more[0], 'Number', 'HexNumber')
+				pos, num = self.expect(tokens, more[0], 'Number', 'HexNumber', 'Ident')
 				val.append(num)
 				more = self.lookahead(tokens, pos, 'Comma')
 		elif datatype == '.space':
 			pos, val = self.expect(tokens, pos, 'Number')
 		else:
 			raise SyntaxError(self.lineno, 'Unexpected %s' % datatype)
-		self.data.append((self.lineno, datatype, val))
+		self.section.append((self.lineno, datatype, val))
 	def parsetext(self, tokens):
 		# Detect end of section
 		match = self.lookahead(tokens, 0, 'Meta')
@@ -268,7 +292,7 @@ class Parser(object):
 			if label in self.labels:
 				raise SyntaxError(self.lineno, 'Duplicate label %s' % label)
 			self.labels[label] = 0
-			self.text.append((self.lineno, '@label', label))
+			self.section.append((self.lineno, '@label', label))
 			if not self.lookahead(tokens, pos, 'Ident'): return
 		pos, (_, opcode) = self.expect(tokens, pos, 'Ident')
 		if opcode not in instructions:
@@ -280,29 +304,31 @@ class Parser(object):
 				choices, ignore = rules[op]
 				pos, tkn = self.expect(tokens, pos, *choices.split('|'))
 				if not ignore: operands[op] = tkn
-		self.text.append((self.lineno, opcode, operands))
+		self.section.append((self.lineno, opcode, operands))
 	def finish(self):
 		self.calcLabels()
 		self.printout()
 	def calcLabels(self):
+		datapos = kdatainit
+		for lineno, key, val in self.kdata:
+			if key == '@label':
+				self.labels[val] = datapos
+			else:
+				offset = dataLen(key, val)
+				# Data is word aligned by default
+				datapos += offset + (4 - offset % 4)
+		textpos = ktextinit
+		for lineno, texttype, value in self.ktext:
+			if texttype == '@label':
+				self.labels[value] = textpos
+			else:
+				textpos += instrLen(texttype, value)
 		datapos = datainit
 		for lineno, key, val in self.data:
 			if key == '@label':
 				self.labels[val] = datapos
 			else:
-				offset = 0
-				if key == '.ascii':
-					offset = len('%s' % val[1:][:-1].decode('string_escape'))
-				elif key == '.asciiz':
-					offset = len('%s' % val[1:][:-1].decode('string_escape')) + 1
-				elif key == '.byte':
-					offset = len(val)
-				elif key == '.half':
-					offset = len(val) * 2
-				elif key == '.word':
-					offset = len(val) * 4
-				elif key == '.space':
-					offset = int(val)
+				offset = dataLen(key, val)
 				# Data is word aligned by default
 				datapos += offset + (4 - offset % 4)
 		textpos = textinit
@@ -311,11 +337,17 @@ class Parser(object):
 				self.labels[value] = textpos
 			else:
 				textpos += instrLen(texttype, value)
-		# Label main at 0x1000
-		for lineno, texttype, value in self.text:
-			if texttype == '@label':
-				self.labels[value] += textinit - self.labels['main']
 	def printout(self):
+		# TODO Uncomment
+		#print '; .ktext'
+		#offset = 0
+		#for lineno, key, val in self.ktext:
+		#	self.lineno = lineno
+		#	offset = self.printtext(offset, key, val)
+		#print '; .kdata'
+		#for lineno, key, val in self.kdata:
+		#	self.lineno = lineno
+		#	self.printdata(key, val)
 		print '; .text'
 		offset = 0
 		for lineno, key, val in self.text:
