@@ -3,7 +3,6 @@
 
 `include "flipflop.v"
 `include "memory_sync.v"
-`include "memory.v"
 `include "regfile.v"
 `include "alu.v"
 `include "multiplexer.v"
@@ -84,7 +83,7 @@ flipflop #(
 );
 
 memory_sync imem (
-	.clk(clk),
+	.clk(~clk),
 	.reset(reset),
 	.addr(pc_out),
 	.data_out(if_instr),
@@ -364,7 +363,7 @@ stdio stdio(
 );
 
 memory_sync dmem (
-	.clk(clk),
+	.clk(~clk),
 	.reset(reset),
 	.addr(mem_exout),
 	.data_out(mem_out),
