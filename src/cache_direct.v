@@ -1,12 +1,12 @@
-`ifndef _cache_fully
-`define _cache_fully
+`ifndef _cache_direct
+`define _cache_direct
 
 `include "defines.v"
 
 ///////////
 // Cache //
 ///////////
-module cache_fully (
+module cache_direct (
 	input wire clk,
 	input wire reset,
 	input wire [31:0] addr,
@@ -56,14 +56,16 @@ generate
 	end
 endgenerate
 
-reg [DEPTH-1:0] valids = {DEPTH{1'b0}};
+reg [DEPTH-1:0] validbit = {DEPTH{1'b0}};
+reg [DEPTH-1:0] dirtybit = {DEPTH{1'b0}};
 reg [31-WB-DB:0] tags [0:DEPTH-1];
 reg [WIDTH-1:0] lines [0:DEPTH-1];
 
 // Copy value on hit
 always @(posedge clk) begin
 	if (reset) begin
-		valids <= {DEPTH{1'b0}};
+		validbit <= {DEPTH{1'b0}};
+		dirtybit <= {DEPTH{1'b0}};
 		data_out <= 0;
 		mem_write_req <= 0;
 		mem_write_addr <= 0;
@@ -73,31 +75,34 @@ always @(posedge clk) begin
 		hit <= 0;
 	end else begin
 		if (mem_write_ack) mem_write_req = 1'b0;
-		if (mem_read_ack & !mem_write_req) begin
-			`DMSG(("[Cache] fill"))
+		if (mem_read_ack && !mem_write_req) begin
+			`DMSG(("[Cache] Fill %x", mem_read_addr[15:0]))
 			lines[mem_read_index] = mem_read_data;
 			tags[mem_read_index] = mem_read_tag;
-			valids[mem_read_index] = 1'b1;
+			validbit[mem_read_index] = 1'b1;
+			dirtybit[mem_read_index] = 1'b0;
 			mem_read_req = 1'b0;
 		end
-		hit = valids[index] && (tags[index] == tag);
+		hit = validbit[index] && (tags[index] == tag);
 		if (master_enable) begin
 			if (hit) begin
-				`DMSG(("[Cache] hit"))
 				if (read_write) begin
 					data_out = lines[index];
 				end else begin
 					lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
+					dirtybit[index] = 1'b1;
 					data_out = lines[index];
 				end
 			end else begin
+				// Wait for memory
 				if (!mem_read_req && !mem_write_req) begin
-					`DMSG(("[Cache] miss"))
+					`DMSG(("[Cache] Miss %x", addr[15:0]))
 					// Save line if necessary
-					if (valids[index]) begin
-						valids[index] = 1'b0;
+					if (validbit[index] && dirtybit[index]) begin
+						// validbit[index] = 1'b0;
 						mem_write_addr = {tags[index], index, {WB{1'b0}}};
 						mem_write_data = lines[index];
+						`DMSG(("[Cache] Evict %x", mem_write_addr[15:0]))
 						mem_write_req = 1'b1;
 					end
 					// Memory request

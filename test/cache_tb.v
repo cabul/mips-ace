@@ -1,6 +1,6 @@
 `include "defines.v"
 `include "memory_async.v"
-`include "cache_fully.v"
+`include "cache_direct.v"
 `include "cache_2way.v"
 //`include "cache_4way.v"
 
@@ -18,11 +18,15 @@ reg mem_enable = 0;
 reg mem_rw = 0;
 wire mem_ack;
 
+`ifndef MEMORY_LATENCY
+`define MEMORY_LATENCY 30
+`endif
+
 memory_async #(
-	.DATA("test/memory.raw"),
+	.DATA("test/cache.raw"),
 	.WIDTH(32),
-	.DEPTH(4),
-	.LATENCY(27)
+	.DEPTH(8),
+	.LATENCY(`MEMORY_LATENCY)
 ) memory (
 	.reset(reset),
 	.master_enable(mem_enable),
@@ -56,7 +60,7 @@ cache_2way
 `elsif CACHE_4WAY
 cache_4way
 `else
-cache_fully
+cache_direct
 `endif
 #(
 	.WIDTH(32),
@@ -81,26 +85,39 @@ cache_fully
 	.mem_write_ack(cache_mem_write_ack)
 );
 
-always @(posedge cache_mem_read_req) begin
-	`DMSG(("[Test] req read addr %x", cache_mem_read_addr))
-	mem_rw = 1;
-	mem_addr = cache_mem_read_addr;
-	mem_enable = 1;
+reg [1:0] mem_state = 2'b00;
+
+always @(*) begin
+	case (mem_state)
+		2'b00: begin // Initial
+			if (cache_mem_write_req) begin
+				mem_state = 2'b10;
+				mem_rw = 0;
+				mem_addr = cache_mem_write_addr;
+				mem_data_in = cache_mem_write_data;
+				mem_enable = 1;
+			end else if (cache_mem_read_req) begin
+				mem_state = 2'b01;
+				mem_rw = 1;
+				mem_addr = cache_mem_read_addr;
+				mem_enable = 1;
+			end
+		end
+		// Connect the wires
+		2'b01: begin // Reading
+			cache_mem_read_ack = mem_ack;
+			mem_enable = cache_mem_read_req;
+		end
+		2'b10: begin // Writing
+			cache_mem_write_ack = mem_ack;
+			mem_enable = cache_mem_write_req;
+		end
+	endcase
 end
 
-always @(posedge mem_ack) #1 begin
-	`DMSG(("[Test] ack read data %x", mem_data_out))
-	cache_mem_read_data = mem_data_out;
-	cache_mem_read_ack = 1;
-end
+// Reset initial state with clock
+always @(posedge clk) if (!mem_enable && !mem_ack) mem_state = 2'b00;
 
-always @(negedge cache_mem_read_req) begin
-	mem_enable = 0;
-end
-
-always @(negedge mem_ack) begin
-	cache_mem_read_ack = 0;
-end
 
 initial begin
 	`ifdef TRACEFILE
@@ -110,16 +127,22 @@ initial begin
 
 	cache_rw <= 1;
 	cache_enable <= 1;
-	cache_addr <= 32'h400;
+	cache_addr <= 32'h000;
 
 	reset <= 1;
 	# 10 reset <= 0;
 
-	# 100 cache_addr <= 32'h404;
-	# 100 cache_addr <= 32'h408;
-	# 100 cache_addr <= 32'h40C;
-	
-	# 100 cache_addr <= 32'h400;
+	# 100 cache_addr <= 32'h004;
+	# 100 cache_addr <= 32'h008;
+	# 100 begin
+		cache_addr <= 32'h00C;
+		cache_rw <= 0;
+	end
+	# 10 cache_rw <= 10;
+	# 100 cache_addr <= 32'h010;
+	# 100 cache_addr <= 32'h014;
+	# 100 cache_addr <= 32'h018;
+	# 100 cache_addr <= 32'h01C;
 
 	# 2000 $finish;
 end
