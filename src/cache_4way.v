@@ -1,10 +1,12 @@
-`ifndef _cache
-`define _cache
+`ifndef _cache_4way
+`define _cache_4way
+
+`include "defines.v"
 
 ///////////
 // Cache //
 ///////////
-module cache (
+module cache_4way (
 	input wire clk,
 	input wire reset,
 	input wire [31:0] addr,
@@ -49,7 +51,7 @@ wire [31-WB-DB:0] mem_read_tag;
 assign mem_read_index  = mem_read_addr[WB+DB-1:WB];
 assign mem_read_tag    = mem_read_addr[31:WB+DB];
 
-reg [SETS-1:0] replace = {SETS{1'b0}}; // Whether set should replace
+reg [SETS-1:0] waiting = {SETS{1'b0}};
 
 wire [WIDTH-1:0] bit_mask;
 
@@ -73,13 +75,13 @@ generate
 			else begin
 				if (mem_write_ack) mem_write_req = 1'b0;
 				if (mem_read_ack & !mem_write_req) begin
-					if (replace[i]) begin
+					if (waiting[i]) begin
 						`DMSG(("[Set %1d] replace", i))
 						lines[mem_read_index] = mem_read_data;
 						tags[mem_read_index] = mem_read_tag;
 						valids[mem_read_index] = 1'b1;
 						mem_read_req = 1'b0;
-						replace[i] = 1'b0;
+						waiting[i] = 1'b0;
 					end
 				end
 				if (master_enable) begin
@@ -121,14 +123,7 @@ always @(posedge clk) begin
 		mem_write_req <= 0;
 		mem_read_req <= 0;
 		data_out <= 0;
-		if (SETS == 1) replace = 1'b1;
-		else replace[1'b1 << $random % SETS] = 1'b1;
 	end
-end
-
-always @(negedge clk) if (replace == 0) begin
-	if (SETS == 1) replace = 1'b1;
-	else replace[1'b1 << $random % SETS] = 1'b1;
 end
 
 endmodule

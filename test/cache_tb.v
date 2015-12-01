@@ -1,6 +1,8 @@
 `include "defines.v"
 `include "memory_async.v"
-`include "cache.v"
+`include "cache_fully.v"
+`include "cache_2way.v"
+//`include "cache_4way.v"
 
 module cache_tb;
 
@@ -20,7 +22,7 @@ memory_async #(
 	.DATA("test/memory.raw"),
 	.WIDTH(32),
 	.DEPTH(4),
-	.LATENCY(30)
+	.LATENCY(27)
 ) memory (
 	.reset(reset),
 	.master_enable(mem_enable),
@@ -49,8 +51,14 @@ wire [31:0] cache_mem_write_addr;
 wire cache_mem_write_req;
 reg cache_mem_write_ack = 0;
 
-cache #(
-	.SETS(2),
+`ifdef CACHE_2WAY
+cache_2way
+`elsif CACHE_4WAY
+cache_4way
+`else
+cache_fully
+`endif
+#(
 	.WIDTH(32),
 	.DEPTH(4)
 ) cache (
@@ -108,6 +116,10 @@ initial begin
 	# 10 reset <= 0;
 
 	# 100 cache_addr <= 32'h404;
+	# 100 cache_addr <= 32'h408;
+	# 100 cache_addr <= 32'h40C;
+	
+	# 100 cache_addr <= 32'h400;
 
 	# 2000 $finish;
 end

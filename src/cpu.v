@@ -3,7 +3,6 @@
 
 `include "flipflop.v"
 `include "memory_sync.v"
-`include "memory.v"
 `include "regfile.v"
 `include "alu.v"
 `include "multiplexer.v"
