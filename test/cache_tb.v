@@ -107,6 +107,7 @@ always @* begin
 		end
 		// Connect the wires
 		2'b01: begin // Reading
+			if (mem_ack & mem_enable) cache_mem_read_data = mem_data_out;
 			cache_mem_read_ack = mem_ack;
 			mem_enable = cache_mem_read_req;
 		end
