@@ -48,12 +48,14 @@ wire [31-WB-DB:0] mem_read_tag;
 assign mem_read_index  = mem_read_addr[WB+DB-1:WB];
 assign mem_read_tag    = mem_read_addr[31:WB+DB];
 
-reg [SETS-1:0] set_waiting = {SETS{1'b0}};
+// Global set variables
+reg [SETS-1:0] set_select = {SETS{1'b0}};
 wire [SETS-1:0] set_valid;
-wire [SETS-1:0] set_hits; // Whether any of the sets has the data
-assign hit = | set_hits;
+wire [SETS-1:0] set_hit; // Whether any of the sets has the data
+assign hit = | set_hit;
 
-reg lru_status = 1'b0;
+wire all_valid;
+assign all_valid = & set_valid;
 
 wire [WIDTH-1:0] bit_mask;
 
@@ -64,68 +66,78 @@ generate
 	end
 endgenerate
 
-generate
-	for(i=0; i < SETS; i = i+1) begin
-		// Create set
-		reg [DEPTH-1:0] valids;
-		reg [31-WB-DB:0] tags [0:DEPTH-1];
-		reg [WIDTH-1:0] lines [0:DEPTH-1];
+reg lru_state = 1'b0;
 
-		assign set_valid[i] = valids[index];
-		assign set_hits[i] = (tags[index] == tag) && set_valid[i];
+generate for(i=0; i < SETS; i = i+1) begin
+	// Create set
+	reg [DEPTH-1:0] validbits = {DEPTH{1'b0}};
+	reg [DEPTH-1:0] dirtybits = {DEPTH{1'b0}};
+	reg [31-WB-DB:0] tags [0:DEPTH-1];
+	reg [WIDTH-1:0] lines [0:DEPTH-1];
 
-		// Copy value on hit
-		always @(posedge clk) begin
-			if (reset) valids <= {DEPTH{1'b0}}; // Invalidate all the lines
-			else begin
-				if (mem_write_ack) mem_write_req = 1'b0;
-				if (mem_read_ack & !mem_write_req) begin
-					if (set_waiting[i]) begin
-						`DMSG(("[Cache] set.%1d fill", i))
-						lines[mem_read_index] = mem_read_data;
-						tags[mem_read_index] = mem_read_tag;
-						valids[mem_read_index] = 1'b1;
-						mem_read_req = 1'b0;
-						set_waiting[i] = 1'b0;
-					end
-				end
-				if (master_enable) begin
-					if (set_hits[i]) begin
-						if (read_write) begin
-							data_out <= lines[index];
-						end else begin
-							lines[index] <= (lines[index] & ~bit_mask) | (data_in & bit_mask);
-						end
-						lru_status <= i;
+	assign set_valid[i] = validbits[index];
+	assign set_hit[i] = (tags[index] == tag) && set_valid[i];
+
+	// Handle requsts
+	always @* begin
+		if (set_select[i]) begin
+			if (mem_write_ack) mem_write_req = 1'b0;
+			if (mem_read_ack && !mem_write_req) begin
+				`DMSG(("[Cache] .%1d Fill %x", i, mem_read_addr[15:0]))
+				lines[mem_read_index] = mem_read_data;
+				tags[mem_read_index] = mem_read_tag;
+				validbits[mem_read_index] = 1'b1;
+				dirtybits[mem_read_index] = 1'b0;
+				mem_read_req = 1'b0;
+				// Deselect
+				set_select[i] = 1'b0;
+			end
+		end
+	end
+
+	always @(posedge clk) begin
+		if (reset) begin
+			validbits <= {DEPTH{1'b0}};
+			dirtybits <= {DEPTH{1'b0}};
+		end else begin
+			if (master_enable) begin
+				if (set_hit[i]) begin
+					if (read_write) begin
+						data_out = lines[index];
 					end else begin
-						if (!hit) begin
-							// Stall if we are waiting for a response from memory
-							if (!mem_read_req && !mem_write_req) begin
-								case (i)
-									0: begin
-										if (!set_valid[0] || lru_status == 1'b1) begin
-											set_waiting[0] = 1'b1;
-										end
-									end
-									1: begin
-										if ((set_valid[0] && !set_valid[1]) || lru_status == 1'b0) begin
-											set_waiting[1] = 1'b1;
-										end
-									end
-								endcase
-								if (set_waiting[i]) begin
-									`DMSG(("[Cache] set.%1d miss", i))
-									// Save line if necessary
-									if (valids[index]) begin
-										valids[index] = 1'b0;
-										mem_write_addr = {tags[index], index, {WB{1'b0}}};
-										mem_write_data = lines[index];
-										mem_write_req = 1'b1;
-									end
-									// Memory request
-									mem_read_addr = addr;
-									mem_read_req = 1'b1;
+						lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
+						dirtybits[index] = 1'b1;
+						data_out = lines[index];
+					end
+					// Update LRU
+					lru_state = i;
+				end else begin
+					if (!hit) begin
+						// Wait for memory
+						if (!mem_read_req && !mem_write_req) begin
+							// Select set
+							case (i)
+								0: if (set_valid[0] == 1'b0 ||
+									(all_valid && lru_state == 1'b1))
+										set_select[0] = 1'b1;
+								1: if (set_valid == 2'b01 ||
+									(all_valid && lru_state == 1'b0))
+										set_select[1] = 1'b1;
+							endcase
+							// Issue requests
+							if (set_select[i]) begin
+								`DMSG(("[Cache] .%1d Miss %x", i, addr[15:0]))
+								// Save line if necessary
+								if (validbits[index] && dirtybits[index]) begin
+									validbits[index] = 1'b0;
+									mem_write_addr = {tags[index], index, {WB{1'b0}}};
+									mem_write_data = lines[index];
+									`DMSG(("[Cache] .%1d Evict %x", i, mem_write_addr[15:0]))
+									mem_write_req = 1'b1;
 								end
+								// Memory request
+								mem_read_addr = addr;
+								mem_read_req = 1'b1;
 							end
 						end
 					end
@@ -133,14 +145,17 @@ generate
 			end
 		end
 	end
-endgenerate
+end endgenerate
 
 always @(posedge clk) begin
 	if (reset) begin
 		mem_write_req <= 0;
+		mem_write_addr <= 0;
+		mem_write_data <= 0;
 		mem_read_req <= 0;
+		mem_read_addr <= 0;
 		data_out <= 0;
-		lru_status <= 0;
+		lru_state <= 0;
 	end
 end
 

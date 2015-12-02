@@ -2,7 +2,7 @@
 `include "memory_async.v"
 `include "cache_direct.v"
 `include "cache_2way.v"
-//`include "cache_4way.v"
+`include "cache_4way.v"
 
 module cache_tb;
 
@@ -19,13 +19,13 @@ reg mem_rw = 0;
 wire mem_ack;
 
 `ifndef MEMORY_LATENCY
-`define MEMORY_LATENCY 30
+`define MEMORY_LATENCY 27
 `endif
 
 memory_async #(
-	.DATA("test/cache.raw"),
+	.DATA("test/memory.raw"),
 	.WIDTH(32),
-	.DEPTH(8),
+	.DEPTH(4),
 	.LATENCY(`MEMORY_LATENCY)
 ) memory (
 	.reset(reset),
@@ -42,7 +42,9 @@ reg [31:0] cache_addr = 0;
 reg [31:0] cache_data_in = 0;
 wire [31:0] cache_data_out;
 reg cache_enable = 1;
-reg cache_rw = 1;
+wire cache_rw;
+// Write to odd addresses
+assign cache_rw = ~cache_addr[4];
 wire cache_hit;
 
 reg [31:0] cache_mem_read_data = 0;
@@ -87,7 +89,7 @@ cache_direct
 
 reg [1:0] mem_state = 2'b00;
 
-always @(*) begin
+always @* begin
 	case (mem_state)
 		2'b00: begin // Initial
 			if (cache_mem_write_req) begin
@@ -125,7 +127,6 @@ initial begin
 	$dumpvars(0, cache_tb);
 	`endif
 
-	cache_rw <= 1;
 	cache_enable <= 1;
 	cache_addr <= 32'h000;
 
@@ -134,15 +135,27 @@ initial begin
 
 	# 100 cache_addr <= 32'h004;
 	# 100 cache_addr <= 32'h008;
-	# 100 begin
-		cache_addr <= 32'h00C;
-		cache_rw <= 0;
-	end
-	# 10 cache_rw <= 10;
+	# 100 cache_addr <= 32'h00C;
+
 	# 100 cache_addr <= 32'h010;
 	# 100 cache_addr <= 32'h014;
 	# 100 cache_addr <= 32'h018;
 	# 100 cache_addr <= 32'h01C;
+
+	# 100 cache_addr <= 32'h020;
+	# 100 cache_addr <= 32'h024;
+	# 100 cache_addr <= 32'h028;
+	# 100 cache_addr <= 32'h02C;
+
+	# 100 cache_addr <= 32'h030;
+	# 100 cache_addr <= 32'h034;
+	# 100 cache_addr <= 32'h038;
+	# 100 cache_addr <= 32'h03C;
+
+	# 100 cache_addr <= 32'h040;
+	# 100 cache_addr <= 32'h044;
+	# 100 cache_addr <= 32'h048;
+	# 100 cache_addr <= 32'h04C;
 
 	# 2000 $finish;
 end

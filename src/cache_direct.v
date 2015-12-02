@@ -15,7 +15,7 @@ module cache_direct (
 	input wire [BYTES-1:0] byte_enable,
 	input wire [WIDTH-1:0] data_in,
 	output reg [WIDTH-1:0] data_out = 0,
-	output reg hit = 0,
+	output wire hit,
 	// Memory ports
 	output reg mem_write_req = 0,
 	output reg [31:0] mem_write_addr = 0,
@@ -56,41 +56,44 @@ generate
 	end
 endgenerate
 
-reg [DEPTH-1:0] validbit = {DEPTH{1'b0}};
-reg [DEPTH-1:0] dirtybit = {DEPTH{1'b0}};
+reg [DEPTH-1:0] validbits = {DEPTH{1'b0}};
+reg [DEPTH-1:0] dirtybits = {DEPTH{1'b0}};
 reg [31-WB-DB:0] tags [0:DEPTH-1];
 reg [WIDTH-1:0] lines [0:DEPTH-1];
 
-// Copy value on hit
+assign hit = tags[index] == tag && validbits[index];
+
+// Handle requests
+always @* begin
+	if (mem_write_ack) mem_write_req = 1'b0;
+	if (mem_read_ack && !mem_write_req) begin
+		`DMSG(("[Cache] Fill %x", mem_read_addr[15:0]))
+		lines[mem_read_index] = mem_read_data;
+		tags[mem_read_index] = mem_read_tag;
+		validbits[mem_read_index] = 1'b1;
+		dirtybits[mem_read_index] = 1'b0;
+		mem_read_req = 1'b0;
+	end
+end
+
 always @(posedge clk) begin
 	if (reset) begin
-		validbit <= {DEPTH{1'b0}};
-		dirtybit <= {DEPTH{1'b0}};
+		validbits <= {DEPTH{1'b0}};
+		dirtybits <= {DEPTH{1'b0}};
 		data_out <= 0;
 		mem_write_req <= 0;
 		mem_write_addr <= 0;
 		mem_write_data <= 0;
 		mem_read_req <= 0;
 		mem_read_addr <= 0;
-		hit <= 0;
 	end else begin
-		if (mem_write_ack) mem_write_req = 1'b0;
-		if (mem_read_ack && !mem_write_req) begin
-			`DMSG(("[Cache] Fill %x", mem_read_addr[15:0]))
-			lines[mem_read_index] = mem_read_data;
-			tags[mem_read_index] = mem_read_tag;
-			validbit[mem_read_index] = 1'b1;
-			dirtybit[mem_read_index] = 1'b0;
-			mem_read_req = 1'b0;
-		end
-		hit = validbit[index] && (tags[index] == tag);
 		if (master_enable) begin
 			if (hit) begin
 				if (read_write) begin
 					data_out = lines[index];
 				end else begin
 					lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
-					dirtybit[index] = 1'b1;
+					dirtybits[index] = 1'b1;
 					data_out = lines[index];
 				end
 			end else begin
@@ -98,8 +101,8 @@ always @(posedge clk) begin
 				if (!mem_read_req && !mem_write_req) begin
 					`DMSG(("[Cache] Miss %x", addr[15:0]))
 					// Save line if necessary
-					if (validbit[index] && dirtybit[index]) begin
-						// validbit[index] = 1'b0;
+					if (validbits[index] && dirtybits[index]) begin
+						validbits[index] = 1'b0;
 						mem_write_addr = {tags[index], index, {WB{1'b0}}};
 						mem_write_data = lines[index];
 						`DMSG(("[Cache] Evict %x", mem_write_addr[15:0]))
