@@ -12,7 +12,6 @@
 .data
 str_exception:  .asciiz "[Exception] "
 save_reg:       .word 0, 0 # .space 8 not working, right? imsad.png
-save_print:     .word 0, 0
 
 #.ktext
 .text
