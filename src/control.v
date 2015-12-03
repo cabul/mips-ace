@@ -27,7 +27,7 @@ module control(
 );
 
 always @* begin
-	case(opcode)
+	casez(opcode)
 		`OP_RTYPE: begin
 			case(funct)
 				`FN_JR: begin
@@ -389,7 +389,7 @@ always @* begin
 			end end
 				
 		default:
-			$display("[WARNING] Control Unit received unknown opcode signal %x", opcode);
+			$display("%5t # [WARNING] Control Unit received unknown opcode signal %x", $time, opcode);
 	endcase
 end
 
