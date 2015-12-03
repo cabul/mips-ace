@@ -98,32 +98,29 @@ arbiter #(.WIDTH(WIDTH)) arbiter (
 );
 
 // Signals for reset and enable
-wire dc_miss;
-assign dc_miss = dc_enable & ~dc_hit;
-
 wire pc_reset;
 wire pc_we;
 assign pc_reset = reset;
-assign pc_we = (~hzd_stall & ic_hit & ~dc_miss) | pc_take_branch | ex_isjump;
+assign pc_we = (~hzd_stall & ic_hit & (~dc_enable | dc_hit)) | pc_take_branch | ex_isjump;
 
 wire if_id_reset;
 wire if_id_we;
 assign if_id_reset = reset | ex_isjump | pc_take_branch | ~ic_hit;
-assign if_id_we = ~dc_miss;
+assign if_id_we = ~dc_enable | dc_hit;
 
 wire id_ex_reset;
 wire id_ex_we;
 assign id_ex_reset = reset | ex_isjump | pc_take_branch | hzd_stall;
-assign id_ex_we = ~dc_miss;
+assign id_ex_we = ~dc_enable | dc_hit;
 
 wire ex_mem_reset;
 wire ex_mem_we;
 assign ex_mem_reset = reset | pc_take_branch;
-assign ex_mem_we = ~dc_miss;
+assign ex_mem_we = ~dc_enable | dc_hit;
 
 wire mem_wb_reset;
 wire mem_wb_we;
-assign mem_wb_reset = reset | dc_miss;
+assign mem_wb_reset = reset | (dc_enable & ~dc_hit);
 assign mem_wb_we = 1'b1;
 
 ////////////////////////
