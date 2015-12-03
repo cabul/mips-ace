@@ -208,7 +208,7 @@ always @* begin
 			islink   <= 1;
 		end
 		default:
-			$display("[WARNING] Control Unit received unknown opcode signal %x", opcode);
+			`WARN(("[Control] Unknown opcode %x", opcode))
 	endcase
 end
 

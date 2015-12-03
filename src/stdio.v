@@ -17,6 +17,7 @@ integer err;
 
 parameter STDIN  = 32'h8000_0000;
 parameter STDOUT = 32'h8000_0001;
+parameter STDERR = 32'h8000_0002;
 
 always @(posedge clk) begin
 	if (reset) begin
@@ -29,18 +30,18 @@ always @(posedge clk) begin
 				`IO_FLOAT: err = $fscanf(STDIN, "%f", data_out);
 				`IO_HEX:   err = $fscanf(STDIN, "%x", data_out);
 				`IO_EXIT: $finish;
-				default: $display("[IO] Error");
+				default: `WARN(("[IO] Unknown operation"))
 			endcase
 		end else begin
 			case (addr)
-				`IO_CHAR:  $write("%0c", data_in);
-				`IO_INT:   $write("%0d", data_in);
-				`IO_FLOAT: $write("%0f", data_in);
-				`IO_HEX:   $write("%0x", data_in);
+				`IO_CHAR:  $fwrite(STDERR, "%0c", data_in);
+				`IO_INT:   $fwrite(STDERR, "%0d", data_in);
+				`IO_FLOAT: $fwrite(STDERR, "%0f", data_in);
+				`IO_HEX:   $fwrite(STDERR, "%0x", data_in);
 				`IO_EXIT: $finish;
-				default: $display("[IO] Error");
+				default: `WARN(("[IO] Unknown operation"))
 			endcase
-			$fflush(STDOUT);
+			$fflush(STDERR);
 		end
 	end
 end

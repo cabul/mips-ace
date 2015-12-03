@@ -106,7 +106,7 @@ always @* begin
 			end
 		end
 		default:
-			$display("[WARNING] ALU received unknown aluop signal %x", aluop);
+			`WARN(("[ALU] Unknown aluop signal %x", aluop))
 	endcase
 end
 

@@ -32,7 +32,7 @@ module arbiter (
 	input wire [WIDTH-1:0] mem_data_out
 );
 
-parameter WIDTH = 32;
+parameter WIDTH = `MEMORY_WIDTH;
 
 reg [1:0] arb_state = 2'b00;
 // 00: Null state
@@ -42,16 +42,17 @@ reg [1:0] arb_state = 2'b00;
 
 // TODO Coherency between I and D cache
 
+
+wire [2:0] all_reqs;
+assign all_reqs = {dc_write_req, dc_read_req, ic_read_req};
+
 // Handle requests
 always @* begin
+	if (& all_reqs) `DMSG(("[Arbiter] We fucked up"))
+	if (!mem_enable & !mem_ack) arb_state <= 2'b00;
 	case (arb_state)
-		2'b00: begin
-			if (ic_read_req) begin
-				arb_state = 2'b01;
-				mem_rw = 1;
-				mem_addr = ic_read_addr;
-				mem_enable = 1;
-			end else if (dc_write_req) begin
+		2'b00: begin // Null
+			if (dc_write_req) begin
 				arb_state = 2'b10;
 				mem_rw = 0;
 				mem_addr = dc_write_addr;
@@ -62,26 +63,31 @@ always @* begin
 				mem_rw = 1;
 				mem_addr = dc_read_addr;
 				mem_enable = 1;
+			end else if (ic_read_req) begin
+				arb_state = 2'b01;
+				mem_rw = 1;
+				mem_addr = ic_read_addr;
+				mem_enable = 1;
 			end
 		end
-		2'b01: begin
+		2'b01: begin // I Read
 			if (mem_ack & mem_enable) ic_read_data = mem_data_out;
 			ic_read_ack = mem_ack;
 			mem_enable = ic_read_req;
 		end
-		2'b10: begin
+		2'b10: begin // D Write
 			dc_write_ack = mem_ack;
 			mem_enable = dc_write_req;
 		end
-		2'b11: begin
+		2'b11: begin // I Read
 			if (mem_ack & mem_enable) dc_read_data = mem_data_out;
 			dc_read_ack = mem_ack;
 			mem_enable = dc_read_req;
 		end
+	endcase
 end
 
-// Reset initial state with clock
-always @(posedge clk) if (reset || (!mem_enable && !mem_ack)) mem_state = 2'b00;
+always @(posedge clk) if (reset) arb_state <= 2'b00;
 
 endmodule
 

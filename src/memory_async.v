@@ -21,6 +21,7 @@ parameter DEPTH = `MEMORY_DEPTH;
 localparam WB = $clog2(WIDTH) - 3; // Address in bytes
 localparam DB = $clog2(DEPTH);
 localparam BYTES = 2**WB; // Number of bytes
+localparam SIZE = WIDTH * DEPTH / 8;
 
 parameter DATA = `MEMORY_DATA;
 
@@ -41,15 +42,19 @@ generate
 endgenerate
 
 always @(posedge master_enable) # LATENCY begin
+	if (addr >= SIZE) `WARN(("[Memory] Out of bounds"))
 	if (read_write) begin
 		data_out = mem[index];
+		`DMSG(("[Memory] Read %x => %x", addr[15:0], data_out))
 	end else begin
 		mem[index] = (mem[index] & ~bit_mask) | (data_in & bit_mask);
+		data_out = mem[index];
+		`DMSG(("[Memory] Write %x <= %x", addr[15:0], data_out))
 	end
 	ack = 1;
 end
 
-always @(negedge master_enable) ack <= 0;
+always @(negedge master_enable) # 2 ack <= 0;
 
 always @(posedge reset) $readmemh(DATA, mem);
 

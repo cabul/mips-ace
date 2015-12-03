@@ -71,12 +71,13 @@
 `define IO_HEX   8'hfb
 
 // Debug macros
-
 `ifdef DEBUG
-	`define DMSG(M) begin $write("%4t # ", $time); $display M ; end
+	`define DMSG(M) begin $write("%5t ", $time); $display M ; end
 `else
 	`define DMSG(M)
 `endif
+
+`define WARN(M) begin $write("\033[31m%5t ", $time); $display M ; $write("\033[0m"); end
 
 `define MEMORY_DATA "build/memory.raw"
 

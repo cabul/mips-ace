@@ -2,7 +2,9 @@
 `define _cpu
 
 `include "flipflop.v"
+`include "cache_direct.v"
 `include "memory_sync.v"
+`include "arbiter.v"
 `include "regfile.v"
 `include "alu.v"
 `include "multiplexer.v"
@@ -15,8 +17,18 @@
 // Central Processing Unit
 module cpu(
 	input wire clk,
-	input wire reset
+	input wire reset,
+	// Memory ports
+	output wire mem_enable,
+	output wire mem_rw,
+	input wire mem_ack,
+	output wire [31:0]  mem_addr,
+	input wire [WIDTH-1:0] mem_data_out,
+	output wire [WIDTH-1:0] mem_data_in
 );
+
+parameter WIDTH = `MEMORY_WIDTH;
+localparam BYTES = WIDTH / 8;
 
 ////////////////////////
 //                    //
@@ -24,7 +36,7 @@ module cpu(
 //                    //
 ////////////////////////
 
-wire stall;
+wire hzd_stall;
 
 fwdcontrol fwdcontrol (
 	.rs(id_instr[25:21]),
@@ -43,8 +55,76 @@ hzdcontrol hzdcontrol (
 	.rt(dst_rt),
 	.memtoreg(ex_memtoreg),
 	.instr_top(id_instr[31:16]),
-	.stall(stall)
+	.stall(hzd_stall)
 );
+
+wire ic_hit;
+wire dc_hit;
+
+wire ic_read_req;
+wire ic_read_ack;
+wire [31:0] ic_read_addr;
+wire [WIDTH-1:0] ic_read_data;
+wire dc_read_req;
+wire dc_read_ack;
+wire [31:0] dc_read_addr;
+wire [WIDTH-1:0] dc_read_data;
+wire dc_write_req;
+wire dc_write_ack;
+wire [31:0] dc_write_addr;
+wire [WIDTH-1:0] dc_write_data;
+
+arbiter #(.WIDTH(WIDTH)) arbiter (
+	.clk(clk),
+	.reset(reset),
+	.ic_read_req(ic_read_req),
+	.ic_read_ack(ic_read_ack),
+	.ic_read_addr(ic_read_addr),
+	.ic_read_data(ic_read_data),
+	.dc_read_req(dc_read_req),
+	.dc_read_ack(dc_read_ack),
+	.dc_read_addr(dc_read_addr),
+	.dc_read_data(dc_read_data),
+	.dc_write_req(dc_write_req),
+	.dc_write_ack(dc_write_ack),
+	.dc_write_addr(dc_write_addr),
+	.dc_write_data(dc_write_data),
+	.mem_enable(mem_enable),
+	.mem_rw(mem_rw),
+	.mem_ack(mem_ack),
+	.mem_addr(mem_addr),
+	.mem_data_in(mem_data_in),
+	.mem_data_out(mem_data_out)
+);
+
+// Signals for reset and enable
+wire dc_miss;
+assign dc_miss = dc_enable & ~dc_hit;
+
+wire pc_reset;
+wire pc_we;
+assign pc_reset = reset;
+assign pc_we = (~hzd_stall & ic_hit & ~dc_miss) | pc_take_branch | ex_isjump;
+
+wire if_id_reset;
+wire if_id_we;
+assign if_id_reset = reset | ex_isjump | pc_take_branch | ~ic_hit;
+assign if_id_we = ~dc_miss;
+
+wire id_ex_reset;
+wire id_ex_we;
+assign id_ex_reset = reset | ex_isjump | pc_take_branch | hzd_stall;
+assign id_ex_we = ~dc_miss;
+
+wire ex_mem_reset;
+wire ex_mem_we;
+assign ex_mem_reset = reset | pc_take_branch;
+assign ex_mem_we = ~dc_miss;
+
+wire mem_wb_reset;
+wire mem_wb_we;
+assign mem_wb_reset = reset | dc_miss;
+assign mem_wb_we = 1'b1;
 
 ////////////////////////
 //                    //
@@ -57,8 +137,6 @@ wire [31:0] if_instr;
 wire [31:0] pc_in;
 wire [31:0] pc_interm;
 wire [31:0] pc_out;
-reg pc_we = 1;
-reg if_id_we = 1;
 
 assign if_pc_next = pc_out + 4;
 
@@ -70,25 +148,35 @@ flipflop #(
 	.INIT(32'h0)
 ) pc (
 	.clk(clk),
-	.reset(reset),
-	.we(pc_we & !stall),
+	.reset(pc_reset),
+	.we(pc_we),
 	.in(pc_in),
 	.out(pc_out)
 );
 
-memory_sync imem (
+cache_direct #(
+	.WIDTH(WIDTH),
+	.DEPTH(4),
+	.ALIAS("I-Cache")
+) icache (
 	.clk(~clk),
 	.reset(reset),
 	.addr(pc_out),
 	.data_out(if_instr),
 	.master_enable(1),
-	.read_write(1)
+	.read_write(1),
+	.hit(ic_hit),
+	// Memory ports
+	.mem_read_req(ic_read_req),
+	.mem_read_addr(ic_read_addr),
+	.mem_read_data(ic_read_data),
+	.mem_read_ack(ic_read_ack)
 );
 
 flipflop #(.N(64)) if_id (
 	.clk(clk),
-	.reset(reset | ex_isjump | pc_take_branch),
-	.we(if_id_we & !stall),
+	.reset(if_id_reset),
+	.we(if_id_we),
 	.in({if_pc_next, if_instr}),
 	.out({id_pc_next, id_instr})
 );
@@ -118,10 +206,8 @@ wire [31:0] id_data_rt;
 wire [31:0] id_pc_jump;
 wire [31:0] reg_rs;
 wire [31:0] reg_rt;
-reg id_ex_we = 1;
 wire [1:0] fwdctrl_rs;
 wire [1:0] fwdctrl_rt;
-
 assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 assign id_pc_jump = {id_pc_next[31:28], id_instr[25:0], 2'b00};
  
@@ -167,7 +253,7 @@ multiplexer #(.X(4)) data_rt_mux (
 
 flipflop #(.N(224)) id_ex (
 	.clk(clk),
-	.reset(reset | ex_isjump | pc_take_branch | stall),
+	.reset(id_ex_reset),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_isbranch,
         	id_regdst, id_aluop, id_alusrc, id_isjump, id_islink, id_jumpdst,
@@ -185,7 +271,6 @@ flipflop #(.N(224)) id_ex (
 //                    //
 ////////////////////////
 
-reg ex_mem_we = 1;
 wire [31:0] ex_instr;
 wire ex_regwrite;
 wire ex_memtoreg;
@@ -251,7 +336,7 @@ assign ex_wreg = ex_islink ? 5'h1f : dst_reg;
 
 flipflop #(.N(140)) ex_mem (
 	.clk(clk),
-	.reset(reset | pc_take_branch),
+	.reset(ex_mem_reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
         	ex_isbranch, ex_pc_branch,  ex_aluovf, ex_aluz,
@@ -269,7 +354,6 @@ flipflop #(.N(140)) ex_mem (
 
 wire [31:0] mem_pc_branch;
 wire [31:0] mem_instr;
-reg mem_wb_we = 1;
 wire mem_regwrite;
 wire mem_memtoreg;
 wire mem_memread;
@@ -288,6 +372,7 @@ assign pc_take_branch = mem_isbranch & mem_aluz;
 
 wire io_mem;
 assign io_mem = & mem_exout[31:26]; // IO when 0xFF....
+wire dc_enable = (mem_memwrite | mem_memread) & ~io_mem;
 wire [31:0] io_out;
 wire [31:0] mem_out;
 
@@ -301,23 +386,57 @@ stdio stdio(
 	.read_write(mem_memread)
 );
 
+`ifndef NO_CACHE
+cache_direct #(
+	.WIDTH(WIDTH),
+	.DEPTH(4),
+	.ALIAS("D-Cache")
+) dcache (
+	.clk(~clk),
+	.reset(reset),
+	.addr(mem_exout),
+	.data_out(mem_out),
+	.data_in(mem_data_rt),
+	.master_enable(dc_enable),
+	.read_write(mem_memread),
+	.byte_enable(4'b1111),
+	.hit(dc_hit),
+	// Memory ports
+	.mem_write_req(dc_write_req),
+	.mem_write_addr(dc_write_addr),
+	.mem_write_data(dc_write_data),
+	.mem_write_ack(dc_write_ack),
+	.mem_read_req(dc_read_req),
+	.mem_read_addr(dc_read_addr),
+	.mem_read_data(dc_read_data),
+	.mem_read_ack(dc_read_ack)
+);
+`endif
+
+`ifdef NO_CACHE
+assign dc_write_req = 1'b0;
+assign dc_read_req = 1'b0;
+
+assign dc_hit = 1'b1;
+
 memory_sync dmem (
 	.clk(~clk),
 	.reset(reset),
 	.addr(mem_exout),
 	.data_out(mem_out),
 	.data_in(mem_data_rt),
-	.master_enable((mem_memwrite | mem_memread) & ~io_mem),
+	.master_enable(dc_enable),
 	.read_write(mem_memread),
 	.byte_enable(4'b1111)
 );
+`endif
 
 assign mem_memout = io_mem ? io_out : mem_out;
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
 flipflop #(.N(70)) mem_wb (
 	.clk(clk),
-	.reset(reset),
+	.reset(mem_wb_reset),
 	.we(mem_wb_we),
 	.in({mem_regwrite, mem_wdata, mem_wreg, mem_instr}),
 	.out({wb_regwrite, wb_wdata, wb_wreg, wb_instr})
