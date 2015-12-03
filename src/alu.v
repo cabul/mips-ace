@@ -107,7 +107,7 @@ always @* begin
 		end
 		`ALUOP_MOV: begin
 			zero <= 0;
-			out <= s;
+			out <= t;
 		end		
 		default:
 			$display("[WARNING] ALU received unknown aluop signal %x", aluop);
