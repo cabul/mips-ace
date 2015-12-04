@@ -83,7 +83,7 @@ generate for(i=0; i < SETS; i = i+1) begin
 		if (set_select[i]) begin
 			if (mem_write_ack) mem_write_req = 1'b0;
 			if (mem_read_ack && !mem_write_req) begin
-				`DMSG(("[Cache] .%1d Fill %x", i, mem_read_addr[15:0]))
+				`INFO(("[Cache] .%1d Fill %x", i, mem_read_addr[15:0]))
 				lines[mem_read_index] = mem_read_data;
 				tags[mem_read_index] = mem_read_tag;
 				validbits[mem_read_index] = 1'b1;
@@ -126,13 +126,13 @@ generate for(i=0; i < SETS; i = i+1) begin
 							endcase
 							// Issue requests
 							if (set_select[i]) begin
-								`DMSG(("[Cache] .%1d Miss %x", i, addr[15:0]))
+								`INFO(("[Cache] .%1d Miss %x", i, addr[15:0]))
 								// Save line if necessary
 								if (validbits[index] && dirtybits[index]) begin
 									validbits[index] = 1'b0;
 									mem_write_addr = {tags[index], index, {WB{1'b0}}};
 									mem_write_data = lines[index];
-									`DMSG(("[Cache] .%1d Evict %x", i, mem_write_addr[15:0]))
+									`INFO(("[Cache] .%1d Evict %x", i, mem_write_addr[15:0]))
 									mem_write_req = 1'b1;
 								end
 								// Memory request

@@ -98,30 +98,31 @@ arbiter #(.WIDTH(WIDTH)) arbiter (
 );
 
 // Signals for reset and enable
-wire pc_reset;
-wire pc_we;
-assign pc_reset = reset;
-assign pc_we = (~hzd_stall & ic_hit & (~dc_enable | dc_hit)) | pc_take_branch | ex_isjump;
+wire ic_stall = ~ic_hit;
+wire dc_stall = dc_enable & ~dc_hit;
 
-wire if_id_reset;
-wire if_id_we;
-assign if_id_reset = reset | ex_isjump | pc_take_branch | ~ic_hit;
-assign if_id_we = ~dc_enable | dc_hit;
+wire pc_stall = ic_stall | dc_stall | hzd_stall;
+wire pc_we = ~pc_stall | ex_isjump | pc_take_branch;
+wire pc_reset = reset;
 
-wire id_ex_reset;
-wire id_ex_we;
-assign id_ex_reset = reset | ex_isjump | pc_take_branch | hzd_stall;
-assign id_ex_we = ~dc_enable | dc_hit;
+wire if_id_stall = dc_stall | hzd_stall;
+wire if_id_flush = ic_stall | ex_isjump | pc_take_branch;
+wire if_id_we = ~if_id_stall;
+wire if_id_reset = reset | (if_id_flush & ~if_id_stall);
 
-wire ex_mem_reset;
-wire ex_mem_we;
-assign ex_mem_reset = reset | pc_take_branch;
-assign ex_mem_we = ~dc_enable | dc_hit;
+wire id_ex_stall = dc_stall;
+wire id_ex_flush = ex_isjump | pc_take_branch | hzd_stall;
+wire id_ex_we = ~id_ex_stall;
+wire id_ex_reset = reset | (id_ex_flush & ~id_ex_stall);
 
-wire mem_wb_reset;
-wire mem_wb_we;
-assign mem_wb_reset = reset | (dc_enable & ~dc_hit);
-assign mem_wb_we = 1'b1;
+wire ex_mem_stall = dc_stall;
+wire ex_mem_flush = pc_take_branch;
+wire ex_mem_we = ~ex_mem_stall;
+wire ex_mem_reset = reset | (ex_mem_flush & ~ex_mem_stall);
+
+wire mem_wb_flush = dc_stall;
+wire mem_wb_we = 1'b1;
+wire mem_wb_reset = reset | mem_wb_flush;
 
 ////////////////////////
 //                    //

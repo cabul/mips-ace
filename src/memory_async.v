@@ -45,11 +45,11 @@ always @(posedge master_enable) # LATENCY begin
 	if (addr >= SIZE) `WARN(("[Memory] Out of bounds"))
 	if (read_write) begin
 		data_out = mem[index];
-		`DMSG(("[Memory] Read %x => %x", addr[15:0], data_out))
+		`INFO(("[Memory] Read %x => %x", addr[15:0], data_out))
 	end else begin
 		mem[index] = (mem[index] & ~bit_mask) | (data_in & bit_mask);
 		data_out = mem[index];
-		`DMSG(("[Memory] Write %x <= %x", addr[15:0], data_out))
+		`INFO(("[Memory] Write %x <= %x", addr[15:0], data_out))
 	end
 	ack = 1;
 end

@@ -106,7 +106,7 @@ assign dirtybit_3 = dirtybits[3];
 always @* begin
 	if (mem_write_ack) mem_write_req = 1'b0;
 	if (mem_read_ack && !mem_write_req) begin
-		`DMSG(("[%s] Fill %x <= %x", ALIAS, mem_read_addr[15:0], mem_read_data))
+		`INFO(("[%s] Fill %x <= %x", ALIAS, mem_read_addr[15:0], mem_read_data))
 		lines[mem_read_index] = mem_read_data;
 		tags[mem_read_index] = mem_read_tag;
 		validbits[mem_read_index] = 1'b1;
@@ -133,22 +133,22 @@ always @(posedge clk) begin
 			if (hit) begin
 				if (read_write) begin
 					data_out = lines[index];
-					`DMSG(("[%s] Hit %x => %x", ALIAS, addr[15:0], data_out))
+					`INFO(("[%s] Hit %x => %x", ALIAS, addr[15:0], data_out))
 				end else begin
 					lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
 					dirtybits[index] = 1'b1;
 					data_out = lines[index];
-					`DMSG(("[%s] Hit %x <= %x", ALIAS, addr[15:0], data_out))
+					`INFO(("[%s] Hit %x <= %x", ALIAS, addr[15:0], data_out))
 				end
 			end else begin
 				// Wait for memory
 				if (~mem_read_req & ~mem_write_req) begin
-					`DMSG(("[%s] Miss %x", ALIAS, addr[15:0]))
+					`INFO(("[%s] Miss %x", ALIAS, addr[15:0]))
 					// Save line if necessary
 					if (validbits[index] & dirtybits[index]) begin
 						mem_write_addr = {tags[index], index, {WB{1'b0}}};
 						mem_write_data = lines[index];
-						`DMSG(("[%s] Evict %x => %x", ALIAS, mem_write_addr[15:0], mem_write_data))
+						`INFO(("[%s] Evict %x => %x", ALIAS, mem_write_addr[15:0], mem_write_data))
 						mem_write_req = 1'b1;
 					end
 					validbits[index] = 1'b0;
@@ -157,7 +157,7 @@ always @(posedge clk) begin
 					mem_read_req = 1'b1;
 				end
 			end
-		end else hit <= 1'b0;
+		end else hit <= 1'b1;
 	end
 end
 

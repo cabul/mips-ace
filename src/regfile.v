@@ -46,7 +46,6 @@ always @(posedge clk) begin
 end
 
 `ifdef DEBUG
-
 wire [31:0] reg_0;
 wire [31:0] reg_1;
 wire [31:0] reg_2;

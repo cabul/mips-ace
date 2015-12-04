@@ -72,9 +72,9 @@
 
 // Debug macros
 `ifdef DEBUG
-	`define DMSG(M) begin $write("%5t ", $time); $display M ; end
+	`define INFO(M) begin $write("%5t ", $time); $display M ; end
 `else
-	`define DMSG(M)
+	`define INFO(M) begin end
 `endif
 
 `define WARN(M) begin $write("\033[31m%5t ", $time); $display M ; $write("\033[0m"); end

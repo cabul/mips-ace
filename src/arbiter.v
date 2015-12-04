@@ -42,13 +42,8 @@ reg [1:0] arb_state = 2'b00;
 
 // TODO Coherency between I and D cache
 
-
-wire [2:0] all_reqs;
-assign all_reqs = {dc_write_req, dc_read_req, ic_read_req};
-
 // Handle requests
 always @* begin
-	if (& all_reqs) `DMSG(("[Arbiter] We fucked up"))
 	if (!mem_enable & !mem_ack) arb_state <= 2'b00;
 	case (arb_state)
 		2'b00: begin // Null
