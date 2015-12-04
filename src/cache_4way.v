@@ -15,7 +15,7 @@ module cache_4way (
 	input wire [BYTES-1:0] byte_enable,
 	input wire [WIDTH-1:0] data_in,
 	output reg [WIDTH-1:0] data_out,
-	output wire hit,
+	output reg hit,
 	// Memory ports
 	output reg mem_write_req,
 	output reg [31:0] mem_write_addr,
@@ -34,28 +34,24 @@ localparam DB = $clog2(DEPTH); // Depth bits
 localparam BYTES = 2**WB;
 localparam SETS = 4; // 4-way associative
 
+parameter ALIAS = "Cache";
+
 // address = tag | index | offset
-wire [WB-1:0]     offset; // Offset is ignored!? Fetch whole line
-wire [DB-1:0]     index;
-wire [31-WB-DB:0] tag;
+wire [WB-1:0]     offset = addr[WB-1:0];
+wire [DB-1:0]     index  = addr[WB+DB-1:WB];
+wire [31-WB-DB:0] tag    = addr[31:WB+DB];
 
-assign offset = addr[WB-1:0];
-assign index  = addr[WB+DB-1:WB];
-assign tag    = addr[31:WB+DB];
-
-wire [DB-1:0]     mem_read_index;
-wire [31-WB-DB:0] mem_read_tag;
-assign mem_read_index  = mem_read_addr[WB+DB-1:WB];
-assign mem_read_tag    = mem_read_addr[31:WB+DB];
+wire [DB-1:0]     mem_read_index = mem_read_addr[WB+DB-1:WB];
+wire [31-WB-DB:0] mem_read_tag   = mem_read_addr[31:WB+DB];
 
 // Global set variables
 reg [SETS-1:0] set_select = {SETS{1'b0}};
 wire [SETS-1:0] set_valid;
 wire [SETS-1:0] set_hit; // Whether any of the sets has the data
-assign hit = | set_hit;
 
-wire all_valid;
-assign all_valid = & set_valid;
+wire hit_int = | set_hit;
+
+wire all_valid = & set_valid;
 
 wire [WIDTH-1:0] bit_mask;
 
@@ -83,7 +79,7 @@ generate for(i=0; i < SETS; i = i+1) begin
 		if (set_select[i]) begin
 			if (mem_write_ack) mem_write_req = 1'b0;
 			if (mem_read_ack && !mem_write_req) begin
-				`INFO(("[Cache] .%1d Fill %x", i, mem_read_addr[15:0]))
+				`INFO(("[%s] .%1d Fill %x <= %x", i, mem_read_addr[15:0], mem_read_data))
 				lines[mem_read_index] = mem_read_data;
 				tags[mem_read_index] = mem_read_tag;
 				validbits[mem_read_index] = 1'b1;
@@ -104,10 +100,12 @@ generate for(i=0; i < SETS; i = i+1) begin
 				if (set_hit[i]) begin
 					if (read_write) begin
 						data_out = lines[index];
+						`INFO(("[%s] .%d Hit %x => %x", ALIAS, i, addr[15:0], data_out))
 					end else begin
 						lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
 						dirtybits[index] = 1'b1;
 						data_out = lines[index];
+						`INFO(("[%s] .%d Hit %x <= %x", ALIAS, i, addr[15:0], data_out))
 					end
 					// Update LRU
 					case (i)
@@ -137,15 +135,15 @@ generate for(i=0; i < SETS; i = i+1) begin
 							endcase
 							// Issue requests
 							if (set_select[i]) begin
-								`INFO(("[Cache] .%1d Miss %x", i, addr[15:0]))
+								`INFO(("[%s] .%1d Miss %x", ALIAS, i, addr[15:0]))
 								// Save line if necessary
 								if (validbits[index] && dirtybits[index]) begin
-									validbits[index] = 1'b0;
 									mem_write_addr = {tags[index], index, {WB{1'b0}}};
 									mem_write_data = lines[index];
-									`INFO(("[Cache] .%1d Evict %x", i, mem_write_addr[15:0]))
+									`INFO(("[%s] .%1d Evict %x => %x", ALIAS, i, mem_write_addr[15:0], mem_write_data))
 									mem_write_req = 1'b1;
 								end
+								validbits[index] = 1'b0;
 								// Memory request
 								mem_read_addr = addr;
 								mem_read_req = 1'b1;
@@ -167,7 +165,9 @@ always @(posedge clk) begin
 		mem_read_addr <= 0;
 		data_out <= 0;
 		lru_state <= 0;
-	end
+	end else if (master_enable)
+		hit <= hit_int;
+	else hit <= 1'b0;
 end
 
 endmodule

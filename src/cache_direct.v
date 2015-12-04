@@ -36,18 +36,12 @@ localparam BYTES = 2**WB;
 parameter ALIAS = "Cache";
 
 // address = tag | index | offset
-wire [WB-1:0]     offset; // Offset is ignored!? Fetch whole line
-wire [DB-1:0]     index;
-wire [31-WB-DB:0] tag;
+wire [WB-1:0]     offset = addr[WB-1:0];
+wire [DB-1:0]     index  = addr[WB+DB-1:WB];
+wire [31-WB-DB:0] tag    = addr[31:WB+DB];
 
-assign offset = addr[WB-1:0];
-assign index  = addr[WB+DB-1:WB];
-assign tag    = addr[31:WB+DB];
-
-wire [DB-1:0]     mem_read_index;
-wire [31-WB-DB:0] mem_read_tag;
-assign mem_read_index  = mem_read_addr[WB+DB-1:WB];
-assign mem_read_tag    = mem_read_addr[31:WB+DB];
+wire [DB-1:0]     mem_read_index = mem_read_addr[WB+DB-1:WB];
+wire [31-WB-DB:0] mem_read_tag   = mem_read_addr[31:WB+DB];
 
 wire [WIDTH-1:0] bit_mask;
 
@@ -63,44 +57,7 @@ reg [DEPTH-1:0] dirtybits = {DEPTH{1'b0}};
 reg [31-WB-DB:0] tags [0:DEPTH-1];
 reg [WIDTH-1:0] lines [0:DEPTH-1];
 
-wire hit_int;
-assign hit_int = tags[index] == tag && validbits[index];
-
-wire [31-WB-DB:0] tag_0;
-wire [31-WB-DB:0] tag_1;
-wire [31-WB-DB:0] tag_2;
-wire [31-WB-DB:0] tag_3;
-assign tag_0 = tags[0];
-assign tag_1 = tags[1];
-assign tag_2 = tags[2];
-assign tag_3 = tags[3];
-
-wire [WIDTH-1:0] line_0;
-wire [WIDTH-1:0] line_1;
-wire [WIDTH-1:0] line_2;
-wire [WIDTH-1:0] line_3;
-assign line_0 = lines[0];
-assign line_1 = lines[1];
-assign line_2 = lines[2];
-assign line_3 = lines[3];
-
-wire validbit_0;
-wire validbit_1;
-wire validbit_2;
-wire validbit_3;
-assign validbit_0 = validbits[0];
-assign validbit_1 = validbits[1];
-assign validbit_2 = validbits[2];
-assign validbit_3 = validbits[3];
-
-wire dirtybit_0;
-wire dirtybit_1;
-wire dirtybit_2;
-wire dirtybit_3;
-assign dirtybit_0 = dirtybits[0];
-assign dirtybit_1 = dirtybits[1];
-assign dirtybit_2 = dirtybits[2];
-assign dirtybit_3 = dirtybits[3];
+wire hit_int = tags[index] == tag && validbits[index];
 
 // Handle requests
 always @* begin
@@ -129,8 +86,8 @@ always @(posedge clk) begin
 		mem_read_addr <= 0;
 	end else begin
 		if (master_enable) begin
-			hit = hit_int;
-			if (hit) begin
+			hit <= hit_int;
+			if (hit_int) begin
 				if (read_write) begin
 					data_out = lines[index];
 					`INFO(("[%s] Hit %x => %x", ALIAS, addr[15:0], data_out))
@@ -157,7 +114,7 @@ always @(posedge clk) begin
 					mem_read_req = 1'b1;
 				end
 			end
-		end else hit <= 1'b1;
+		end else hit <= 1'b0;
 	end
 end
 

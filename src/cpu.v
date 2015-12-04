@@ -3,6 +3,8 @@
 
 `include "flipflop.v"
 `include "cache_direct.v"
+`include "cache_2way.v"
+`include "cache_4way.v"
 `include "memory_sync.v"
 `include "arbiter.v"
 `include "regfile.v"
@@ -152,7 +154,7 @@ flipflop #(
 	.out(pc_out)
 );
 
-cache_direct #(
+cache_2way #(
 	.WIDTH(WIDTH),
 	.DEPTH(4),
 	.ALIAS("I-Cache")
@@ -385,7 +387,7 @@ stdio stdio(
 );
 
 `ifndef NO_CACHE
-cache_direct #(
+cache_2way #(
 	.WIDTH(WIDTH),
 	.DEPTH(4),
 	.ALIAS("D-Cache")
