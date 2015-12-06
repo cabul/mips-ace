@@ -12,11 +12,32 @@
 .data
 str_exception:          .asciiz "Exception: "
 str_unimplemented:      .asciiz "exception not implemented raised.\n"
+str_load_exc:           .asciiz "address error exception (load or instruction fetch).\n"
+str_st_exc:             .asciiz "address error exception (store).\n"
+str_tlb_fetch:          .asciiz "TLB on instruction fetch.\n"
+str_tlb_data:           .asciiz "TLB on load or store.\n"
+str_overflow:           .asciiz "arithmetic overflow.\n"
+str_syscall:            .asciiz "syscall.\n"
+str_reserved:           .asciiz "reserved instruction.\n"
+str_endline:            .asciiz "\n"
 save_reg:               .space 8
 exception_jumptable:	.word int, unimpl1, unimpl2, unimpl3, AdEL, AdES, IBE, DBE, Sys, Bp, RI, CpU, Ov, Tr, unimpl4, FPE
 
 #.ktext
 .text
+##
+    li $s0, 123
+    mtc0 $s0, $cause
+    nop
+    nop
+    nop
+    mfc0 $s1, $cause
+    sw $s1, %IO_INT($0)
+    la $a0, str_endline
+    lw $a0, 0($a0)
+    sw $a0, %IO_CHAR($0)
+    sw $0, %IO_EXIT($0)
+##
     mfc0 $k0, $cause
     bne $k0, $0, exception_handler
     
@@ -63,16 +84,35 @@ unimpl1:
 unimpl2:
 unimpl3:
 unimpl4:
-#
-AdEL:
-AdES:
-IBE:
-DBE:
-Sys:
-RI:
-Ov:
-#
     la $a0, str_unimplemented
+    jal kernel_strprint
+    j epc
+AdEL:
+    la $a0, str_load_exc
+    jal kernel_strprint
+    j epc    
+AdES:
+    la $a0, str_st_exc
+    jal kernel_strprint
+    j epc
+IBE:
+    la $a0, str_tlb_fetch
+    jal kernel_strprint
+    j epc
+DBE:
+    la $a0, str_tlb_data
+    jal kernel_strprint
+    j epc
+Ov:
+    la $a0, str_overflow
+    jal kernel_strprint
+    j epc
+RI:
+	la $a0, str_reserved
+    jal kernel_strprint
+    j epc
+Sys:
+	la $a0, str_syscall
     jal kernel_strprint
     j epc
 

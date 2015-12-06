@@ -160,7 +160,6 @@ control control (
 	.exc_ri(id_exc_ri),
 	.exc_sys(id_exc_sys),
 	.cowrite(id_cowrite),
-	.c0dst(id_c0dst),
 	.cpu_mode(cpu_mode),
 	.exc_ret(id_exc_ret),
 	.islink(id_islink)
@@ -300,8 +299,7 @@ alu alu(
 );
 
 assign ex_exout = ex_islink ? ex_pc_next : alures;
-assign dst_rs_rt = ex_c0dst ? dst_rs : dst_rt;
-assign dst_reg = ex_regdst ? dst_rd : dst_rs_rt;
+assign dst_reg = ex_regdst ? dst_rd : dst_rt;
 assign ex_wreg = ex_islink ? 5'h1f : dst_reg;
 
 flipflop #(.N(175)) ex_mem (
