@@ -17,18 +17,12 @@ exception_jumptable:	.word int, unimpl1, unimpl2, unimpl3, AdEL, AdES, IBE, DBE,
 
 #.ktext
 .text
-    li $s0, 9
-    mtc0 $s0, $cause
-    mfc0 $s1, $cause
-    sw $0, %IO_EXIT($0)
-    
     mfc0 $k0, $cause
     bne $k0, $0, exception_handler
     
 entry_point:
     li $sp, 0x300               # Set stack-pointer
-    li $k0, 12
-    mtc0 $status, $0            # Set machine to user-mode
+    mtc0 $0, $cause             # Set machine to user-mode
     jal main
     sw $0, %IO_EXIT($0)
 
