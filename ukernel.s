@@ -10,10 +10,17 @@
 
 #.kdata
 .data
-str_exception:          .asciiz "Exception: "
+boot_logo0:             .asciiz "    __  ___________  _____    ___   ____________\n"
+boot_logo1:             .asciiz "   /  |/  /  _/ __ \/ ___/   /   | / ____/ ____/          /\\_/\\\n"
+boot_logo2:             .asciiz "  / /|_/ // // /_/ /\__ \   / /| |/ /   / __/        ____/ o o \\\n"
+boot_logo3:             .asciiz " / /  / // // ____/___/ /  / ___ / /___/ /___      /~____  =ø= /\n"
+boot_logo4:             .asciiz "/_/  /_/___/_/    /____/  /_/  |_\____/_____/     (______)__m_m)\n\n"
+str_launching:          .asciiz "[ukernel]: Jumping to main...\n"
+str_end:                .asciiz "[ukernel]: Execution finished. Bye bye!\n"
+str_exception:          .asciiz "[ukernel]: Exception => "
 str_unimplemented:      .asciiz "exception not implemented raised.\n"
-str_load_exc:           .asciiz "address error exception (load or instruction fetch).\n"
-str_st_exc:             .asciiz "address error exception (store).\n"
+str_load_exc:           .asciiz "address error (load or instruction fetch).\n"
+str_st_exc:             .asciiz "address error (store).\n"
 str_tlb_fetch:          .asciiz "TLB on instruction fetch.\n"
 str_tlb_data:           .asciiz "TLB on load or store.\n"
 str_overflow:           .asciiz "arithmetic overflow.\n"
@@ -31,7 +38,12 @@ exception_jumptable:	.word int, unimpl1, unimpl2, unimpl3, AdEL, AdES, IBE, DBE,
 entry_point:
     li $sp, 0x300               # Set stack-pointer
     mtc0 $0, $cause             # Set machine to user-mode
+    jal boot_logo
+    la $a0, str_launching
+    jal kernel_strprint
     jal main
+    la $a0, str_end
+    jal kernel_strprint
     sw $0, %IO_EXIT($0)
 
 exception_handler:
@@ -137,6 +149,21 @@ kernel_strprint:
     addi $a0, $a0, 4
     j kernel_strprint
 kernel_strprint_ret:
+    jr $ra
+
+boot_logo:
+    move $s0, $ra
+    la $a0, boot_logo0
+    jal kernel_strprint
+    la $a0, boot_logo1
+    jal kernel_strprint
+    la $a0, boot_logo2
+    jal kernel_strprint
+    la $a0, boot_logo3
+    jal kernel_strprint
+    la $a0, boot_logo4
+    jal kernel_strprint
+    move $ra, $s0
     jr $ra
 
 main:
