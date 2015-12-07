@@ -47,9 +47,9 @@ entry_point:
     sw $0, %IO_EXIT($0)
 
 exception_handler:
-	la $k0, save_reg
-	sw $v0, 0($k0)              # Not re-entrant and we can't trust $sp
-	sw $a0, 4($k0)              # But we need to use these registers
+    la $k0, save_reg
+    sw $v0, 0($k0)              # Not re-entrant and we can't trust $sp
+    sw $a0, 4($k0)              # But we need to use these registers
     la $a0, str_exception
     jal kernel_strprint
     mfc0 $k0, $cause            # Cause register
@@ -61,18 +61,18 @@ exception_handler:
     lw $v0, 0($v0)
     jr $v0                      # Switch exception table (see table below)
 
-	# 0  - Int Interrupt (hardware)
-	# 4  - AdEL Address Error Exception (load or instruction fetch)
-	# 5  - AdES Address Error Exception (store)
-	# 6  - IBE Bus Error on Instruction Fetch
-	# 7  - DBE Bus Error on Load or Store
-	# 8  - Sys Syscall Exception
-	# 9  - Bp Breakpoint Exception
-	# 10 - RI Reserved Instruction Exception
-	# 11 - CpU Coprocessor Unimplemented
-	# 12 - Ov Arithmetic Overflow Exception
-	# 13 - Tr Trap
-	# 15 - FPE Floating Point Exception
+    # 0  - Int Interrupt (hardware)
+    # 4  - AdEL Address Error Exception (load or instruction fetch)
+    # 5  - AdES Address Error Exception (store)
+    # 6  - IBE Bus Error on Instruction Fetch
+    # 7  - DBE Bus Error on Load or Store
+    # 8  - Sys Syscall Exception
+    # 9  - Bp Breakpoint Exception
+    # 10 - RI Reserved Instruction Exception
+    # 11 - CpU Coprocessor Unimplemented
+    # 12 - Ov Arithmetic Overflow Exception
+    # 13 - Tr Trap
+    # 15 - FPE Floating Point Exception
 
 CpU:
 Bp:
@@ -107,11 +107,11 @@ Ov:
     jal kernel_strprint
     j epc
 RI:
-	la $a0, str_reserved
+    la $a0, str_reserved
     jal kernel_strprint
     j epc
 Sys:
-	la $a0, str_syscall
+    la $a0, str_syscall
     jal kernel_strprint
     j epc
 
@@ -121,31 +121,31 @@ epc:
     beq $a0, $0, ret_exception
     sw $0, %IO_EXIT($0)         # Exit
 ret_exception:
-	la $k0, save_reg
-	lw $v0, 0($k0)		        # Restore other registers
-	lw $a0, 4($k0)
-	mtc0 $0, $cause		        # Clear Cause register
-	eret                        # Return
+    la $k0, save_reg
+    lw $v0, 0($k0)              # Restore other registers
+    lw $a0, 4($k0)
+    mtc0 $0, $cause             # Clear Cause register
+    eret                        # Return
 
 # Note that kernel functions do not save registers
 
 kernel_strprint:
-	lw $k0, 0($a0)
-	andi $k1, $k0, 0xFF
-	beq $k1, $0, kernel_strprint_ret
-	sw $k1, %IO_CHAR($0)
-	srl $k0, $k0, 8
-	andi $k1, $k0, 0xFF
-	beq $k1, $0, kernel_strprint_ret
-	sw $k1, %IO_CHAR($0)
+    lw $k0, 0($a0)
+    andi $k1, $k0, 0xFF
+    beq $k1, $0, kernel_strprint_ret
+    sw $k1, %IO_CHAR($0)
     srl $k0, $k0, 8
-	andi $k1, $k0, 0xFF
-	beq $k1, $0, kernel_strprint_ret
-	sw $k1, %IO_CHAR($0)
+    andi $k1, $k0, 0xFF
+    beq $k1, $0, kernel_strprint_ret
+    sw $k1, %IO_CHAR($0)
     srl $k0, $k0, 8
-	andi $k1, $k0, 0xFF
-	beq $k1, $0, kernel_strprint_ret
-	sw $k1, %IO_CHAR($0)
+    andi $k1, $k0, 0xFF
+    beq $k1, $0, kernel_strprint_ret
+    sw $k1, %IO_CHAR($0)
+    srl $k0, $k0, 8
+    andi $k1, $k0, 0xFF
+    beq $k1, $0, kernel_strprint_ret
+    sw $k1, %IO_CHAR($0)
     addi $a0, $a0, 4
     j kernel_strprint
 kernel_strprint_ret:
