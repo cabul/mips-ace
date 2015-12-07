@@ -25,19 +25,6 @@ exception_jumptable:	.word int, unimpl1, unimpl2, unimpl3, AdEL, AdES, IBE, DBE,
 
 #.ktext
 .text
-##
-    li $s0, 123
-    mtc0 $s0, $cause
-    nop
-    nop
-    nop
-    mfc0 $s1, $cause
-    sw $s1, %IO_INT($0)
-    la $a0, str_endline
-    lw $a0, 0($a0)
-    sw $a0, %IO_CHAR($0)
-    sw $0, %IO_EXIT($0)
-##
     mfc0 $k0, $cause
     bne $k0, $0, exception_handler
     
