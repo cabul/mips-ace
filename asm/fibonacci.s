@@ -5,7 +5,7 @@
 main:
 	la $s0, info
 	li $sp, 0x300
-	li $a0, 5
+	li $a0, 6 
 	jal fibonacci
 	lw $t1, 0($s0)
 	andi $t0, $t1, 0xFF

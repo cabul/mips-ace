@@ -22,12 +22,11 @@ module control(
 	output reg exc_ri = 0,
 	output reg exc_sys = 0,
 	output reg cowrite = 0,
-	output reg exc_ret = 0,
-	output reg c0dst = 0
+	output reg exc_ret = 0
 );
 
 always @* begin
-	case(opcode)
+	casez(opcode)
 		`OP_RTYPE: begin
 			case(funct)
 				`FN_JR: begin
@@ -46,7 +45,6 @@ always @* begin
 					exc_ri   <= 0;
 					exc_sys  <= 0;
 					cowrite  <= 0;
-					c0dst	 <= 0;
 					exc_ret  <= 0;
 				end
 				`FN_SYS: begin
@@ -65,7 +63,6 @@ always @* begin
 					exc_ri   <= 0;
 					exc_sys  <= 1;
 					cowrite  <= 0;
-					c0dst	 <= 0;
 					exc_ret  <= 0;
 				end
 				default: begin
@@ -84,7 +81,6 @@ always @* begin
 					exc_ri   <= 0;
 					exc_sys  <= 0;
 					cowrite  <= 0;
-					c0dst	 <= 0;
 					exc_ret  <= 0;
 				end
 			endcase
@@ -105,7 +101,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_LW: begin
@@ -124,7 +119,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_SW:	begin
@@ -143,7 +137,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_J: begin
@@ -162,7 +155,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_ANDI: begin
@@ -181,7 +173,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_ORI: begin
@@ -200,7 +191,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_XORI: begin
@@ -219,7 +209,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_SLTI: begin
@@ -238,7 +227,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_BEQ: begin
@@ -257,7 +245,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_BNE: begin
@@ -276,7 +263,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_LUI: begin
@@ -295,7 +281,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_JAL: begin
@@ -314,7 +299,6 @@ always @* begin
 			exc_ri   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 		end
 		`OP_MFC0: begin
@@ -332,7 +316,6 @@ always @* begin
 			islink   <= 0;
 			cowrite  <= 0;
 			exc_sys  <= 0;
-			c0dst	 <= 0;
 			exc_ret  <= 0;
 			if(cpu_mode == 1) begin		
 				exc_ri   <= 0;				
@@ -354,7 +337,6 @@ always @* begin
 			jumpdst  <= 0;
 			islink   <= 0;
 			exc_sys  <= 0;
-			c0dst	 <= 1;
 			exc_ret  <= 0;	
 			if(cpu_mode == 1) begin		
 				exc_ri   <= 0;
@@ -378,7 +360,6 @@ always @* begin
 			islink   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			c0dst	 <= 0;	
 			if(cpu_mode == 1) begin	
 				exc_ri   <= 0;
 				exc_ret  <= 1;
@@ -389,7 +370,7 @@ always @* begin
 			end end
 				
 		default:
-			$display("[WARNING] Control Unit received unknown opcode signal %x, %5t", opcode, $time);
+			$display("%5t # [WARNING] Control Unit received unknown opcode signal %x", $time, opcode);
 	endcase
 end
 

@@ -64,7 +64,7 @@ instructions = {
 	'sw'      : ( 'I' , 0x2b  , None  , 'rt , imm ( rs )' ),
 	'syscall' : ( 'R' , 0x0   , 0xc   , None ),
 	'mfc0'    : ( 'I' , 0x10  , 0x0   , 'rt , rs' ),
-	'mtc0'    : ( 'I' , 0x11  , 0x0   , 'rt , rs' ),
+	'mtc0'    : ( 'I' , 0x11  , 0x0   , 'rs , rt' ),
 	'eret' 	  : ( 'I' , 0x12  , 0x0   , None ),
 	'nop'     : ( 'P' , None  , None  , None ),
 }
@@ -153,7 +153,7 @@ def dataLen(key, val):
 	elif key == '.word':
 		return len(val) * 4
 	elif key == '.space':
-		return int(val)
+		return int(val[1])
 
 class Parser(object):
 	def __init__(self, stream):
