@@ -1,0 +1,5 @@
+Benchmark solutions
+
+-> buffer_sum = 8128
+-> mem_copy = memory full of fives
+-> matrix_multiply = result of multiplication
