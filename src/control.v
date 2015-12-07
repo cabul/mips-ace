@@ -389,7 +389,7 @@ always @* begin
 			end end
 				
 		default:
-			$display("[WARNING] Control Unit received unknown opcode signal %x", opcode);
+			$display("[WARNING] Control Unit received unknown opcode signal %x, %5t", opcode, $time);
 	endcase
 end
 
