@@ -3,9 +3,11 @@
 
 `include "defines.v"
 
-///////////
-// Cache //
-///////////
+/////////////////////////////
+//                         //
+// 4-way Associative Cache //
+//                         //
+/////////////////////////////
 module cache_4way (
 	input wire clk,
 	input wire reset,
@@ -49,6 +51,7 @@ reg [SETS-1:0] set_select = {SETS{1'b0}};
 wire [SETS-1:0] set_valid;
 wire [SETS-1:0] set_hit; // Whether any of the sets has the data
 
+// Async hit signal, internal
 wire hit_int = | set_hit;
 
 wire all_valid = & set_valid;
@@ -62,6 +65,7 @@ generate
 	end
 endgenerate
 
+// Pseudo LRU
 reg [2:0] lru_state = 3'b000;
 
 generate for(i=0; i < SETS; i = i+1) begin
@@ -74,7 +78,7 @@ generate for(i=0; i < SETS; i = i+1) begin
 	assign set_valid[i] = validbits[index];
 	assign set_hit[i] = (tags[index] == tag) && set_valid[i];
 
-	// Handle requsts
+	// Handle requests
 	always @(mem_write_req, mem_write_ack, mem_read_req, mem_read_ack) begin
 		if (set_select[i]) begin
 			if (mem_write_ack) mem_write_req = 1'b0;

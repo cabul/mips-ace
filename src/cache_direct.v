@@ -3,9 +3,11 @@
 
 `include "defines.v"
 
-///////////
-// Cache //
-///////////
+/////////////////////////////
+//                         //
+//   Direct Mapped Cache   //
+//                         //
+/////////////////////////////
 module cache_direct (
 	input wire clk,
 	input wire reset,
@@ -57,6 +59,7 @@ reg [DEPTH-1:0] dirtybits = {DEPTH{1'b0}};
 reg [31-WB-DB:0] tags [0:DEPTH-1];
 reg [WIDTH-1:0] lines [0:DEPTH-1];
 
+// Async hit signal, internal
 wire hit_int = tags[index] == tag && validbits[index];
 
 // Handle requests
