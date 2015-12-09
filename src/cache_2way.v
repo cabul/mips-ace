@@ -14,15 +14,15 @@ module cache_2way (
 	input wire master_enable,
 	input wire [BYTES-1:0] byte_enable,
 	input wire [WIDTH-1:0] data_in,
-	output reg [WIDTH-1:0] data_out,
-	output reg hit,
+	output reg [WIDTH-1:0] data_out = 0,
+	output reg hit = 0,
 	// Memory ports
-	output reg mem_write_req,
-	output reg [31:0] mem_write_addr,
-	output reg [WIDTH-1:0] mem_write_data,
+	output reg mem_write_req = 0,
+	output reg [31:0] mem_write_addr = 0,
+	output reg [WIDTH-1:0] mem_write_data = 0,
 	input wire mem_write_ack,
-	output reg mem_read_req,
-	output reg [31:0] mem_read_addr,
+	output reg mem_read_req = 0,
+	output reg [31:0] mem_read_addr = 0,
 	input wire [WIDTH-1:0] mem_read_data,
 	input wire mem_read_ack
 );

@@ -12,8 +12,8 @@ module memory_async (
 	input wire read_write,
 	input wire [BYTES-1:0] byte_enable,
 	input wire [WIDTH-1:0] data_in,
-	output reg [WIDTH-1:0] data_out,
-	output reg ack
+	output reg [WIDTH-1:0] data_out = 0,
+	output reg ack = 0
 );
 
 parameter WIDTH = `MEMORY_WIDTH;
@@ -27,8 +27,7 @@ parameter DATA = `MEMORY_DATA;
 
 parameter LATENCY = 0;
 
-wire [DB-1:0] index;
-assign index = addr[WB+DB-1:WB];
+wire [DB-1:0] index = addr[WB+DB-1:WB];
 
 reg [WIDTH-1:0] mem [0:DEPTH-1];
 
@@ -41,7 +40,7 @@ generate
 	end
 endgenerate
 
-always @(posedge master_enable) # LATENCY begin
+always @(posedge master_enable) if(!reset) # LATENCY begin
 	if (addr >= SIZE) `WARN(("[Memory] Out of bounds"))
 	if (read_write) begin
 		data_out = mem[index];
@@ -54,9 +53,13 @@ always @(posedge master_enable) # LATENCY begin
 	ack = 1;
 end
 
-always @(negedge master_enable) # 2 ack <= 0;
+always @(negedge master_enable) if(!reset) # 2 ack <= 1'b0;
 
-always @(posedge reset) $readmemh(DATA, mem);
+always @(posedge reset) begin
+	$readmemh(DATA, mem);
+	ack <= 1'b0;
+	data_out <= {WIDTH{1'b0}};
+end
 
 endmodule
 

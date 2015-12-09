@@ -60,9 +60,9 @@ reg [WIDTH-1:0] lines [0:DEPTH-1];
 wire hit_int = tags[index] == tag && validbits[index];
 
 // Handle requests
-always @* begin
+always @(mem_write_req, mem_write_ack, mem_read_req, mem_read_ack) begin
 	if (mem_write_ack) mem_write_req = 1'b0;
-	if (mem_read_ack && !mem_write_req) begin
+	if (mem_read_ack & ~mem_write_req) begin
 		`INFO(("[%s] Fill %x <= %x", ALIAS, mem_read_addr[15:0], mem_read_data))
 		lines[mem_read_index] = mem_read_data;
 		tags[mem_read_index] = mem_read_tag;

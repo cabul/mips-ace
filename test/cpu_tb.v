@@ -5,7 +5,7 @@
 module cpu_tb;
 integer cycle = 0;
 
-reg clk = 0;
+reg clk = 1;
 reg reset = 0;
 
 localparam WIDTH = `MEMORY_WIDTH;
@@ -36,7 +36,7 @@ memory_async #(
 	.WIDTH(WIDTH),
 	.DEPTH(`MEMORY_DEPTH),
 	.DATA(`MEMORY_DATA),
-	.LATENCY(27)
+	.LATENCY(`MEMORY_LATENCY)
 ) mem (
 	.reset(reset),
 	.addr(mem_addr),
@@ -48,7 +48,7 @@ memory_async #(
 	.ack(mem_ack)
 );
 
-always #5 clk = !clk;
+always #5 clk = ~clk;
 
 always @(posedge clk) if(!reset) cycle = cycle + 1;
 

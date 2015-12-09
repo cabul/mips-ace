@@ -71,7 +71,7 @@ wire dc_read_req;
 wire dc_read_ack;
 wire [31:0] dc_read_addr;
 wire [WIDTH-1:0] dc_read_data;
-wire dc_write_req;
+wire dc_wrdirectite_req;
 wire dc_write_ack;
 wire [31:0] dc_write_addr;
 wire [WIDTH-1:0] dc_write_data;

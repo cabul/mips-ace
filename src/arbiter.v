@@ -44,9 +44,9 @@ reg [1:0] arb_state = 2'b00;
 
 // Handle requests
 always @* begin
-	if (!mem_enable & !mem_ack) arb_state <= 2'b00;
 	case (arb_state)
 		2'b00: begin // Null
+			mem_enable = 1'b0;
 			if (dc_write_req) begin
 				arb_state = 2'b10;
 				mem_rw = 0;
@@ -74,12 +74,13 @@ always @* begin
 			dc_write_ack = mem_ack;
 			mem_enable = dc_write_req;
 		end
-		2'b11: begin // I Read
+		2'b11: begin // D Read
 			if (mem_ack & mem_enable) dc_read_data = mem_data_out;
 			dc_read_ack = mem_ack;
 			mem_enable = dc_read_req;
 		end
 	endcase
+	if (!mem_enable & !mem_ack) arb_state <= 2'b00;
 end
 
 always @(posedge clk) if (reset) arb_state <= 2'b00;

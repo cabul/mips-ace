@@ -118,9 +118,7 @@ always @* begin
 	endcase
 end
 
-// Reset initial state with clock
-always @(posedge clk) if (!mem_enable && !mem_ack) mem_state = 2'b00;
-
+always @(negedge clk) if (!mem_enable & !mem_ack) mem_state = 2'b00;
 
 initial begin
 	`ifdef TRACEFILE
