@@ -90,12 +90,12 @@ always @(posedge clk) begin
 			if (hit_int) begin
 				if (read_write) begin
 					data_out = lines[index];
-					`INFO(("[%s] Hit %x => %x", ALIAS, addr[15:0], data_out))
+					`INFO(("[%s] Read %x => %x", ALIAS, addr[15:0], data_out))
 				end else begin
 					lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
 					dirtybits[index] = 1'b1;
 					data_out = lines[index];
-					`INFO(("[%s] Hit %x <= %x", ALIAS, addr[15:0], data_out))
+					`INFO(("[%s] Write %x <= %x", ALIAS, addr[15:0], data_out))
 				end
 			end else begin
 				// Wait for memory

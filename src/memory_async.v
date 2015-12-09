@@ -40,7 +40,8 @@ generate
 	end
 endgenerate
 
-always @(posedge master_enable) if(!reset) # LATENCY begin
+// Double guard
+always @(posedge master_enable) if (!reset) # LATENCY if (!reset) begin
 	if (addr >= SIZE) `WARN(("[Memory] Out of bounds"))
 	if (read_write) begin
 		data_out = mem[index];

@@ -75,7 +75,7 @@ generate for(i=0; i < SETS; i = i+1) begin
 	assign set_hit[i] = (tags[index] == tag) && set_valid[i];
 
 	// Handle requsts
-	always @* begin
+	always @(mem_write_req, mem_write_ack, mem_read_req, mem_read_ack) begin
 		if (set_select[i]) begin
 			if (mem_write_ack) mem_write_req = 1'b0;
 			if (mem_read_ack && !mem_write_req) begin
@@ -100,12 +100,12 @@ generate for(i=0; i < SETS; i = i+1) begin
 				if (set_hit[i]) begin
 					if (read_write) begin
 						data_out = lines[index];
-						`INFO(("[%s] .%d Hit %x => %x", ALIAS, i, addr[15:0], data_out))
+						`INFO(("[%s] .%1d Read %x => %x", ALIAS, i, addr[15:0], data_out))
 					end else begin
 						lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
 						dirtybits[index] = 1'b1;
 						data_out = lines[index];
-						`INFO(("[%s] .%d Hit %x <= %x", ALIAS, i, addr[15:0], data_out))
+						`INFO(("[%s] .%1d Write %x <= %x", ALIAS, i, addr[15:0], data_out))
 					end
 					// Update LRU
 					lru_state = i;

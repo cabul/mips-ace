@@ -154,6 +154,23 @@ flipflop #(
 	.out(pc_out)
 );
 
+`ifdef NO_CACHE
+assign ic_write_req = 1'b0;
+assign ic_read_req = 1'b0;
+
+assign ic_hit = 1'b1;
+
+memory_sync #(
+	.ALIAS("I-Memory")
+) imem (
+	.clk(~clk),
+	.reset(reset),
+	.addr(pc_out),
+	.data_out(if_instr),
+	.master_enable(1'b1),
+	.read_write(1'b1)
+);
+`else
 cache_2way #(
 	.WIDTH(WIDTH),
 	.DEPTH(4),
@@ -163,8 +180,8 @@ cache_2way #(
 	.reset(reset),
 	.addr(pc_out),
 	.data_out(if_instr),
-	.master_enable(1),
-	.read_write(1),
+	.master_enable(1'b1),
+	.read_write(1'b1),
 	.hit(ic_hit),
 	// Memory ports
 	.mem_read_req(ic_read_req),
@@ -172,6 +189,7 @@ cache_2way #(
 	.mem_read_data(ic_read_data),
 	.mem_read_ack(ic_read_ack)
 );
+`endif
 
 flipflop #(.N(64)) if_id (
 	.clk(clk),
@@ -386,8 +404,26 @@ stdio stdio(
 	.read_write(mem_memread)
 );
 
-`ifndef NO_CACHE
-cache_2way #(
+`ifdef NO_CACHE
+assign dc_write_req = 1'b0;
+assign dc_read_req = 1'b0;
+
+assign dc_hit = 1'b1;
+
+memory_sync #(
+	.ALIAS("D-Memory")
+) dmem (
+	.clk(~clk),
+	.reset(reset),
+	.addr(mem_exout),
+	.data_out(mem_out),
+	.data_in(mem_data_rt),
+	.master_enable(dc_enable),
+	.read_write(mem_memread),
+	.byte_enable(4'b1111)
+);
+`else
+cache_4way #(
 	.WIDTH(WIDTH),
 	.DEPTH(4),
 	.ALIAS("D-Cache")
@@ -410,24 +446,6 @@ cache_2way #(
 	.mem_read_addr(dc_read_addr),
 	.mem_read_data(dc_read_data),
 	.mem_read_ack(dc_read_ack)
-);
-`endif
-
-`ifdef NO_CACHE
-assign dc_write_req = 1'b0;
-assign dc_read_req = 1'b0;
-
-assign dc_hit = 1'b1;
-
-memory_sync dmem (
-	.clk(~clk),
-	.reset(reset),
-	.addr(mem_exout),
-	.data_out(mem_out),
-	.data_in(mem_data_rt),
-	.master_enable(dc_enable),
-	.read_write(mem_memread),
-	.byte_enable(4'b1111)
 );
 `endif
 
