@@ -6,12 +6,12 @@ Implementation of a MIPS Processor developed during the course of [Processor Arc
 
 - [x] Fully Pipelined
 - [x] Hazard Control
-- [x] 80% of MIPS
-- [ ] Mini OS
-- [ ] Exceptions
-- [ ] Benchmarks
+- [x] MIPS friendly, high compatability
+- [x] Mini OS
+- [x] Exceptions
+- [x] Benchmarks
 - [ ] Store Buffer
-- [ ] Cache
+- [x] Cache
 - [ ] Reorder Buffer / History File
 - [ ] Floating Point
 - [ ] Variable Length Pipeline
