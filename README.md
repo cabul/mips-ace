@@ -13,7 +13,6 @@ Implementation of a MIPS Processor developed during the course of [Processor Arc
 - [ ] Store Buffer
 - [ ] Cache
 - [ ] Reorder Buffer / History File
-- [ ] Floating Point
 - [ ] Variable Length Pipeline
 - [ ] Virtual Memory
 - [ ] Branch Prediction
