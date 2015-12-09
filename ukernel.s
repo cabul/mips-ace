@@ -27,7 +27,7 @@ str_overflow:           .asciiz "arithmetic overflow.\n"
 str_syscall:            .asciiz "syscall.\n"
 str_reserved:           .asciiz "reserved instruction.\n"
 str_endline:            .asciiz "\n"
-save_reg:               .space 8
+save_reg:               .space 12
 exception_jumptable:	.word int, unimpl1, unimpl2, unimpl3, AdEL, AdES, IBE, DBE, Sys, Bp, RI, CpU, Ov, Tr, unimpl4, FPE
 
 #.ktext
@@ -49,7 +49,8 @@ entry_point:
 exception_handler:
     la $k0, save_reg
     sw $v0, 0($k0)              # Not re-entrant and we can't trust $sp
-    sw $a0, 4($k0)              # But we need to use these registers
+    sw $a0, 4($k0)
+    sw $ra, 8($k0)              # But we need to use these registers
     la $a0, str_exception
     jal kernel_strprint
     mfc0 $k0, $cause            # Cause register
@@ -113,7 +114,7 @@ RI:
 Sys:
     la $a0, str_syscall
     jal kernel_strprint
-    j epc
+
 
 epc:
     mfc0 $a0, $epc
@@ -122,9 +123,10 @@ epc:
     sw $0, %IO_EXIT($0)         # Exit
 ret_exception:
     la $k0, save_reg
-    lw $v0, 0($k0)              # Restore other registers
+    lw $v0, 0($k0)              # Restore registers
     lw $a0, 4($k0)
-    mtc0 $0, $cause             # Clear Cause register
+    lw $ra, 8($k0)
+    mtc0 $0, $cause             # Set machine to user-mode
     eret                        # Return
 
 # Note that kernel functions do not save registers
@@ -167,8 +169,8 @@ boot_logo:
     jr $ra
 
 main:
-    #
-    # <program needed>
-    #
+    li $a0, 4
+    syscall
+    
     
     jr $ra

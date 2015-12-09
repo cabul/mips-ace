@@ -16,7 +16,7 @@ module coprocessor(
     input wire [31:0] wdata,
     input wire [66:0] exception_bus,
 	output reg cop_reset = 0,
-	output reg [31:0] pc_kernel = 32'h80000180,
+	output reg [31:0] pc_kernel = 32'h0,
     output reg [31:0] rdata = 32'd0,
 	output reg [31:0] epc = 32'd0,
 	output reg pc_select = 0,
@@ -45,7 +45,7 @@ always @(posedge clk) begin
 		cpu_mode <= co_regs[`C0_SR][4];
 
 	end else if (enable) begin
-        if (wreg >= `C0_BadAR && wreg <= `C0_EPC) begin
+        if (wreg >= `C0_SR && wreg <= `C0_EPC || wreg == `C0_BadAR) begin
             co_regs[wreg] <= wdata;
         end
     end
@@ -55,11 +55,6 @@ always @(exception_bus) begin
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[66]}} & (`INT_OVF     << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[65]}} & (`INT_RI      << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[64]}} & (`INT_SYSCALL << `C0_SR_EC));
-
-/*
-    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[34]}} & (`INT_OVF     << `C0_SR_PI));
-    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[33]}} & (`INT_RI      << `C0_SR_PI));
-    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[32]}} & (`INT_SYSCALL << `C0_SR_PI));*/
     
 
     if (| exception_bus[66 -: 3]) begin
@@ -69,15 +64,10 @@ always @(exception_bus) begin
 		cpu_mode <= 1; 
 		co_regs[`C0_SR] = co_regs[`C0_SR] | 1 << `C0_SR_EL;
 		co_regs[`C0_SR] = co_regs[`C0_SR] | 1 << `C0_SR_UM;
-		 
     end else begin
         cop_reset <= 0;
 		pc_select <= 0;
     end
-/*
-	if (| exception_bus[66 -: 3]) begin //////////
-        co_regs[`C0_BadAR] <= exception_bus[63:32];
-    end */
 end
 
 endmodule
