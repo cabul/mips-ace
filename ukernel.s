@@ -10,58 +10,63 @@
 
 #.kdata
 .data
-boot_logo0:             .asciiz "    __  ___________  _____    ___   ____________\n"
-boot_logo1:             .asciiz "   /  |/  /  _/ __ \/ ___/   /   | / ____/ ____/          /\\_/\\\n"
-boot_logo2:             .asciiz "  / /|_/ // // /_/ /\__ \   / /| |/ /   / __/        ____/ o o \\\n"
-boot_logo3:             .asciiz " / /  / // // ____/___/ /  / ___ / /___/ /___      /~____  =ø= /\n"
-boot_logo4:             .asciiz "/_/  /_/___/_/    /____/  /_/  |_\____/_____/     (______)__m_m)\n\n"
-str_launching:          .asciiz "[ukernel]: Jumping to main...\n"
-str_end:                .asciiz "[ukernel]: Execution finished. Bye bye!\n"
-str_exception:          .asciiz "[ukernel]: Exception => "
-str_unimplemented:      .asciiz "exception not implemented raised.\n"
-str_load_exc:           .asciiz "address error (load or instruction fetch).\n"
-str_st_exc:             .asciiz "address error (store).\n"
-str_tlb_fetch:          .asciiz "TLB on instruction fetch.\n"
-str_tlb_data:           .asciiz "TLB on load or store.\n"
-str_overflow:           .asciiz "arithmetic overflow.\n"
-str_syscall:            .asciiz "syscall.\n"
-str_reserved:           .asciiz "reserved instruction.\n"
-str_endline:            .asciiz "\n"
-save_reg:               .space 12
-exception_jumptable:	.word int, unimpl1, unimpl2, unimpl3, AdEL, AdES, IBE, DBE, Sys, Bp, RI, CpU, Ov, Tr, unimpl4, FPE
+__boot_logo0:               .asciiz "    __  ___________  _____    ___   ____________\n"
+__boot_logo1:               .asciiz "   /  |/  /  _/ __ \/ ___/   /   | / ____/ ____/          /\\_/\\\n"
+__boot_logo2:               .asciiz "  / /|_/ // // /_/ /\__ \   / /| |/ /   / __/        ____/ o o \\\n"
+__boot_logo3:               .asciiz " / /  / // // ____/___/ /  / ___ / /___/ /___      /~____  =ø= /\n"
+__boot_logo4:               .asciiz "/_/  /_/___/_/    /____/  /_/  |_\____/_____/     (______)__m_m)\n\n"
+__str_launching:            .asciiz "[ukernel]: Jumping to main...\n"
+__str_end:                  .asciiz "[ukernel]: Execution finished. Bye bye!\n"
+__str_exception:            .asciiz "[ukernel]: Exception detected: "
+__str_unimplemented:        .asciiz "exception not implemented raised.\n"
+__str_load_exc:             .asciiz "address error (load or instruction fetch).\n"
+__str_st_exc:               .asciiz "address error (store).\n"
+__str_tlb_fetch:            .asciiz "TLB on instruction fetch.\n"
+__str_tlb_data:             .asciiz "TLB on load or store.\n"
+__str_overflow:             .asciiz "arithmetic overflow.\n"
+__str_syscall:              .asciiz "syscall.\n"
+__str_reserved:             .asciiz "reserved instruction.\n"
+__str_darkside:             .asciiz "Something something dark side.\n"
+__str_endline:              .asciiz "\n"
+__save_reg:                 .space 12
+__exception_jumptable:      .word __int, __unimpl1, __unimpl2, __unimpl3, __AdEL, __AdES, __IBE, __DBE, __Sys, __Bp, __RI, __CpU, __Ov, __Tr, __unimpl4, __FPE
+__syscall_jumptable:        .word __pint_hex, __pint, __pfloat, __pdouble, __pstring
 
 #.ktext
 .text
     mfc0 $k0, $cause
-    bne $k0, $0, exception_handler
+    bne $k0, $0, __exception_handler
     
-entry_point:
+__entry_point:
     li $sp, 0x300               # Set stack-pointer
     mtc0 $0, $cause             # Set machine to user-mode
-    jal boot_logo
-    la $a0, str_launching
-    jal kernel_strprint
+    jal __boot_logo
+    la $a0, __str_launching
+    jal __kernel_strprint
     jal main
-    la $a0, str_end
-    jal kernel_strprint
+    la $a0, __str_end
+    jal __kernel_strprint
     sw $0, %IO_EXIT($0)
 
-exception_handler:
-    la $k0, save_reg
+__exception_handler:
+    la $k0, __save_reg
     sw $v0, 0($k0)              # Not re-entrant and we can't trust $sp
     sw $a0, 4($k0)
     sw $ra, 8($k0)              # But we need to use these registers
-    la $a0, str_exception
-    jal kernel_strprint
     mfc0 $k0, $cause            # Cause register
     srl $a0, $k0, 2             # Extract ExcCode Field
     andi $a0, $a0, 0x1F
     sll $a0, $a0, 2
-    la $v0, exception_jumptable
+    la $v0, __exception_jumptable
     add $v0, $v0, $a0
     lw $v0, 0($v0)
+    li $k0, 32                  # 8 << 2
+    beq $a0, $k0, __skip_emsg     # Skip exeception message if syscall
+    la $a0, __str_exception
+    jal __kernel_strprint
+__skip_emsg:
     jr $v0                      # Switch exception table (see table below)
-
+    
     # 0  - Int Interrupt (hardware)
     # 4  - AdEL Address Error Exception (load or instruction fetch)
     # 5  - AdES Address Error Exception (store)
@@ -74,55 +79,77 @@ exception_handler:
     # 12 - Ov Arithmetic Overflow Exception
     # 13 - Tr Trap
     # 15 - FPE Floating Point Exception
+    
+__CpU:
+__Bp:
+__FPE:
+__int:
+__Tr:
+__unimpl1:
+__unimpl2:
+__unimpl3:
+__unimpl4:
+    la $a0, __str_unimplemented
+    jal __kernel_strprint
+    j __epc
+__AdEL:
+    la $a0, __str_load_exc
+    jal __kernel_strprint
+    j __epc    
+__AdES:
+    la $a0, __str_st_exc
+    jal __kernel_strprint
+    j __epc
+__IBE:
+    la $a0, __str_tlb_fetch
+    jal __kernel_strprint
+    j __epc
+__DBE:
+    la $a0, __str_tlb_data
+    jal __kernel_strprint
+    j __epc
+__Ov:
+    la $a0, __str_overflow
+    jal __kernel_strprint
+    j __epc
+__RI:
+    la $a0, __str_reserved
+    jal __kernel_strprint
+    j __epc
+__Sys:
+    la $k0, __save_reg
+    lw $a0, 4($k0)              # Restore original a0
+    la $v0, __syscall_jumptable
+    lw $k0, 0($k0)              # Restore original v0
+    sll $k0, $k0, 2
+    add $v0, $v0, $k0           # Calculate where to jump
+    lw $v0, 0($v0)
+    jr $v0                      # Switch syscall table (see table below)
+    
+    # 0 - Print integer as hex value (custom)
+    # 1 - Print integer, $a0 = value
+    # 4 - Print string, $a0 = address of string
 
-CpU:
-Bp:
-FPE:
-int:
-Tr:
-unimpl1:
-unimpl2:
-unimpl3:
-unimpl4:
-    la $a0, str_unimplemented
-    jal kernel_strprint
-    j epc
-AdEL:
-    la $a0, str_load_exc
-    jal kernel_strprint
-    j epc    
-AdES:
-    la $a0, str_st_exc
-    jal kernel_strprint
-    j epc
-IBE:
-    la $a0, str_tlb_fetch
-    jal kernel_strprint
-    j epc
-DBE:
-    la $a0, str_tlb_data
-    jal kernel_strprint
-    j epc
-Ov:
-    la $a0, str_overflow
-    jal kernel_strprint
-    j epc
-RI:
-    la $a0, str_reserved
-    jal kernel_strprint
-    j epc
-Sys:
-    la $a0, str_syscall
-    jal kernel_strprint
+__pint_hex:
+    sw $a0, %IO_HEX($0)
+    j __epc
+__pint:
+    sw $a0, %IO_INT($0)
+    j __epc
+__pfloat:
+__pdouble:
+    j __epc
+__pstring:
+    jal __kernel_strprint
+    j __epc
 
-
-epc:
+__epc:
     mfc0 $a0, $epc
     andi $a0, $a0, 0x3          # Is EPC word-aligned?
-    beq $a0, $0, ret_exception
+    beq $a0, $0, __ret_exception
     sw $0, %IO_EXIT($0)         # Exit
-ret_exception:
-    la $k0, save_reg
+__ret_exception:
+    la $k0, __save_reg
     lw $v0, 0($k0)              # Restore registers
     lw $a0, 4($k0)
     lw $ra, 8($k0)
@@ -131,46 +158,62 @@ ret_exception:
 
 # Note that kernel functions do not save registers
 
-kernel_strprint:
+__kernel_strprint:
     lw $k0, 0($a0)
     andi $k1, $k0, 0xFF
-    beq $k1, $0, kernel_strprint_ret
+    beq $k1, $0, __kernel_strprint_ret
     sw $k1, %IO_CHAR($0)
     srl $k0, $k0, 8
     andi $k1, $k0, 0xFF
-    beq $k1, $0, kernel_strprint_ret
+    beq $k1, $0, __kernel_strprint_ret
     sw $k1, %IO_CHAR($0)
     srl $k0, $k0, 8
     andi $k1, $k0, 0xFF
-    beq $k1, $0, kernel_strprint_ret
+    beq $k1, $0, __kernel_strprint_ret
     sw $k1, %IO_CHAR($0)
     srl $k0, $k0, 8
     andi $k1, $k0, 0xFF
-    beq $k1, $0, kernel_strprint_ret
+    beq $k1, $0, __kernel_strprint_ret
     sw $k1, %IO_CHAR($0)
     addi $a0, $a0, 4
-    j kernel_strprint
-kernel_strprint_ret:
+    j __kernel_strprint
+__kernel_strprint_ret:
     jr $ra
 
-boot_logo:
+__boot_logo:
     move $s0, $ra
-    la $a0, boot_logo0
-    jal kernel_strprint
-    la $a0, boot_logo1
-    jal kernel_strprint
-    la $a0, boot_logo2
-    jal kernel_strprint
-    la $a0, boot_logo3
-    jal kernel_strprint
-    la $a0, boot_logo4
-    jal kernel_strprint
+    la $a0, __boot_logo0
+    jal __kernel_strprint
+    la $a0, __boot_logo1
+    jal __kernel_strprint
+    la $a0, __boot_logo2
+    jal __kernel_strprint
+    la $a0, __boot_logo3
+    jal __kernel_strprint
+    la $a0, __boot_logo4
+    jal __kernel_strprint
     move $ra, $s0
     jr $ra
 
 main:
-    li $a0, 4
-    syscall
+    ##########
+    ## TEST ##
+    ##########
     
+    li $v0, 4
+    la $a0, __str_darkside
+    syscall
+    li $v0, 0
+    li $a0, 1234
+    syscall
+    li $v0, 4
+    la $a0, __str_endline
+    syscall
+    li $v0, 1
+    li $a0, 1234
+    syscall
+    li $v0, 4
+    la $a0, __str_endline
+    syscall
     
     jr $ra
