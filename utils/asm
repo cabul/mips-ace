@@ -11,7 +11,7 @@ class SyntaxError(Exception):
 
 # Configuration
 textinit = 0
-datainit = 512
+datainit = 1024
 ktextinit = 4096
 kdatainit = 8192
 
