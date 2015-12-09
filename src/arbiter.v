@@ -9,26 +9,26 @@ module arbiter (
 	// I-Cache
 	// Read
 	input wire ic_read_req,
-	output reg ic_read_ack,
+	output reg ic_read_ack = 0,
 	input wire [31:0] ic_read_addr,
-	output reg [WIDTH-1:0] ic_read_data,
+	output reg [WIDTH-1:0] ic_read_data = 0,
 	// D-Cache
 	// Read
 	input wire dc_read_req,
-	output reg dc_read_ack,
+	output reg dc_read_ack = 0,
 	input wire [31:0] dc_read_addr,
-	output reg [WIDTH-1:0] dc_read_data,
+	output reg [WIDTH-1:0] dc_read_data = 0,
 	// Write
 	input wire dc_write_req,
-	output reg dc_write_ack,
+	output reg dc_write_ack = 0,
 	input wire [31:0] dc_write_addr,
 	input wire [WIDTH-1:0] dc_write_data,
 	// Main memory
-	output reg mem_enable,
-	output reg mem_rw,
+	output reg mem_enable = 0,
+	output reg mem_rw = 0,
 	input wire mem_ack,
-	output reg [31:0] mem_addr,
-	output reg [WIDTH-1:0] mem_data_in,
+	output reg [31:0] mem_addr = 0,
+	output reg [WIDTH-1:0] mem_data_in = 0,
 	input wire [WIDTH-1:0] mem_data_out
 );
 

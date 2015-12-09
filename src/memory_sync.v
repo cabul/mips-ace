@@ -22,6 +22,8 @@ localparam WB = $clog2(WIDTH) - 3; // Address in bytes
 localparam DB = $clog2(DEPTH);
 localparam BYTES = 2**WB; // Number of bytes
 
+parameter ALIAS = "Memory";
+
 parameter DATA = `MEMORY_DATA;
 
 wire [DB-1:0] index;
@@ -44,10 +46,14 @@ always @(posedge clk) begin
 		data_out <= 0;
 	end
 	else if (master_enable) begin
-		if (read_write)
-			data_out <= mem[index];
-		else
-			mem[index] <= (mem[index] & ~bit_mask) | (data_in & bit_mask);
+		if (read_write) begin
+			data_out = mem[index];
+			`INFO(("[%s] Read %x => %x", ALIAS, addr[15:0], data_out))
+		end else begin
+			mem[index] = (mem[index] & ~bit_mask) | (data_in & bit_mask);
+			data_out = mem[index];
+			`INFO(("[%s] Write %x <= %x", ALIAS, addr[15:0], data_out))
+		end
 	end
 end
 
