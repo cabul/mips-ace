@@ -76,7 +76,7 @@ wire dc_write_ack;
 wire [31:0] dc_write_addr;
 wire [WIDTH-1:0] dc_write_data;
 
-arbiter #(.WIDTH(WIDTH)) arbiter (
+arbiter arbiter (
 	.clk(clk),
 	.reset(reset),
 	.ic_read_req(ic_read_req),
@@ -171,9 +171,7 @@ memory_sync #(
 	.read_write(1'b1)
 );
 `else
-cache_2way #(
-	.WIDTH(WIDTH),
-	.DEPTH(4),
+cache_direct #(
 	.ALIAS("I-Cache")
 ) icache (
 	.clk(~clk),
@@ -259,14 +257,14 @@ regfile regfile(
 
 multiplexer #(.X(4)) data_rs_mux (
 	.select(fwdctrl_rs),
-	.in_data({wb_wdata, mem_wdata, ex_exout, reg_rs}),
-	.out_data(id_data_rs)
+	.data_in({wb_wdata, mem_wdata, ex_exout, reg_rs}),
+	.data_out(id_data_rs)
 );
 
 multiplexer #(.X(4)) data_rt_mux (
 	.select(fwdctrl_rt),
-	.in_data({wb_wdata, mem_wdata, ex_exout, reg_rt}),
-	.out_data(id_data_rt)
+	.data_in({wb_wdata, mem_wdata, ex_exout, reg_rt}),
+	.data_out(id_data_rt)
 );
 
 flipflop #(.N(224)) id_ex (
@@ -404,13 +402,14 @@ stdio stdio(
 	.read_write(mem_memread)
 );
 
-`ifdef NO_CACHE
+`ifdef NO_DCACHE
 assign dc_write_req = 1'b0;
 assign dc_read_req = 1'b0;
 
 assign dc_hit = 1'b1;
 
 memory_sync #(
+	.WIDTH(WIDTH),
 	.ALIAS("D-Memory")
 ) dmem (
 	.clk(~clk),
@@ -423,9 +422,7 @@ memory_sync #(
 	.byte_enable(4'b1111)
 );
 `else
-cache_4way #(
-	.WIDTH(WIDTH),
-	.DEPTH(4),
+cache_direct #(
 	.ALIAS("D-Cache")
 ) dcache (
 	.clk(~clk),

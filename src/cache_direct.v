@@ -14,9 +14,9 @@ module cache_direct (
 	input wire [31:0] addr,
 	input wire read_write,
 	input wire master_enable,
-	input wire [BYTES-1:0] byte_enable,
-	input wire [WIDTH-1:0] data_in,
-	output reg [WIDTH-1:0] data_out = 0,
+	input wire [3:0] byte_enable,
+	input wire [31:0] data_in,
+	output reg [31:0] data_out,
 	output reg hit = 0,
 	// Memory ports
 	output reg mem_write_req = 0,
@@ -29,11 +29,10 @@ module cache_direct (
 	input wire mem_read_ack
 );
 
-parameter WIDTH = 128; // Bits in cache line
+parameter WIDTH = `MEMORY_WIDTH; // Bits in cache line
 parameter DEPTH = 4; // Number of cache lines
 localparam WB = $clog2(WIDTH) - 3; // Width bits
 localparam DB = $clog2(DEPTH); // Depth bits
-localparam BYTES = 2**WB;
 
 parameter ALIAS = "Cache";
 
@@ -45,14 +44,11 @@ wire [31-WB-DB:0] tag    = addr[31:WB+DB];
 wire [DB-1:0]     mem_read_index = mem_read_addr[WB+DB-1:WB];
 wire [31-WB-DB:0] mem_read_tag   = mem_read_addr[31:WB+DB];
 
-wire [WIDTH-1:0] bit_mask;
-
-genvar i;
-generate
-	for (i = 0; i < BYTES; i = i+1) begin
-		assign bit_mask[8*i+7:8*i] = {8{byte_enable[i]}};
-	end
-endgenerate
+wire [31:0] bit_mask;
+assign bit_mask[31:24] = {8{byte_enable[3]}};
+assign bit_mask[23:16] = {8{byte_enable[2]}};
+assign bit_mask[15:8]  = {8{byte_enable[1]}};
+assign bit_mask[7:0]   = {8{byte_enable[0]}};
 
 reg [DEPTH-1:0] validbits = {DEPTH{1'b0}};
 reg [DEPTH-1:0] dirtybits = {DEPTH{1'b0}};
@@ -92,12 +88,22 @@ always @(posedge clk) begin
 			hit <= hit_int;
 			if (hit_int) begin
 				if (read_write) begin
-					data_out = lines[index];
+					if (WIDTH == 32)
+						data_out = lines[index];
+					else
+						data_out = lines[index][(offset[WB-1:2]+1)*32-1-:32];
 					`INFO(("[%s] Read %x => %x", ALIAS, addr[15:0], data_out))
 				end else begin
-					lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
+					if (WIDTH == 32) begin
+						lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
+						data_out = lines[index];
+					end else begin
+						lines[index][32*(offset[WB-1:2]+1)-1-:32] =
+							(lines[index][32*(offset[WB-1:2]+1)-1-:32] & ~bit_mask) |
+							(data_in                                   & bit_mask);
+						data_out = lines[index][(offset[WB-1:2]+1)*32-1-:32];
+					end
 					dirtybits[index] = 1'b1;
-					data_out = lines[index];
 					`INFO(("[%s] Write %x <= %x", ALIAS, addr[15:0], data_out))
 				end
 			end else begin

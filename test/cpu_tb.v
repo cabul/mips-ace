@@ -18,9 +18,7 @@ wire [31:0] mem_addr;
 wire [WIDTH-1:0] mem_data_in;
 wire [WIDTH-1:0] mem_data_out;
 
-cpu #(
-	.WIDTH(WIDTH)
-) cpu (
+cpu cpu (
 	.clk(clk),
 	.reset(reset),
 	// Memory ports
@@ -32,12 +30,7 @@ cpu #(
 	.mem_data_out(mem_data_out)
 );
 
-memory_async #(
-	.WIDTH(WIDTH),
-	.DEPTH(`MEMORY_DEPTH),
-	.DATA(`MEMORY_DATA),
-	.LATENCY(`MEMORY_LATENCY)
-) mem (
+memory_async mem (
 	.reset(reset),
 	.addr(mem_addr),
 	.master_enable(mem_enable),
