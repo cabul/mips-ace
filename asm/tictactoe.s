@@ -18,21 +18,21 @@ d:        .asciiz   "The game is a draw."
 ################################    Text Segment   ##########################################
 .text
 main:
-     la $k0, square              # Loading array named square
+     la $s1, square              # Loading array named square
      addi $s0, $zero, 1
      addi $s3, $zero, 88
      addi $s4, $zero, 79
 start:
       jal Board                  # Calling function to print board
-      lb $t0, 0($k0)
-      lb $t1, 1($k0)
-      lb $t2, 2($k0)
-      lb $t3, 3($k0)
-      lb $t4, 4($k0)
-      lb $t5, 5($k0)
-      lb $t6, 6($k0)
-      lb $t7, 7($k0)
-      lb $t8, 8($k0)
+      lb $t0, 0($s1)
+      lb $t1, 1($s1)
+      lb $t2, 2($s1)
+      lb $t3, 3($s1)
+      lb $t4, 4($s1)
+      lb $t5, 5($s1)
+      lb $t6, 6($s1)
+      lb $t7, 7($s1)
+      lb $t8, 8($s1)
       beq $s0, 2, Player2
 Player1:                         # If its player 1 turn
        addi $s0, $zero, 2
@@ -57,54 +57,54 @@ condition:
          beq $a3, $s3, m9
          beq $a3, $s4, m9
          bne $a3, $t0, m1
-         sb  $s6, 0($k0)
+         sb  $s6, 0($s1)
          j m10
 m1:
          bne $a3, $t1, m2
          beq $a3, $s6, m9
          beq $a3, $s4, m9
-         sb  $s6, 1($k0)
+         sb  $s6, 1($s1)
          j m10
 m2:
          bne $a3, $t2, m3
          beq $a3, $s6, m9
-         sb  $s6, 2($k0)
+         sb  $s6, 2($s1)
          j m10
 m3:
          bne $a3, $t3, m4
          beq $a3, $s6, m9
          beq $a3, $s4, m9
-         sb  $s6, 3($k0)
+         sb  $s6, 3($s1)
          j m10
 m4:
          bne $a3, $t4, m5
          beq $a3, $s6, m9
          beq $a3, $s4, m9
-         sb  $s6, 4($k0)
+         sb  $s6, 4($s1)
          j m10
 m5:
          bne $a3, $t5, m6
          beq $a3, $s6, m9
          beq $a3, $s4, m9
-         sb  $s6, 5($k0)
+         sb  $s6, 5($s1)
          j m10
 m6:
          bne $a3, $t6, m7
          beq $a3, $s6, m9
          beq $a3, $s4, m9
-         sb  $s6, 6($k0)
+         sb  $s6, 6($s1)
          j m10
 m7:
          bne $a3, $t7, m8
          beq $a3, $s6, m9
          beq $a3, $s4, m9
-         sb  $s6, 7($k0)
+         sb  $s6, 7($s1)
          j m10
 m8:
          bne $a3, $t8, m9
          beq $a3, $s6, m9
          beq $a3, $s4, m9
-         sb  $s6, 8($k0)
+         sb  $s6, 8($s1)
          j m10
 m9:
          la  $a0, Invalid
@@ -114,10 +114,10 @@ m9:
          j condition
 m10:
          jal CheckWin                     # Funtion Call to check the status of the game
-         addi $k1, $v0, 0
-         beq $k1, -1, start
+         addi $s5, $v0, 0
+         beq $s5, -1, start
          jal Board
-         beq $k1, 0, draw
+         beq $s5, 0, draw
          beq $s0, 1, WP2
 WP1:                                     # To display that player 1 won the game
          la  $a0, PW1
@@ -138,15 +138,15 @@ exit:                                  #To exit the program safely
          syscall      
 
 CheckWin:                                  #This function will return
-        lb $t0, 0($k0)                     # 1 if the game ends with result
-        lb $t1, 1($k0)                     # -1 if the game is in progress
-        lb $t2, 2($k0)                     # 0 if the game is a draw
-        lb $t3, 3($k0)
-        lb $t4, 4($k0)
-        lb $t5, 5($k0)
-        lb $t6, 6($k0)
-        lb $t7, 7($k0)
-        lb $t8, 8($k0)
+        lb $t0, 0($s1)                     # 1 if the game ends with result
+        lb $t1, 1($s1)                     # -1 if the game is in progress
+        lb $t2, 2($s1)                     # 0 if the game is a draw
+        lb $t3, 3($s1)
+        lb $t4, 4($s1)
+        lb $t5, 5($s1)
+        lb $t6, 6($s1)
+        lb $t7, 7($s1)
+        lb $t8, 8($s1)
         bne $t0, $t1, C2
         bne $t1, $t2, C2
         addi $v0, $zero, 1
@@ -203,15 +203,15 @@ C10:
         jr $ra
 
 Board:                                #This function will display the board
-     lb $t0, 0($k0)
-     lb $t1, 1($k0)
-     lb $t2, 2($k0)
-     lb $t3, 3($k0)
-     lb $t4, 4($k0)
-     lb $t5, 5($k0)
-     lb $t6, 6($k0)
-     lb $t7, 7($k0)
-     lb $t8, 8($k0)
+     lb $t0, 0($s1)
+     lb $t1, 1($s1)
+     lb $t2, 2($s1)
+     lb $t3, 3($s1)
+     lb $t4, 4($s1)
+     lb $t5, 5($s1)
+     lb $t6, 6($s1)
+     lb $t7, 7($s1)
+     lb $t8, 8($s1)
      
      la $a0, tic
      addi $v0, $zero, 4
