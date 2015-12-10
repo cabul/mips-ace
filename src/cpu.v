@@ -104,23 +104,23 @@ wire ic_stall = ~ic_hit;
 wire dc_stall = dc_enable & ~dc_hit;
 
 wire pc_stall = ic_stall | dc_stall | hzd_stall;
-wire pc_we = ~pc_stall | ex_isjump | pc_take_branch;
+wire pc_we = ~pc_stall | ex_isjump | pc_take_branch | cop_reset;
 wire pc_reset = reset;
 
 wire if_id_stall = dc_stall | hzd_stall;
-wire if_id_flush = ic_stall | ex_isjump | pc_take_branch | cop_reset;
+wire if_id_flush = ic_stall | ex_isjump | pc_take_branch;
 wire if_id_we = ~if_id_stall;
-wire if_id_reset = reset | (if_id_flush & ~if_id_stall);
+wire if_id_reset = reset | (if_id_flush & ~if_id_stall) | cop_reset;
 
 wire id_ex_stall = dc_stall;
-wire id_ex_flush = ex_isjump | pc_take_branch | hzd_stall | cop_reset;
+wire id_ex_flush = ex_isjump | pc_take_branch | hzd_stall;
 wire id_ex_we = ~id_ex_stall;
-wire id_ex_reset = reset | (id_ex_flush & ~id_ex_stall);
+wire id_ex_reset = reset | (id_ex_flush & ~id_ex_stall) | cop_reset;
 
 wire ex_mem_stall = dc_stall;
-wire ex_mem_flush = pc_take_branch | cop_reset;
+wire ex_mem_flush = pc_take_branch;
 wire ex_mem_we = ~ex_mem_stall;
-wire ex_mem_reset = reset | (ex_mem_flush & ~ex_mem_stall);
+wire ex_mem_reset = reset | (ex_mem_flush & ~ex_mem_stall) | cop_reset;
 
 wire mem_wb_flush = dc_stall;
 wire mem_wb_we = 1'b1;
@@ -154,7 +154,7 @@ flipflop #(
 	.clk(clk),
 	.reset(pc_reset),
 	.we(pc_we),
-	.in(pc_in),
+	.in(pc_real),
 	.out(pc_out)
 );
 
@@ -317,9 +317,8 @@ flipflop #(.N(263)) id_ex (
 			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26], 
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
 			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst}),
-
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_memtype, ex_isbranch,
-        	ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst, 
+			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst, 
 			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode, 
 			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr,
 			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_c0, ex_c0dst})

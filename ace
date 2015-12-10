@@ -4,7 +4,7 @@
 export PATH="$PATH:$PWD"
 export CFLAGS=""
 export ROOTDIR=$PWD
-export MEMORY_DEPTH=512
+export MEMORY_DEPTH=1024
 export MEMORY_WIDTH=128
 echo 'Setup done'
 return 0
