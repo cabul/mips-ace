@@ -55,7 +55,7 @@ initial begin
 	# 10 reset <= 0;
 	cycle = 0;
 
-	# 300000 begin
+	# 3000000 begin
 		$display("It's a trap!");
 		$finish;
 	end

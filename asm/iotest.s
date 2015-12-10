@@ -31,3 +31,4 @@ exit:
 
 	.data 
 quest: .asciiz "Write a number: "
+asd:  .byte '1'

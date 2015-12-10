@@ -8,8 +8,7 @@
 #                                                    #
 ######################################################
 
-#.kdata
-.data
+.kdata
 __boot_logo0:               .asciiz "    __  ___________  _____    ___   ____________\n"
 __boot_logo1:               .asciiz "   /  |/  /  _/ __ \/ ___/   /   | / ____/ ____/          /\\_/\\\n"
 __boot_logo2:               .asciiz "  / /|_/ // // /_/ /\__ \   / /| |/ /   / __/        ____/ o o \\\n"
@@ -35,8 +34,7 @@ __save_reg:                 .space 12
 __exception_jumptable:      .word __int, __unimpl1, __unimpl2, __unimpl3, __AdEL, __AdES, __IBE, __DBE, __Sys, __Bp, __RI, __CpU, __Ov, __Tr, __unimpl4, __FPE
 __syscall_jumptable:        .word __pint_hex, __pint, __pfloat, __pdouble, __pstring, __rint, __rfloat, __rdouble, __rstring, __mem_alloc, __sys_exit, __pchar, __rchar, __sys_unsupported
 
-#.ktext
-.text
+.ktext
 	mfc0 $k0, $cause
 	bne $k0, $0, __exception_handler
 	
@@ -244,30 +242,4 @@ __boot_logo:
 	move $ra, $s0
 	jr $ra
 
-main:
-	##########
-	## TEST ##
-	##########
-	
-	li $v0, 4
-	la $a0, __str_darkside
-	syscall
-	li $v0, 0
-	li $a0, 1234
-	syscall
-	li $v0, 4
-	la $a0, __str_endline
-	syscall
-	li $v0, 5
-	syscall
-	move $a0, $v0
-	li $v0, 1
-	syscall
-	li $v0, 4
-	la $a0, __str_endline
-	syscall
-	li $v0, 2
-	li $a0, 66
-	syscall
-
-	jr $ra
+# Insert <main> here

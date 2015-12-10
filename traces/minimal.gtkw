@@ -1,27 +1,27 @@
 [*]
 [*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
-[*] Thu Dec 10 10:51:52 2015
+[*] Thu Dec 10 17:50:25 2015
 [*]
-[dumpfile] "/home/cabul/Miri/pa/mips/dump/sim.vcd"
-[dumpfile_mtime] "Thu Dec 10 10:50:54 2015"
-[dumpfile_size] 55578
+[dumpfile] "/home/cabul/Miri/pa/mips/dump/bufsum.vcd"
+[dumpfile_mtime] "Thu Dec 10 17:49:47 2015"
+[dumpfile_size] 7015190
 [savefile] "/home/cabul/Miri/pa/mips/traces/minimal.gtkw"
 [timestart] 0
-[size] 1920 1025
-[pos] -460 -198
+[size] 1000 600
+[pos] -1 -1
 *-4.187627 18 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 197
 [signals_width] 259
 [sst_expanded] 1
-[sst_vpaned_height] 582
+[sst_vpaned_height] 323
 @24
 cpu_tb.cycle[31:0]
 @28
 cpu_tb.clk
-@22
-cpu_tb.cpu.pc_out[31:0]
+@23
+cpu_tb.cpu.pc_real[31:0]
 @200
 -Stages
 @22

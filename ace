@@ -4,8 +4,9 @@
 export PATH="$PATH:$PWD"
 export CFLAGS=""
 export ROOTDIR=$PWD
-export MEMORY_DEPTH=1024
+export MEMORY_DEPTH=2048
 export MEMORY_WIDTH=128
+export ACE_UKERNEL=ukernel.s
 echo 'Setup done'
 return 0
 }
@@ -273,7 +274,8 @@ run() {
 	FILE_ENDING=${1##*.}
 	case $FILE_ENDING in
 		s|asm)
-			utils/asm $1 > build/memory.dat 2> build/memory.log
+			cat $ACE_UKERNEL $1 > build/memory.asm
+			utils/asm build/memory.asm > build/memory.dat 2> build/memory.log
 			if [[ $? -ne 0 ]] ; then
 				cat build/memory.log >&2
 				die 'Unable to assemble program'

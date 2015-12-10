@@ -10,10 +10,10 @@ class SyntaxError(Exception):
 		super(SyntaxError, self).__init__(message)
 
 # Configuration
-textinit = 0
-datainit = 1024
-ktextinit = 4096
-kdatainit = 8192
+ktextinit = 0x0000
+kdatainit = 0x0400
+textinit  = 0x1000
+datainit  = 0x2000
 
 token_def = [
 #     Name           Pattern            Ignore
@@ -121,14 +121,16 @@ registers = {
 	'31' : 31 , 'ra'   : 31 , 'f31' : 31 ,
 }
 
-constants = {
-	'PRINT_CHAR'  : 0xb, 
+constants = { 
+    'PRINT_HEX'   : 0x0,
 	'PRINT_INT'   : 0x1,
 	'PRINT_FLOAT' : 0x2,
-	'READ_CHAR'   : 0xc,
+    'PRINT_STR'   : 0x4,
 	'READ_INT'    : 0x5,
 	'READ_FLOAT'  : 0x6,
 	'EXIT'        : 0xa,
+	'PRINT_CHAR'  : 0xb,
+	'READ_CHAR'   : 0xc,
 	'IO_EXIT'     : -1,
 	'IO_CHAR'     : -2,
 	'IO_INT'      : -3,
@@ -340,16 +342,15 @@ class Parser(object):
 			else:
 				textpos += instrLen(texttype, value)
 	def printout(self):
-		# TODO Uncomment
-		#print '; .ktext'
-		#offset = 0
-		#for lineno, key, val in self.ktext:
-		#	self.lineno = lineno
-		#	offset = self.printtext(offset, key, val)
-		#print '; .kdata'
-		#for lineno, key, val in self.kdata:
-		#	self.lineno = lineno
-		#	self.printdata(key, val)
+		print '; .ktext'
+		offset = 0
+		for lineno, key, val in self.ktext:
+			self.lineno = lineno
+			offset = self.printtext(offset, key, val)
+		print '; .kdata'
+		for lineno, key, val in self.kdata:
+			self.lineno = lineno
+			self.printdata(key, val)
 		print '; .text'
 		offset = 0
 		for lineno, key, val in self.text:
