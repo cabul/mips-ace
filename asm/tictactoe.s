@@ -1,6 +1,6 @@
 #################################   Data Segment    ######################################### 
 .data
-square:   .byte      1, 2, 3, 4, 5, 6, 7, 8, 9  
+square:   .byte      '1', '2', '3', '4', '5', '6', '7', '8', '9'  
 tic:      .asciiz   " \n\n Tic Tac Toe\n"
 POp:     .asciiz   " Player 1 (X)  -  Player 2 (0) \n\n"
 b1:       .asciiz   "     |     |     \n"
