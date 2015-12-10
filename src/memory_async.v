@@ -25,7 +25,7 @@ localparam SIZE = WIDTH * DEPTH / 8;
 
 parameter DATA = `MEMORY_DATA;
 
-parameter LATENCY = 0;
+parameter LATENCY = `MEMORY_LATENCY;
 
 wire [DB-1:0] index = addr[WB+DB-1:WB];
 

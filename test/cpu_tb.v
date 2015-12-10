@@ -52,7 +52,7 @@ initial begin
 	`endif
 
 	reset <= 1;
-	# 10 reset <= 0;
+	# 20 reset <= 0;
 	cycle = 0;
 
 	# 300000 begin

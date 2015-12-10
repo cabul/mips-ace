@@ -108,19 +108,19 @@ wire pc_we = ~pc_stall | ex_isjump | pc_take_branch;
 wire pc_reset = reset;
 
 wire if_id_stall = dc_stall | hzd_stall;
-wire if_id_flush = ic_stall | ex_isjump | pc_take_branch;
+wire if_id_flush = ic_stall | ex_isjump | pc_take_branch | cop_reset;
 wire if_id_we = ~if_id_stall;
-wire if_id_reset = reset | (if_id_flush & ~if_id_stall) | cop_reset;
+wire if_id_reset = reset | (if_id_flush & ~if_id_stall);
 
 wire id_ex_stall = dc_stall;
-wire id_ex_flush = ex_isjump | pc_take_branch | hzd_stall;
+wire id_ex_flush = ex_isjump | pc_take_branch | hzd_stall | cop_reset;
 wire id_ex_we = ~id_ex_stall;
-wire id_ex_reset = reset | (id_ex_flush & ~id_ex_stall) | cop_reset;
+wire id_ex_reset = reset | (id_ex_flush & ~id_ex_stall);
 
 wire ex_mem_stall = dc_stall;
-wire ex_mem_flush = pc_take_branch;
+wire ex_mem_flush = pc_take_branch | cop_reset;
 wire ex_mem_we = ~ex_mem_stall;
-wire ex_mem_reset = reset | (ex_mem_flush & ~ex_mem_stall) | cop_reset;
+wire ex_mem_reset = reset | (ex_mem_flush & ~ex_mem_stall);
 
 wire mem_wb_flush = dc_stall;
 wire mem_wb_we = 1'b1;
