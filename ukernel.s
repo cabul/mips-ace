@@ -249,21 +249,21 @@ main:
     ## TEST ##
     ##########
     
-    li $v0, 4
+    li $v0, %PRINT_STR
     la $a0, __str_darkside
     syscall
-    li $v0, 0
+    li $v0, %PRINT_HEX
     li $a0, 1234
     syscall
-    li $v0, 4
+    li $v0, %PRINT_STR
     la $a0, __str_endline
     syscall
-    li $v0, 5
+    li $v0, %READ_INT
     syscall
     move $a0, $v0
-    li $v0, 1
+    li $v0, %PRINT_INT
     syscall
-    li $v0, 4
+    li $v0, %PRINT_STR
     la $a0, __str_endline
     syscall
     li $v0, 2

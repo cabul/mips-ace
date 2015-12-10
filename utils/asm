@@ -121,14 +121,16 @@ registers = {
 	'31' : 31 , 'ra'   : 31 , 'f31' : 31 ,
 }
 
-constants = {
-	'PRINT_CHAR'  : 0xb, 
+constants = { 
+    'PRINT_HEX'   : 0x0,
 	'PRINT_INT'   : 0x1,
 	'PRINT_FLOAT' : 0x2,
-	'READ_CHAR'   : 0xc,
+    'PRINT_STR'   : 0x4,
 	'READ_INT'    : 0x5,
 	'READ_FLOAT'  : 0x6,
 	'EXIT'        : 0xa,
+	'PRINT_CHAR'  : 0xb,
+	'READ_CHAR'   : 0xc,
 	'IO_EXIT'     : -1,
 	'IO_CHAR'     : -2,
 	'IO_INT'      : -3,
