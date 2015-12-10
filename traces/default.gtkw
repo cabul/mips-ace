@@ -1,0 +1,73 @@
+[*]
+[*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
+[*] Fri Dec  4 16:19:56 2015
+[*]
+[dumpfile] "/home/cabul/Miri/pa/mips/dump/fib26.vcd"
+[dumpfile_mtime] "Fri Dec  4 15:28:57 2015"
+[dumpfile_size] 2768068
+[savefile] "/home/cabul/Miri/pa/mips/traces/default.gtkw"
+[timestart] 8430
+[size] 1920 1055
+[pos] -1 -1
+*-4.000000 8484 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] cpu_tb.
+[treeopen] cpu_tb.cpu.
+[sst_width] 197
+[signals_width] 259
+[sst_expanded] 1
+[sst_vpaned_height] 582
+@24
+cpu_tb.cycle[31:0]
+@28
+cpu_tb.clk
+@22
+cpu_tb.cpu.pc_out[31:0]
+@200
+-Stages
+@22
+cpu_tb.cpu.if_instr[31:0]
+cpu_tb.cpu.id_instr[31:0]
+cpu_tb.cpu.ex_instr[31:0]
+cpu_tb.cpu.mem_instr[31:0]
+cpu_tb.cpu.wb_instr[31:0]
+@200
+-Control
+@28
+cpu_tb.cpu.ic_hit
++{ic_hit_int} cpu_tb.cpu.icache.hit_int
+cpu_tb.cpu.dc_hit
++{dc_hit_int} cpu_tb.cpu.dcache.hit_int
+cpu_tb.cpu.dc_enable
+@200
+-Arbiter
+@28
+cpu_tb.cpu.arbiter.arb_state[1:0]
+cpu_tb.cpu.arbiter.dc_write_req
+cpu_tb.cpu.arbiter.dc_read_req
+cpu_tb.cpu.arbiter.ic_read_req
+@200
+-Memory
+@22
+cpu_tb.mem.addr[31:0]
+@28
+cpu_tb.mem.read_write
+cpu_tb.mem.master_enable
+cpu_tb.mem.ack
+@22
+cpu_tb.mem.data_in[31:0]
+cpu_tb.mem.data_out[31:0]
+@200
+-I-Cache
+@28
+cpu_tb.cpu.icache.mem_read_req
+cpu_tb.cpu.icache.mem_read_ack
+@200
+-D-Cache
+@28
+cpu_tb.cpu.dcache.mem_read_req
+cpu_tb.cpu.dcache.mem_read_ack
+cpu_tb.cpu.dcache.mem_write_req
+@29
+cpu_tb.cpu.dcache.mem_write_ack
+[pattern_trace] 1
+[pattern_trace] 0

@@ -42,16 +42,16 @@
 `define OP_RTYPE 6'h0
 `define OP_ADDI  6'h8
 `define OP_ANDI  6'hc
-`define OP_ORI	 6'hd
-`define OP_XORI	 6'he
-`define OP_SLTI	 6'ha
+`define OP_ORI   6'hd
+`define OP_XORI  6'he
+`define OP_SLTI  6'ha
 `define OP_BEQ   6'h4
-`define OP_BNE	 6'h5
+`define OP_BNE   6'h5
 `define OP_J     6'h2
-`define OP_LB	 6'h20
-`define OP_LUI	 6'hf
+`define OP_LB    6'h20
+`define OP_LUI   6'hf
 `define OP_LW    6'h23
-`define OP_SB	 6'h28
+`define OP_SB    6'h28
 `define OP_SW    6'h2b
 `define OP_JAL   6'h3
 `define OP_MFC0  6'h10
@@ -101,13 +101,17 @@
 `define IO_HEX   8'hfb
 
 // Debug macros
-
 `ifdef DEBUG
-	`define DMSG(M) $display M ;
+	`define INFO(M) begin $write("%5t ", $time); $display M ; end
 `else
-	`define DMSG(M)
+	`define INFO(M) begin end
 `endif
 
+`define WARN(M) begin $write("\033[31m%5t ", $time); $display M ; $write("\033[0m"); end
+
 `define MEMORY_DATA "build/memory.raw"
+`ifndef MEMORY_LATENCY
+	`define MEMORY_LATENCY 27
+`endif
 
 `endif

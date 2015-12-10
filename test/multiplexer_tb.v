@@ -10,8 +10,8 @@ wire [31:0] c;
 // indexes right to left -> in_data({3,2,1,0})
 
 multiplexer mux(
-	.in_data({a, b}),
-	.out_data(c),
+	.data_in({a, b}),
+	.data_out(c),
 	.select(1'b0));
 
 initial begin

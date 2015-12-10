@@ -11,6 +11,7 @@ module control(
 	output reg memtoreg = 0,
 	output reg memread = 0,
 	output reg memwrite = 0,
+	output reg memtype = 0,
 	output reg isbranch = 0,
 	output reg isjump = 0,
 	output reg jumpdst = 0,
@@ -108,6 +109,7 @@ always @* begin
 			memtoreg <= 1;
 			memread  <= 1;
 			memwrite <= 0;
+			memtype  <= 1;
 			isbranch <= 0;
 			regdst   <= 0;
 			alu_s    <= 0;
@@ -126,6 +128,37 @@ always @* begin
 			memtoreg <= 0;
 			memread  <= 0;
 			memwrite <= 1;
+			memtype  <= 1;
+			isbranch <= 0;
+			regdst   <= 0;
+			alu_s    <= 0;
+			alu_t    <= 1;
+			aluop    <= 1;
+			isjump   <= 0;
+			jumpdst  <= 0;
+			islink   <= 0;
+		end
+		`OP_LB: begin
+			regwrite <= 1;
+			memtoreg <= 1;
+			memread  <= 1;
+			memwrite <= 0;
+			memtype  <= 0;
+			isbranch <= 0;
+			regdst   <= 0;
+			alu_s    <= 0;
+			alu_t    <= 1;
+			aluop    <= 1;
+			isjump   <= 0;
+			jumpdst  <= 0;
+			islink   <= 0;
+		end
+		`OP_SB:	begin
+			regwrite <= 0;
+			memtoreg <= 0;
+			memread  <= 0;
+			memwrite <= 1;
+			memtype  <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
 			alu_s    <= 0;
@@ -368,9 +401,8 @@ always @* begin
 				exc_ri   <= 1;
 				exc_ret  <= 0;
 			end end
-				
 		default:
-			$display("%5t # [WARNING] Control Unit received unknown opcode signal %x", $time, opcode);
+			`WARN(("[Control] Unknown opcode %x", opcode))
 	endcase
 end
 
