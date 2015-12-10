@@ -103,28 +103,113 @@ arbiter arbiter (
 wire ic_stall = ~ic_hit;
 wire dc_stall = dc_enable & ~dc_hit;
 
-wire pc_stall = ic_stall | dc_stall | hzd_stall;
-wire pc_we = ~pc_stall | ex_isjump | pc_take_branch | cop_reset;
-wire pc_reset = reset;
+reg pc_reset = 1'b0;
+reg pc_we = 1'b1;
 
-wire if_id_stall = dc_stall | hzd_stall;
-wire if_id_flush = ic_stall | ex_isjump | pc_take_branch;
-wire if_id_we = ~if_id_stall;
-wire if_id_reset = reset | (if_id_flush & ~if_id_stall) | cop_reset;
+reg if_id_reset = 1'b0;
+reg if_id_we = 1'b1;
 
-wire id_ex_stall = dc_stall;
-wire id_ex_flush = ex_isjump | pc_take_branch | hzd_stall;
-wire id_ex_we = ~id_ex_stall;
-wire id_ex_reset = reset | (id_ex_flush & ~id_ex_stall) | cop_reset;
+reg id_ex_reset = 1'b0;
+reg id_ex_we = 1'b1;
 
-wire ex_mem_stall = dc_stall;
-wire ex_mem_flush = pc_take_branch;
-wire ex_mem_we = ~ex_mem_stall;
-wire ex_mem_reset = reset | (ex_mem_flush & ~ex_mem_stall) | cop_reset;
+reg ex_mem_reset = 1'b0;
+reg ex_mem_we = 1'b1;
 
-wire mem_wb_flush = dc_stall;
-wire mem_wb_we = 1'b1;
-wire mem_wb_reset = reset | mem_wb_flush | cop_reset;
+reg mem_wb_reset = 1'b0;
+reg mem_wb_we = 1'b1;
+
+//TODO Optimize, maybe
+always @* begin
+	if (reset) begin
+		pc_reset     <= 1'b1;
+		pc_we        <= 1'b1;
+		if_id_reset  <= 1'b1;
+		if_id_we     <= 1'b1;
+		id_ex_reset  <= 1'b1;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b1;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b1;
+		mem_wb_we    <= 1'b1;
+	end else if (cop_reset) begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b1;
+		if_id_reset  <= 1'b1;
+		if_id_we     <= 1'b1;
+		id_ex_reset  <= 1'b1;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b1;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b1;
+		mem_wb_we    <= 1'b1;
+	end else if (dc_stall) begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b0;
+		if_id_reset  <= 1'b0;
+		if_id_we     <= 1'b0;
+		id_ex_reset  <= 1'b0;
+		id_ex_we     <= 1'b0;
+		ex_mem_reset <= 1'b0;
+		ex_mem_we    <= 1'b0;
+		mem_wb_reset <= 1'b1;
+		mem_wb_we    <= 1'b1;
+	end else if (pc_take_branch) begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b1;
+		if_id_reset  <= 1'b1;
+		if_id_we     <= 1'b1;
+		id_ex_reset  <= 1'b1;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b1;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b0;
+		mem_wb_we    <= 1'b1;
+	end else if (ex_isjump) begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b1;
+		if_id_reset  <= 1'b1;
+		if_id_we     <= 1'b1;
+		id_ex_reset  <= 1'b1;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b0;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b0;
+		mem_wb_we    <= 1'b1;
+	end else if (hzd_stall) begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b0;
+		if_id_reset  <= 1'b0;
+		if_id_we     <= 1'b0;
+		id_ex_reset  <= 1'b1;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b0;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b0;
+		mem_wb_we    <= 1'b1;
+	end else if (ic_stall) begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b0;
+		if_id_reset  <= 1'b1;
+		if_id_we     <= 1'b1;
+		id_ex_reset  <= 1'b0;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b0;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b0;
+		mem_wb_we    <= 1'b1;
+	end else begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b1;
+		if_id_reset  <= 1'b0;
+		if_id_we     <= 1'b1;
+		id_ex_reset  <= 1'b0;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b0;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b0;
+		mem_wb_we    <= 1'b1;
+	end
+end
 
 ////////////////////////
 //                    //
@@ -195,7 +280,7 @@ cache_direct #(
 
 flipflop #(.N(64)) if_id (
 	.clk(clk),
-	.reset(if_id_reset),
+	.reset(if_id_reset | reset),
 	.we(if_id_we),
 	.in({if_pc_next, if_instr}),
 	.out({id_pc_next, id_instr})
@@ -310,7 +395,7 @@ multiplexer #(.X(4)) data_rt_mux (
 
 flipflop #(.N(263)) id_ex (  
 	.clk(clk),
-	.reset(id_ex_reset),
+	.reset(id_ex_reset | reset),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_memtype, id_isbranch,
 			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst, 
@@ -406,7 +491,7 @@ assign ex_wreg = ex_islink ? 5'd31 : dst_reg;
 
 flipflop #(.N(176)) ex_mem (
 	.clk(clk),
-	.reset(ex_mem_reset),
+	.reset(ex_mem_reset | reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_memtype,
 			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt, 
@@ -525,7 +610,7 @@ assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
 flipflop #(.N(138)) mem_wb (
 	.clk(clk),
-	.reset(mem_wb_reset),
+	.reset(mem_wb_reset | reset),
 	.we(mem_wb_we),
 	.in({mem_regwrite, mem_wdata, mem_wreg, mem_instr,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite, 

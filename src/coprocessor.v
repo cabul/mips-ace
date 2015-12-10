@@ -64,6 +64,11 @@ always @(exception_bus) begin
 		cpu_mode <= 1; 
 		co_regs[`C0_SR] = co_regs[`C0_SR] | 1 << `C0_SR_EL;
 		co_regs[`C0_SR] = co_regs[`C0_SR] | 1 << `C0_SR_UM;
+		`INFO(("[Exception] %s",
+			(exception_bus[66] ? "Overflow            " :
+			(exception_bus[65] ? "Reserved Instruction" :
+			(exception_bus[64] ? "Syscall             " :
+			                     "Panic               ")))))
     end else begin
         cop_reset <= 0;
 		pc_select <= 0;

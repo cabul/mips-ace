@@ -27,9 +27,9 @@ module control(
 );
 
 always @* begin
-	casez(opcode)
+	casex (opcode)
 		`OP_RTYPE: begin
-			case(funct)
+			casex (funct)
 				`FN_JR: begin
 					regwrite <= 0;
 					memtoreg <= 0;
@@ -350,11 +350,7 @@ always @* begin
 			cowrite  <= 0;
 			exc_sys  <= 0;
 			exc_ret  <= 0;
-			if(cpu_mode == 1) begin		
-				exc_ri   <= 0;				
-			end else begin
-				exc_ri   <= 1;
-			end
+			exc_ri   <= ~cpu_mode;
 		end
 		`OP_MTC0: begin
 			regwrite <= 0;
@@ -370,14 +366,10 @@ always @* begin
 			jumpdst  <= 0;
 			islink   <= 0;
 			exc_sys  <= 0;
-			exc_ret  <= 0;	
-			if(cpu_mode == 1) begin		
-				exc_ri   <= 0;
-				cowrite  <= 1;				
-			end else begin
-				exc_ri   <= 1;
-				cowrite  <= 0;
-			end end
+			exc_ret  <= 0;
+			exc_ri   <= ~cpu_mode;
+			cowrite  <= cpu_mode;
+		end
 		`OP_ERET: begin
 			regwrite <= 0;
 			memtoreg <= 0;
@@ -393,14 +385,9 @@ always @* begin
 			islink   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			if(cpu_mode == 1) begin	
-				exc_ri   <= 0;
-				exc_ret  <= 1;
-				//cambiar el PC con el contenido de EPC
-			end else begin
-				exc_ri   <= 1;
-				exc_ret  <= 0;
-			end end
+			exc_ri   <= ~cpu_mode;
+			exc_ret  <= cpu_mode;
+		end
 		default:
 			`WARN(("[Control] Unknown opcode %x", opcode))
 	endcase

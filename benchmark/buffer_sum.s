@@ -8,7 +8,7 @@ Vector: .space 512 #N_ELEMENTOS*T_ELEMENTO
 main:
 	la $t0, Vector
 	li $t1, 0 #Counter
-	li $t2, 4 #N_ELEMENTOS
+	li $t2, 128 #N_ELEMENTOS
 
 #Let's initialize
 loop:	beq $t1, $t2, done
@@ -19,7 +19,6 @@ loop:	beq $t1, $t2, done
 
 done:	la $t0, Vector
 		li $t1, 0 #Counter
-		li $t2, 4 #N_ELEMENTOS
 		li $a0, 0 #Sum
 
 #Summatory

@@ -14,9 +14,9 @@ module cache_4way (
 	input wire [31:0] addr,
 	input wire read_write,
 	input wire master_enable,
-	input wire [BYTES-1:0] byte_enable,
-	input wire [WIDTH-1:0] data_in,
-	output reg [WIDTH-1:0] data_out = 0,
+	input wire [3:0] byte_enable,
+	input wire [31:0] data_in,
+	output reg [31:0] data_out = 0,
 	output reg hit = 0,
 	// Memory ports
 	output reg mem_write_req = 0,

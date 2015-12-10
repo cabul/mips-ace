@@ -107,7 +107,7 @@
 	`define INFO(M) begin end
 `endif
 
-`define WARN(M) begin $write("\033[31m%5t ", $time); $display M ; $write("\033[0m"); end
+`define WARN(M) begin $write("[warning]: %5t ", $time); $display M ; end
 
 `define MEMORY_DATA "build/memory.raw"
 `ifndef MEMORY_LATENCY

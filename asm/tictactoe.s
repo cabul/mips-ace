@@ -11,9 +11,9 @@ b5:       .asciiz   "  \n"
 P1:       .asciiz   "Player 1, enter a number : "
 P2:       .asciiz   "Player 2, enter a number : "
 Invalid:  .asciiz   "\nInvalid move. Try again : "
-PW1:      .asciiz   "Player 1 wins."
-PW2:      .asciiz   "Player 2 wins."
-d:        .asciiz   "The game is a draw."
+PW1:      .asciiz   "Player 1 wins.\n"
+PW2:      .asciiz   "Player 2 wins.\n"
+d:        .asciiz   "The game is a draw.\n"
 
 ################################    Text Segment   ##########################################
 .text

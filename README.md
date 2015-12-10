@@ -10,12 +10,12 @@ Implementation of a MIPS Processor developed during the course of [Processor Arc
 - [x] Mini OS
 - [x] Exceptions
 - [x] Benchmarks
-- [ ] Store Buffer
 - [x] Cache
-- [ ] Reorder Buffer / History File
-- [ ] Variable Length Pipeline
-- [ ] Virtual Memory
+- [ ] Store Buffer
 - [ ] Branch Prediction
+- [ ] Virtual Memory
+- [ ] Variable Length Pipeline
+- [ ] Reorder Buffer / History File
 - [ ] Out-of-Order
 
 [Processor Architecture]: http://www.fib.upc.edu/en/masters/miri/syllabus.html?assig=PA-MIRI

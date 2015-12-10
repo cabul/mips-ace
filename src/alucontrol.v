@@ -12,7 +12,7 @@ module alucontrol(
 
 always @* begin
 	if (aluop_in) begin
-		case (opcode)
+		casex (opcode)
 			`OP_ADDI: aluop_out <= `ALUOP_ADD;
 			`OP_ANDI: aluop_out <= `ALUOP_AND;
 			`OP_ORI:  aluop_out <= `ALUOP_OR;
@@ -36,7 +36,7 @@ always @* begin
 				`WARN(("[ALU Control] Unknown opcode signal %x", opcode))
 		endcase
 	end else begin
-		case (funct)
+		casex (funct)
 			`FN_SLL: aluop_out <= `ALUOP_SLL;
 			`FN_SRL: aluop_out <= `ALUOP_SRL;
 			`FN_SRA: aluop_out <= `ALUOP_SRA;
