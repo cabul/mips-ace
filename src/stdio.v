@@ -38,7 +38,7 @@ always @(posedge clk) begin
 				`IO_INT:   $fwrite(STDERR, "%0d", data_in);
 				`IO_FLOAT: $fwrite(STDERR, "%0f", data_in);
 				`IO_HEX:   $fwrite(STDERR, "%0x", data_in);
-				`IO_EXIT: $finish;
+				`IO_EXIT: #5 $finish;
 				default: `WARN(("[IO] Unknown operation"))
 			endcase
 			$fflush(STDERR);

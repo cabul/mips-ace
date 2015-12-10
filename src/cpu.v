@@ -30,7 +30,6 @@ module cpu(
 );
 
 parameter WIDTH = `MEMORY_WIDTH;
-localparam BYTES = WIDTH / 8;
 
 ////////////////////////
 //                    //
@@ -210,6 +209,7 @@ wire id_regdst;
 wire id_memtoreg;
 wire id_memread;
 wire id_memwrite;
+wire id_memtype;
 wire id_isbranch;
 wire id_aluop;
 wire id_alusrc;
@@ -236,6 +236,7 @@ control control (
 	.memtoreg(id_memtoreg),
 	.aluop(id_aluop),
 	.memwrite(id_memwrite),
+	.memtype(id_memtype),
 	.alusrc(id_alusrc),
 	.regwrite(id_regwrite),
 	.isjump(id_isjump),
@@ -267,15 +268,15 @@ multiplexer #(.X(4)) data_rt_mux (
 	.data_out(id_data_rt)
 );
 
-flipflop #(.N(224)) id_ex (
+flipflop #(.N(225)) id_ex (
 	.clk(clk),
 	.reset(id_ex_reset),
 	.we(id_ex_we),
-	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_isbranch,
+	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_memtype, id_isbranch,
         	id_regdst, id_aluop, id_alusrc, id_isjump, id_islink, id_jumpdst,
         	id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr}),
-	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_isbranch,
+	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_memtype, ex_isbranch,
         	ex_regdst, ex_aluop, ex_alusrc, ex_isjump, ex_islink, ex_jumpdst,
         	ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode,
 			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr})
@@ -292,6 +293,7 @@ wire ex_regwrite;
 wire ex_memtoreg;
 wire ex_memread;
 wire ex_memwrite;
+wire ex_memtype;
 wire ex_isbranch;
 wire ex_regdst;
 wire ex_aluop;
@@ -350,14 +352,14 @@ assign ex_exout = ex_islink ? ex_pc_next : alures;
 assign dst_reg = ex_regdst ? dst_rd : dst_rt;
 assign ex_wreg = ex_islink ? 5'h1f : dst_reg;
 
-flipflop #(.N(140)) ex_mem (
+flipflop #(.N(141)) ex_mem (
 	.clk(clk),
 	.reset(ex_mem_reset),
 	.we(ex_mem_we),
-	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite,
+	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_memtype,
         	ex_isbranch, ex_pc_branch,  ex_aluovf, ex_aluz,
         	ex_exout, ex_data_rt, ex_wreg, ex_instr}),
-	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite,
+	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_memtype,
         	mem_isbranch,  mem_pc_branch, mem_aluovf, mem_aluz,
         	mem_exout, mem_data_rt, mem_wreg, mem_instr})
 );
@@ -374,6 +376,7 @@ wire mem_regwrite;
 wire mem_memtoreg;
 wire mem_memread;
 wire mem_memwrite;
+wire mem_memtype;
 wire mem_isbranch;
 wire mem_aluz;
 wire mem_aluovf;
@@ -390,6 +393,7 @@ wire io_mem;
 assign io_mem = & mem_exout[31:26]; // IO when 0xFF....
 wire dc_enable = (mem_memwrite | mem_memread) & ~io_mem;
 wire [31:0] io_out;
+wire [31:0] mem_out_int;
 wire [31:0] mem_out;
 
 stdio stdio(
@@ -402,24 +406,35 @@ stdio stdio(
 	.read_write(mem_memread)
 );
 
-`ifdef NO_DCACHE
+wire [1:0] mem_offset = mem_exout[1:0];
+reg [3:0] mem_byte_enable_int;
+
+always @* case (mem_offset)
+	2'b00: mem_byte_enable_int <= 4'b0001;
+	2'b00: mem_byte_enable_int <= 4'b0001;
+	2'b00: mem_byte_enable_int <= 4'b0001;
+	2'b00: mem_byte_enable_int <= 4'b0001;
+endcase
+
+wire [3:0] mem_byte_enable = mem_memtype ? 4'b1111 : mem_byte_enable_int;
+
+`ifdef NO_CACHE
 assign dc_write_req = 1'b0;
 assign dc_read_req = 1'b0;
 
 assign dc_hit = 1'b1;
 
 memory_sync #(
-	.WIDTH(WIDTH),
 	.ALIAS("D-Memory")
 ) dmem (
 	.clk(~clk),
 	.reset(reset),
 	.addr(mem_exout),
-	.data_out(mem_out),
+	.data_out(mem_out_int),
 	.data_in(mem_data_rt),
 	.master_enable(dc_enable),
 	.read_write(mem_memread),
-	.byte_enable(4'b1111)
+	.byte_enable(mem_byte_enable)
 );
 `else
 cache_direct #(
@@ -428,11 +443,11 @@ cache_direct #(
 	.clk(~clk),
 	.reset(reset),
 	.addr(mem_exout),
-	.data_out(mem_out),
+	.data_out(mem_out_int),
 	.data_in(mem_data_rt),
 	.master_enable(dc_enable),
 	.read_write(mem_memread),
-	.byte_enable(4'b1111),
+	.byte_enable(mem_byte_enable),
 	.hit(dc_hit),
 	// Memory ports
 	.mem_write_req(dc_write_req),
@@ -446,6 +461,7 @@ cache_direct #(
 );
 `endif
 
+assign mem_out = mem_memtype ? mem_out_int : {24'h000000, mem_out_int[(mem_exout[1:0]+1)*8-1-:8]};
 assign mem_memout = io_mem ? io_out : mem_out;
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
