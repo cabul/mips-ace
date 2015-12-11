@@ -1,23 +1,31 @@
 #!/bin/bash
 
-[[ $_ != $0 ]] && {
-export PATH="$PATH:$PWD"
-export CFLAGS=""
-export ROOTDIR=$PWD
-export MEMORY_DEPTH=2048
-export MEMORY_WIDTH=128
-export ACE_UKERNEL=ukernel.s
-echo 'Setup done'
-return 0
-}
-
-[[ -z $ROOTDIR ]] || cd $ROOTDIR
-
 NC='\033[0m'
 RED='\033[31m'
 GREEN='\033[32m'
 YELLOW='\033[33m'
 BLUE='\033[34m'
+
+[[ $_ != $0 ]] && {
+export PATH="$PATH:$PWD"
+export CFLAGS=""
+export ROOTDIR=$PWD
+#ROOTDIR_ESC="$(echo $ROOTDIR | sed 's/\//\\\//g')"
+export MEMORY_DEPTH=2048
+export MEMORY_WIDTH=128
+[[ -z $PS1_BAK ]] && export PS1_BAK=$PS1
+export ACE_UKERNEL=ukernel.s
+echo '    __  ___________  _____    ___   ____________'
+echo '   /  |/  /  _/ __ \/ ___/   /   | / ____/ ____/          /\_/\'
+echo '  / /|_/ // // /_/ /\__ \   / /| |/ /   / __/        ____/ o o \'
+echo ' / /  / // // ____/___/ /  / ___ / /___/ /___      /~____  =ø= /'
+echo '/_/  /_/___/_/    /____/  /_/  |_\____/_____/     (______)__m_m)'
+echo ''
+export PS1="\`[[ \$PWD == \"$ROOTDIR\"* ]] && echo \"[\\\`git symbolic-ref --short HEAD\\\`] ACE\${PWD#$ROOTDIR}: \" || echo \"$PS1_BAK\"\`"
+return 0
+}
+
+[[ -z $ROOTDIR ]] || cd $ROOTDIR
 
 die() {
 	echo "$@" >&2
