@@ -39,7 +39,7 @@ __syscall_jumptable:        .word __pint_hex, __pint, __pfloat, __pdouble, __pst
 	bne $k0, $0, __exception_handler
 	
 __entry_point:
-	li $sp, 0x3000                  # Set stack-pointer
+	li $sp, %STACK_INIT             # Set stack-pointer
 	mtc0 $0, $status                # Set machine to user-mode
 	jal __boot_logo
 	la $a0, __str_saulgoodman

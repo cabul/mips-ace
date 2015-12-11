@@ -136,6 +136,7 @@ constants = {
 	'IO_INT'      : -3,
 	'IO_FLOAT'    : -4,
 	'IO_HEX'      : -5,
+    'STACK_INIT'  : 0x10000,
 }
 
 def instrLen(opcode, operands):
