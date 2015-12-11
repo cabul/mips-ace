@@ -7,7 +7,7 @@ export ROOTDIR="$PWD"
 export MEMORY_DEPTH=2048
 export MEMORY_WIDTH=128
 export ACE_UKERNEL=ukernel.s
-[[ $# -eq 0 ]] || return 0
+[[ $# -gt 0 ]] || return 0
 [[ -z $PS1_BAK ]] && export PS1_BAK=$PS1
 echo '    __  ___________  _____    ___   ____________'
 echo '   /  |/  /  _/ __ \/ ___/   /   | / ____/ ____/          /\_/\'
