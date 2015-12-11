@@ -4,11 +4,11 @@
 export PATH="$PATH:$PWD"
 export CFLAGS=""
 export ROOTDIR=$PWD
-#ROOTDIR_ESC="$(echo $ROOTDIR | sed 's/\//\\\//g')"
 export MEMORY_DEPTH=2048
 export MEMORY_WIDTH=128
-[[ -z $PS1_BAK ]] && export PS1_BAK=$PS1
 export ACE_UKERNEL=ukernel.s
+[[ $# -eq 0 ]] || return 0
+[[ -z $PS1_BAK ]] && export PS1_BAK=$PS1
 echo '    __  ___________  _____    ___   ____________'
 echo '   /  |/  /  _/ __ \/ ___/   /   | / ____/ ____/          /\_/\'
 echo '  / /|_/ // // /_/ /\__ \   / /| |/ /   / __/        ____/ o o \'
