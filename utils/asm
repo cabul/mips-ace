@@ -126,6 +126,7 @@ constants = {
 	'PRINT_INT'   : 0x1,
 	'PRINT_FLOAT' : 0x2,
     'PRINT_STR'   : 0x4,
+    'PRINT_STRING': 0x4,
 	'READ_INT'    : 0x5,
 	'READ_FLOAT'  : 0x6,
 	'EXIT'        : 0xa,
