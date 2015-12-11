@@ -16,7 +16,7 @@ echo ' / /  / // // ____/___/ /  / ___ / /___/ /___      /~____  =ø= /'
 echo '/_/  /_/___/_/    /____/  /_/  |_\____/_____/     (______)__m_m)'
 echo ''
 export PS1="\$([[ \$PWD == \"$ROOTDIR\"* ]] && \
-	echo \"[\$(git diff --quiet HEAD || echo '\033[31m')\$(git rev-parse --abbrev-ref HEAD)\033[0m] ace\${PWD#$ROOTDIR}: \" \
+	echo \"[\$(git diff --quiet HEAD && echo '\033[33;1m' || echo '\033[31;1m')\$(git rev-parse --abbrev-ref HEAD)\033[0m] ace\${PWD#$ROOTDIR}: \" \
 	|| echo \"$PS1_BAK\")"
 return 0
 }
