@@ -3,7 +3,7 @@
 [[ $_ != $0 ]] && {
 export PATH="$PATH:$PWD"
 export CFLAGS=""
-export ROOTDIR=$PWD
+export ROOTDIR="$PWD"
 export MEMORY_DEPTH=2048
 export MEMORY_WIDTH=128
 export ACE_UKERNEL=ukernel.s
@@ -15,9 +15,7 @@ echo '  / /|_/ // // /_/ /\__ \   / /| |/ /   / __/        ____/ o o \'
 echo ' / /  / // // ____/___/ /  / ___ / /___/ /___      /~____  =ø= /'
 echo '/_/  /_/___/_/    /____/  /_/  |_\____/_____/     (______)__m_m)'
 echo ''
-export PS1="\$([[ \$PWD == \"$ROOTDIR\"* ]] && \
-	echo \"[\$(git diff --quiet HEAD && echo '\033[33m' || echo '\033[31m')\$(git rev-parse --abbrev-ref HEAD)\033[0m] ace\${PWD#$ROOTDIR}: \" \
-	|| echo \"$PS1_BAK\")"
+export PS1="\$([[ \${PWD} == \"$ROOTDIR\"* ]] && echo \"[\$(git diff --quiet HEAD && echo '\033[33m' || echo '\033[31m')\$(git rev-parse --abbrev-ref HEAD)\033[0m] \033[32m\$(git config --global user.name)\033[0m@\033[34mace\033[0m\${PWD#$ROOTDIR}: \" || echo \"$PS1_BAK\")"
 return 0
 }
 
