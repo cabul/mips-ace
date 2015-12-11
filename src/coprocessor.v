@@ -55,13 +55,12 @@ always @(exception_bus) begin
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[66]}} & (`INT_OVF     << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[65]}} & (`INT_RI      << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[64]}} & (`INT_SYSCALL << `C0_SR_EC));
-    
 
     if (| exception_bus[66 -: 3]) begin
         co_regs[`C0_EPC] <= exception_bus[63:32];
         cop_reset <= 1;
 		pc_select <= 1;
-		cpu_mode <= 1; 
+		cpu_mode <= 1;
 		co_regs[`C0_SR] = co_regs[`C0_SR] | 1 << `C0_SR_EL;
 		co_regs[`C0_SR] = co_regs[`C0_SR] | 1 << `C0_SR_UM;
 		`INFO(("[Exception] %s",

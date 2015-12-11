@@ -39,8 +39,8 @@ __syscall_jumptable:        .word __pint_hex, __pint, __pfloat, __pdouble, __pst
 	bne $k0, $0, __exception_handler
 	
 __entry_point:
-	li $sp, 0x800                   # Set stack-pointer
-	mtc0 $0, $cause                 # Set machine to user-mode
+	li $sp, %STACK_INIT             # Set stack-pointer
+	mtc0 $0, $status                # Set machine to user-mode
 	jal __boot_logo
 	la $a0, __str_saulgoodman
 	jal __kernel_strprint
@@ -200,7 +200,8 @@ __ret_exception:
 __skip_v0:
 	lw $a0, 4($k0)
 	lw $ra, 8($k0)
-	mtc0 $0, $cause                 # Set machine to user-mode
+    mtc0 $0, $cause                 # Clear cause
+	mtc0 $0, $status                # Set machine to user-mode
 	eret                            # Return
 
 # Note that kernel functions do not save registers
