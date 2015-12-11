@@ -164,7 +164,7 @@ always @* begin
 		ex_mem_we    <= 1'b1;
 		mem_wb_reset <= 1'b0;
 		mem_wb_we    <= 1'b1;
-	end else if (ex_isjump) begin
+	end else if (ex_isjump | ex_exc_ret) begin
 		pc_reset     <= 1'b0;
 		pc_we        <= 1'b1;
 		if_id_reset  <= 1'b1;
@@ -230,7 +230,7 @@ assign if_pc_next = pc_out + 4;
 assign pc_interm = ex_isjump ? dst_jump : if_pc_next;
 assign pc_in = pc_take_branch ? mem_pc_branch : pc_interm;
 assign pc_kernel = select_kernel ? address_kernel : pc_in;
-assign pc_real = id_exc_ret ? epc : pc_kernel;
+assign pc_real = ex_exc_ret ? epc : pc_kernel;
 
 flipflop #(
 	.N(32),
