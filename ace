@@ -15,7 +15,7 @@ echo '  / /|_/ // // /_/ /\__ \   / /| |/ /   / __/        ____/ o o \'
 echo ' / /  / // // ____/___/ /  / ___ / /___/ /___      /~____  =ø= /'
 echo '/_/  /_/___/_/    /____/  /_/  |_\____/_____/     (______)__m_m)'
 echo ''
-export PS1="\`[[ \$PWD == \"$ROOTDIR\"* ]] && echo \"[\\\`git symbolic-ref --short HEAD\\\`] ACE\${PWD#$ROOTDIR}: \" || echo \"$PS1_BAK\"\`"
+export PS1="\`[[ \$PWD == \"$ROOTDIR\"* ]] && echo \"[\\\`git rev-parse --abbrev-ref HEAD\\\`] ACE\${PWD#$ROOTDIR}: \" || echo \"$PS1_BAK\"\`"
 return 0
 }
 
