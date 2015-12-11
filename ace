@@ -1,11 +1,5 @@
 #!/bin/bash
 
-NC='\033[0m'
-RED='\033[31m'
-GREEN='\033[32m'
-YELLOW='\033[33m'
-BLUE='\033[34m'
-
 [[ $_ != $0 ]] && {
 export PATH="$PATH:$PWD"
 export CFLAGS=""
@@ -24,6 +18,13 @@ echo ''
 export PS1="\`[[ \$PWD == \"$ROOTDIR\"* ]] && echo \"[\\\`git symbolic-ref --short HEAD\\\`] ACE\${PWD#$ROOTDIR}: \" || echo \"$PS1_BAK\"\`"
 return 0
 }
+
+NC='\033[0m'
+RED='\033[31m'
+GREEN='\033[32m'
+YELLOW='\033[33m'
+BLUE='\033[34m'
+
 
 [[ -z $ROOTDIR ]] || cd $ROOTDIR
 
