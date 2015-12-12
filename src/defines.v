@@ -86,7 +86,7 @@
 
 // SYS IO
 
-`define SYS_PRINT_CHAR  11 
+`define SYS_PRINT_CHAR  11
 `define SYS_PRINT_INT    1
 `define SYS_PRINT_FLOAT  2
 `define SYS_READ_CHAR   12
@@ -99,6 +99,10 @@
 `define IO_INT   8'hfd
 `define IO_FLOAT 8'hfc
 `define IO_HEX   8'hfb
+
+//Store buffer
+
+`define STBUFF_DEPTH 5
 
 // Debug macros
 `ifdef DEBUG
