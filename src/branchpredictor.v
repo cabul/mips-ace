@@ -68,8 +68,6 @@ always @(posedge clk) begin
 		for (i = 0; i < BPSIZE; i = i+1) begin
 			valid[i]       <= 0;
             taken_state[i] <= 2'b01;
-            branch_pc[i]   <= 32'd0;
-            pc[i]          <= 32'd0;
 		end
     end else begin
         feedback_index = feedback_current_pc >> 2;
