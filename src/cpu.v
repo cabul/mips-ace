@@ -22,6 +22,24 @@
 module cpu(
 	input wire clk,
 	input wire reset,
+`ifdef INSTRUMENT
+	// see: perf list
+	output integer perf_cycles,
+	output integer perf_instructions,
+	output integer perf_branches,
+	output integer perf_branch_misses,
+	output integer perf_dcache_loads,
+	output integer perf_dcache_load_misses,
+	output integer perf_dcache_stores,
+	output integer perf_dcache_store_misses,
+	output integer perf_icache_load_misses,
+	output integer perf_dTLB_loads,
+	output integer perf_dTLB_load_misses,
+	output integer perf_dTLB_stores,
+	output integer perf_dTLB_store_misses,
+	output integer perf_iTLB_loads,
+	output integer perf_iTLB_load_misses,
+`endif
 	// Memory ports
 	output wire mem_enable,
 	output wire mem_rw,
@@ -632,6 +650,40 @@ wire wb_exc_ov;
 wire wb_exc_ri;
 wire wb_exc_sys;
 wire wb_cowrite;
+
+always @(posedge clk) if (reset) begin
+	perf_cycles              <= 0;
+	perf_instructions        <= 0;
+	perf_branches            <= 0;
+	perf_branch_misses       <= 0;
+	perf_dcache_loads        <= 0;
+	perf_dcache_load_misses  <= 0;
+	perf_dcache_stores       <= 0;
+	perf_dcache_store_misses <= 0;
+	perf_icache_load_misses  <= 0;
+	perf_dTLB_loads          <= 0;
+	perf_dTLB_load_misses    <= 0;
+	perf_dTLB_stores         <= 0;
+	perf_dTLB_store_misses   <= 0;
+	perf_iTLB_loads          <= 0;
+	perf_iTLB_load_misses    <= 0;
+end else begin
+	perf_cycles              <= perf_cycles              + 1;
+	perf_instructions        <= perf_instructions        + 0;
+	perf_branches            <= perf_branches            + 0;
+	perf_branch_misses       <= perf_branch_misses       + 0;
+	perf_dcache_loads        <= perf_dcache_loads        + 0;
+	perf_dcache_load_misses  <= perf_dcache_load_misses  + 0;
+	perf_dcache_stores       <= perf_dcache_stores       + 0;
+	perf_dcache_store_misses <= perf_dcache_store_misses + 0;
+	perf_icache_load_misses  <= perf_icache_load_misses  + 0;
+	perf_dTLB_loads          <= perf_dTLB_loads          + 0;
+	perf_dTLB_load_misses    <= perf_dTLB_load_misses    + 0;
+	perf_dTLB_stores         <= perf_dTLB_stores         + 0;
+	perf_dTLB_store_misses   <= perf_dTLB_store_misses   + 0;
+	perf_iTLB_loads          <= perf_iTLB_loads          + 0;
+	perf_iTLB_load_misses    <= perf_iTLB_load_misses    + 0;
+end
 
 //
 //          /\_/\
