@@ -8,23 +8,22 @@
 module branchpredictor(
     input wire clk,
     input wire reset,
-    input wire [ADDR_SIZE-1:0] current_pc,
+    input wire [31:0] current_pc,
     // Feedback
     input wire feedback_enable,
     input wire feedback_branch_taken,
-    input wire [ADDR_SIZE-1:0] feedback_branch_addr,
-    input wire [ADDR_SIZE-1:0] feedback_current_pc,
+    input wire [31:0] feedback_branch_addr,
+    input wire [31:0] feedback_current_pc,
     // Output
-    output reg [ADDR_SIZE-1:0] branch_addr = 0,
+    output reg [31:0] branch_addr = 0,
     output reg branch_taken = 0,
     output reg opinion = 0
 );
 
 // Configuration
 
-parameter ADDR_SIZE = 32; // bits
-parameter SIZE = 4; // 2^SIZE
-localparam REAL_ADDR_SIZE = ADDR_SIZE - 2;
+parameter SIZE = $clog2(16);
+localparam REAL_ADDR_SIZE = 30;
 localparam BPSIZE = 2 ** SIZE;
 
 // BP memory
@@ -54,7 +53,7 @@ end
 // Output block (async)
 
 always @* begin
-`ifdef NO_BP
+`ifdef NO_BPRED
     opinion <= 0;
 `else
     index = current_pc >> 2;
