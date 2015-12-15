@@ -98,8 +98,7 @@ always @(posedge clk) begin
 					else lines[index][(addr[WB-1:2]+1)*32-1-:32] = data_in;
 					dirtybits[index] = 1'b1;
 					`INFO(("[%s] Write %x <= %x", ALIAS, addr[15:0], data_in))
-				end
-				`INFO(("[%s] Read %x => %x", ALIAS, addr[15:0], data_out))
+				end else `INFO(("[%s] Read %x => %x", ALIAS, addr[15:0], data_out))
 			end else if (~mem_read_req & ~mem_write_req) begin
 				`INFO(("[%s] Miss %x", ALIAS, addr[15:0]))
 				// Save line if necessary
