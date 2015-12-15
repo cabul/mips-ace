@@ -7,7 +7,6 @@ reg reset = 0;
 reg [3:0] addr = 0;
 reg master_enable = 0;
 reg read_write = 0;
-reg [3:0] byte_enable = 0;
 reg [31:0] data_in = 0;
 wire [31:0] data_out;
 wire ack;
@@ -21,7 +20,6 @@ memory_async #(
 	.addr({28'h0, addr}),
 	.master_enable(master_enable),
 	.read_write(read_write),
-	.byte_enable(byte_enable),
 	.data_in(data_in),
 	.data_out(data_out),
 	.ack(ack)
@@ -36,7 +34,6 @@ initial begin
 	`endif
 
 	reset = 1;
-	byte_enable = 4'b0001;
 	# 10 begin
 		reset = 0;
 		addr = 0;
@@ -46,13 +43,9 @@ initial begin
 end
 
 always @(posedge ack) begin
-	if (read_write)
-		$display("%4t # Read.%x  => %x", $time, addr, data_out);
 	master_enable = 0;
-	addr = addr + 1;
-	if (!read_write) begin
-		byte_enable = byte_enable << 1;
-		if (byte_enable == 4'b0000) byte_enable = 4'b0001;
+	addr = addr + 4;
+	if (~read_write) begin
 		data_in = {8{addr}};
 	end
 end
@@ -64,8 +57,6 @@ always @(negedge ack) begin
 			read_write = ~read_write;
 			done = 1;
 		end
-		if (!read_write)
-			$display("%4t # Write.%x <= %x [%b]", $time, addr, data_in, byte_enable);
 		master_enable = 1;
 	end
 end

@@ -257,7 +257,8 @@ memory_sync #(
 	.addr(pc_out),
 	.data_out(if_instr),
 	.master_enable(1'b1),
-	.read_write(1'b1)
+	.write_enable(1'b0),
+	.byte_enable(1'b0)
 );
 `else
 cache_direct #(
@@ -536,7 +537,6 @@ wire io_mem;
 assign io_mem = & mem_exout[31:26]; // IO when 0xFF....
 wire dc_enable = (mem_memwrite | mem_memread) & ~io_mem;
 wire [31:0] io_out;
-wire [31:0] mem_out_int;
 wire [31:0] mem_out;
 
 stdio stdio(
@@ -548,18 +548,6 @@ stdio stdio(
 	.enable((mem_memwrite | mem_memread) & io_mem),
 	.read_write(mem_memread)
 );
-
-wire [1:0] mem_offset = mem_exout[1:0];
-reg [3:0] mem_byte_enable_int;
-
-always @* case (mem_offset)
-	2'b00: mem_byte_enable_int <= 4'b0001;
-	2'b00: mem_byte_enable_int <= 4'b0001;
-	2'b00: mem_byte_enable_int <= 4'b0001;
-	2'b00: mem_byte_enable_int <= 4'b0001;
-endcase
-
-wire [3:0] mem_byte_enable = mem_memtype ? 4'b1111 : mem_byte_enable_int;
 
 `ifdef NO_CACHE
 assign dc_write_req = 1'b0;
@@ -573,11 +561,11 @@ memory_sync #(
 	.clk(~clk),
 	.reset(reset),
 	.addr(mem_exout),
-	.data_out(mem_out_int),
+	.data_out(mem_out),
 	.data_in(mem_data_rt),
 	.master_enable(dc_enable),
-	.read_write(mem_memread),
-	.byte_enable(mem_byte_enable)
+	.write_enable(mem_memwrite),
+	.byte_enable(~mem_memtype)
 );
 `else
 cache_direct #(
@@ -604,7 +592,6 @@ cache_direct #(
 );
 `endif
 
-assign mem_out = mem_memtype ? mem_out_int : {24'h000000, mem_out_int[(mem_exout[1:0]+1)*8-1-:8]};
 assign mem_memout = io_mem ? io_out : mem_out;
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 

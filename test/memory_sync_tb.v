@@ -7,10 +7,10 @@ module memory_sync_tb;
 reg clk = 0;
 reg reset = 0;
 reg [31:0] addr;
-reg read_write;
-reg [3:0] byte_enable;
 wire [31:0] data_out;
 reg [31:0] data_in;
+reg write_enable = 0;
+reg byte_enable = 0;
 
 always #5 clk = !clk;
 
@@ -18,17 +18,18 @@ memory_sync #(
 	.DATA("test/memory.raw"),
 	.WIDTH(32), .DEPTH(4)
 ) mem(
-	.clk(clk),
+	.clk(~clk),
 	.reset(reset),
 	.addr(addr),
 	.data_in(data_in),
 	.data_out(data_out),
 	.byte_enable(byte_enable),
 	.master_enable(1),
-	.read_write(read_write)
+	.write_enable(write_enable)
 );
 
-reg done = 0;
+integer iter = 0;
+integer step = 4;
 
 initial begin
 	`ifdef TRACEFILE
@@ -38,29 +39,54 @@ initial begin
 
 	reset = 1;
 	addr = 0;
-	byte_enable = 4'b0000;
-	read_write = 1;
+	byte_enable = 0;
+	write_enable = 0;
 	data_in = 0;
 
-	# 10 reset = 0;
+	# 6 reset = 0;
+
+	$display("Test: lw");
 end
 
 always @(posedge clk) begin
 	if (!reset) begin
-		if (read_write)
-			$display("%4t # Read.%x  => %x", $time, addr, data_out);
-		else
-			$display("%4t # Write.%x <= %x [%b]", $time, addr, data_in, byte_enable);
-		addr = addr + 1;
+		addr = addr + step;
 		if (addr == 16) begin
-			if (read_write && done) $finish;
-			read_write = ~read_write;
-			done = 1;
+			case (iter)
+				0: begin
+					$display("Test: lb");
+					byte_enable <= 1;
+					write_enable <= 0;
+					step <= 1;
+				end
+				1: begin
+					$display("Test: sw");
+					byte_enable <= 0;
+					write_enable <= 1;
+					step <= 4;
+				end
+				2: begin // cont.
+					byte_enable <= 0;
+					write_enable <= 0;
+					step <= 4;
+				end
+				3: begin
+					$display("Test: sb");
+					byte_enable <= 1;
+					write_enable <= 1;
+					step <= 1;
+				end 
+				4: begin // cont.
+					byte_enable <= 0;
+					write_enable <= 0;
+					step <= 4;
+				end
+				default: $finish;
+			endcase
+			iter = iter + 1;
 			addr = 0;
 		end
-		if (!read_write) begin
-			byte_enable = byte_enable << 1;
-			if (byte_enable == 4'b0000) byte_enable = 4'b0001;
+		if (write_enable) begin
 			data_in = {8{addr[3:0]}};
 		end
 	end
