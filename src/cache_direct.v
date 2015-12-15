@@ -12,9 +12,9 @@ module cache_direct (
 	input wire clk,
 	input wire reset,
 	input wire [31:0] addr,
-	input wire read_write,
 	input wire master_enable,
 	input wire byte_enable,
+	input wire write_enable,
 	input wire [31:0] data_in,
 	output reg [31:0] data_out = 0,
 	output reg hit = 0,
@@ -31,8 +31,8 @@ module cache_direct (
 
 parameter WIDTH = `MEMORY_WIDTH; // Bits in cache line
 parameter DEPTH = 4; // Number of cache lines
-localparam WB = $clog2(WIDTH) - 3; // Width bits
-localparam DB = $clog2(DEPTH); // Depth bits
+localparam WB   = $clog2(WIDTH) - 3; // Width bits
+localparam DB   = $clog2(DEPTH); // Depth bits
 
 parameter ALIAS = "Cache";
 
@@ -50,8 +50,10 @@ reg [31-WB-DB:0] tags [0:DEPTH-1];
 reg [WIDTH-1:0]  lines [0:DEPTH-1];
 
 wire [WIDTH-1:0] line_out = lines[index];
-wire [31:0]      word_out = (WIDTH == 32) ? line_out : line_out[addr[WB-1:2]<<5-1-:32];
-wire [7:0]       byte_out = line_out[offset<<3-1-:8];
+wire [31:0]      word_out = (WIDTH == 32) ?
+	line_out :
+	line_out[(addr[WB-1:2]+1)*32-1-:32];
+wire [7:0]       byte_out = line_out[(offset+1)*8-1-:8];
 
 // Async hit signal, internal
 wire hit_int = tags[index] == tag && validbits[index];
@@ -69,18 +71,19 @@ always @(mem_write_req, mem_write_ack, mem_read_req, mem_read_ack) begin
 	end
 end
 
-always @* if (master_enable & read_write & hit_int) begin
+always @* if (master_enable & hit & ~reset) begin
 	if (byte_enable) data_out = {24'h000000, byte_out};
 	else data_out <= word_out;
-	`INFO(("[%s] Read %x => %x", ALIAS, addr[15:0], data_out))
-end
+end else data_out <= 32'h00000000;
+
+always @* if (~master_enable | reset)
+	hit <= 1'b0;
+else hit <= hit_int;
 
 always @(posedge clk) begin
 	if (reset) begin
 		validbits <= {DEPTH{1'b0}};
 		dirtybits <= {DEPTH{1'b0}};
-		data_out  <= 0;
-		hit       <= 0;
 		mem_write_req  <= 0;
 		mem_write_addr <= 0;
 		mem_write_data <= 0;
@@ -88,23 +91,16 @@ always @(posedge clk) begin
 		mem_read_addr  <= 0;
 	end else begin
 		if (master_enable) begin
-			hit <= hit_int;
-			if (~read_write & hit_int) begin
-				// Store Byte
-				if (byte_enable) begin
-					lines[index][offset] <= data_in[7:0];
-					data_out <= {24'h000000, data_in[7:0]};
+			if (hit_int) begin
+				if (write_enable) begin
+					if (byte_enable) lines[index][(offset+1)*8-1-:8] = data_in[7:0];
+					else if (WIDTH == 32) lines[index] = data_in;
+					else lines[index][(addr[WB-1:2]+1)*32-1-:32] = data_in;
+					dirtybits[index] = 1'b1;
+					`INFO(("[%s] Write %x <= %x", ALIAS, addr[15:0], data_in))
 				end
-				// Store Word
-				else begin if (WIDTH == 32) lines[index] <= data_in;
-					else lines[index][addr[WB-1:2]<<5-1-:32] <= data_in;
-					data_out <= data_in;
-				end
-				dirtybits[index] = 1'b1;
-				`INFO(("[%s] Write %x <= %x", ALIAS, addr[15:0], data_out))
-			end
-			// Wait for memory
-			if (~hit_int & ~mem_read_req & ~mem_write_req) begin
+				`INFO(("[%s] Read %x => %x", ALIAS, addr[15:0], data_out))
+			end else if (~mem_read_req & ~mem_write_req) begin
 				`INFO(("[%s] Miss %x", ALIAS, addr[15:0]))
 				// Save line if necessary
 				if (validbits[index] & dirtybits[index]) begin
@@ -115,10 +111,11 @@ always @(posedge clk) begin
 				end
 				validbits[index] = 1'b0;
 				// Memory request
-				mem_read_addr = addr;
+				mem_read_addr = {tag, index, {WB{1'b0}}};
 				mem_read_req = 1'b1;
 			end
-		end hit <= 1'b0;
+			// Wait for memory
+		end
 	end
 end
 

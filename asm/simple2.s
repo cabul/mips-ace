@@ -6,9 +6,9 @@ main:
 loop:
 	lb $t0, 0($s0)
 	sb $t0, 0($s1)
-	lb $t0, 0($s1)
-	sw $t0, %IO_CHAR($0)
-	beq $t0, $zero, exit
+	lb $t1, 0($s1)
+	sw $t1, %IO_CHAR($0)
+	beq $t1, $zero, exit
 	addi $s0, $s0, 1
 	addi $s1, $s1, 1
 	j loop

@@ -252,7 +252,7 @@ assign ic_hit = 1'b1;
 memory_sync #(
 	.ALIAS("I-Memory")
 ) imem (
-	.clk(~clk),
+	.clk(clk),
 	.reset(reset),
 	.addr(pc_out),
 	.data_out(if_instr),
@@ -264,12 +264,14 @@ memory_sync #(
 cache_direct #(
 	.ALIAS("I-Cache")
 ) icache (
-	.clk(~clk),
+	.clk(clk),
 	.reset(reset),
 	.addr(pc_out),
 	.data_out(if_instr),
+	.data_in(0),
 	.master_enable(1'b1),
-	.read_write(1'b1),
+	.write_enable(1'b0),
+	.byte_enable(1'b0),
 	.hit(ic_hit),
 	// Memory ports
 	.mem_read_req(ic_read_req),
@@ -558,7 +560,7 @@ assign dc_hit = 1'b1;
 memory_sync #(
 	.ALIAS("D-Memory")
 ) dmem (
-	.clk(~clk),
+	.clk(clk),
 	.reset(reset),
 	.addr(mem_exout),
 	.data_out(mem_out),
@@ -571,14 +573,14 @@ memory_sync #(
 cache_direct #(
 	.ALIAS("D-Cache")
 ) dcache (
-	.clk(~clk),
+	.clk(clk),
 	.reset(reset),
 	.addr(mem_exout),
-	.data_out(mem_out_int),
+	.data_out(mem_out),
 	.data_in(mem_data_rt),
 	.master_enable(dc_enable),
-	.read_write(mem_memread),
-	.byte_enable(mem_byte_enable),
+	.write_enable(mem_memwrite),
+	.byte_enable(~mem_memtype),
 	.hit(dc_hit),
 	// Memory ports
 	.mem_write_req(dc_write_req),
