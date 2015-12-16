@@ -706,12 +706,12 @@ end else begin
 	perf_instructions        <= perf_instructions        + wb_isvalid;
 	// Experimental
 	perf_branches            <= perf_branches            + mem_isbranch | ex_isjump | ex_exc_ret;
-	perf_branch_misses       <= perf_branch_misses       + pc_take_branch | ex_isjump | ex_exc_ret; // Each time we actually jump, we miss
-	perf_dcache_loads        <= perf_dcache_loads        + dc_enable ;//| mem_memread;
-	perf_dcache_load_misses  <= perf_dcache_load_misses  + dc_stall  ;//| mem_memread;
-	perf_dcache_stores       <= perf_dcache_stores       + dc_enable ;//| mem_memwrite;
-	perf_dcache_store_misses <= perf_dcache_store_misses + dc_stall  ;//| mem_memwrite;
-	perf_icache_load_misses  <= perf_icache_load_misses  + ic_stall;
+	perf_branch_misses       <= perf_branch_misses       + pc_take_branch | ex_isjump | ex_exc_ret; // <- Branch Predictor
+	perf_dcache_loads        <= perf_dcache_loads        + 0;
+	perf_dcache_load_misses  <= perf_dcache_load_misses  + 0;
+	perf_dcache_stores       <= perf_dcache_stores       + 0;
+	perf_dcache_store_misses <= perf_dcache_store_misses + 0;
+	perf_icache_load_misses  <= perf_icache_load_misses  + 0;
 	perf_dTLB_loads          <= perf_dTLB_loads          + 0;
 	perf_dTLB_load_misses    <= perf_dTLB_load_misses    + 0;
 	perf_dTLB_stores         <= perf_dTLB_stores         + 0;
