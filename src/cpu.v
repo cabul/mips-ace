@@ -16,6 +16,7 @@
 `include "alucontrol.v"
 `include "stdio.v"
 `include "coprocessor.v"
+`include "pc.v"
 
 // Central Processing Unit
 module cpu(
@@ -227,20 +228,25 @@ wire [31:0] pc_kernel;
 
 assign if_pc_next = pc_out + 4;
 
-assign pc_interm = ex_isjump ? dst_jump : if_pc_next;
-assign pc_in = pc_take_branch ? mem_pc_branch : pc_interm;
-assign pc_kernel = select_kernel ? address_kernel : pc_in;
-assign pc_real = ex_exc_ret ? epc : pc_kernel;
-
-flipflop #(
-	.N(32),
-	.INIT(32'h0)
-) pc (
-	.clk(clk),
-	.reset(pc_reset),
-	.we(pc_we),
-	.in(pc_real),
-	.out(pc_out)
+pc pc(
+    .clk(clk),
+    .reset(pc_reset),
+    .we(pc_we),
+    .is_jump(ex_isjump),
+    .is_branch(pc_take_branch),
+    .is_kernel(select_kernel),
+    .is_eret(ex_exc_ret),
+    .is_bpredictor(0),
+    .is_misspred(0),
+    .dst_nextpc(if_pc_next),
+    .dst_jump(dst_jump),
+    .dst_branch(mem_pc_branch),
+    .dst_kernel(address_kernel),
+    .dst_eret(epc),
+    .dst_prediction(32'd0),
+    .dst_misspred(32'd0),
+    .initial_pc(32'd0),
+    .pc_out(pc_out)
 );
 
 `ifdef NO_CACHE
