@@ -58,21 +58,21 @@ integer perf_iTLB_load_misses    = 0;
 
 always @(posedge io_exit) begin
 `ifdef INSTRUMENT
-	$display("[Perf] cycles:              %d", perf_cycles);
-	$display("[Perf] instructions:        %d", perf_instructions);
-	$display("[Perf] branches:            %d", perf_branches);
-	$display("[Perf] branch_misses:       %d", perf_branch_misses);
-	$display("[Perf] dcache_loads:        %d", perf_dcache_loads);
-	$display("[Perf] dcache_load_misses:  %d", perf_dcache_load_misses);
-	$display("[Perf] dcache_stores:       %d", perf_dcache_stores);
-	$display("[Perf] dcache_store_misses: %d", perf_dcache_store_misses);
-	$display("[Perf] icache_load_misses:  %d", perf_icache_load_misses);
-	$display("[Perf] dTLB_loads:          %d", perf_dTLB_loads);
-	$display("[Perf] dTLB_load_misses:    %d", perf_dTLB_load_misses);
-	$display("[Perf] dTLB_stores:         %d", perf_dTLB_stores);
-	$display("[Perf] dTLB_store_misses:   %d", perf_dTLB_store_misses);
-	$display("[Perf] iTLB_loads:          %d", perf_iTLB_loads);
-	$display("[Perf] iTLB_load_misses:    %d", perf_iTLB_load_misses);
+	$display("[perf] cycles:              %d", perf_cycles);
+	$display("[perf] instructions:        %d", perf_instructions);
+	$display("[perf] branches:            %d", perf_branches);
+	$display("[perf] branch_misses:       %d", perf_branch_misses);
+	$display("[perf] dcache_loads:        %d", perf_dcache_loads);
+	$display("[perf] dcache_load_misses:  %d", perf_dcache_load_misses);
+	$display("[perf] dcache_stores:       %d", perf_dcache_stores);
+	$display("[perf] dcache_store_misses: %d", perf_dcache_store_misses);
+	$display("[perf] icache_load_misses:  %d", perf_icache_load_misses);
+	$display("[perf] dTLB_loads:          %d", perf_dTLB_loads);
+	$display("[perf] dTLB_load_misses:    %d", perf_dTLB_load_misses);
+	$display("[perf] dTLB_stores:         %d", perf_dTLB_stores);
+	$display("[perf] dTLB_store_misses:   %d", perf_dTLB_store_misses);
+	$display("[perf] iTLB_loads:          %d", perf_iTLB_loads);
+	$display("[perf] iTLB_load_misses:    %d", perf_iTLB_load_misses);
 `endif
 	$finish;
 end
@@ -702,16 +702,16 @@ always @(posedge clk) if (reset) begin
 	perf_iTLB_loads          <= 0;
 	perf_iTLB_load_misses    <= 0;
 end else begin
+	`INFO(("dc stall %b", dc_stall))
 	perf_cycles              <= perf_cycles              + 1;
 	perf_instructions        <= perf_instructions        + wb_isvalid;
-	// Experimental
-	perf_branches            <= perf_branches            + mem_isbranch | ex_isjump | ex_exc_ret;
-	perf_branch_misses       <= perf_branch_misses       + pc_take_branch | ex_isjump | ex_exc_ret; // <- Branch Predictor
-	perf_dcache_loads        <= perf_dcache_loads        + mem_memread;
-	perf_dcache_load_misses  <= perf_dcache_load_misses  + 0;
-	perf_dcache_stores       <= perf_dcache_stores       + mem_memwrite;
-	perf_dcache_store_misses <= perf_dcache_store_misses + 0;
-	perf_icache_load_misses  <= perf_icache_load_misses  + 0;
+	perf_branches            <= perf_branches            + (mem_isbranch   | ex_isjump | ex_exc_ret);
+	perf_branch_misses       <= perf_branch_misses       + (pc_take_branch | ex_isjump | ex_exc_ret); // <- Branch Predictor
+	perf_dcache_loads        <= perf_dcache_loads        + (mem_memread  & dc_enable);
+	perf_dcache_load_misses  <= perf_dcache_load_misses  + (mem_memread  & dc_stall);
+	perf_dcache_stores       <= perf_dcache_stores       + (mem_memwrite & dc_enable);
+	perf_dcache_store_misses <= perf_dcache_store_misses + (mem_memwrite & dc_hit);
+	perf_icache_load_misses  <= perf_icache_load_misses  + ic_stall;
 	perf_dTLB_loads          <= perf_dTLB_loads          + 0;
 	perf_dTLB_load_misses    <= perf_dTLB_load_misses    + 0;
 	perf_dTLB_stores         <= perf_dTLB_stores         + 0;
