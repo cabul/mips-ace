@@ -34,11 +34,11 @@ always @(posedge master_enable) if (!reset) # LATENCY if (!reset) begin
 	if (addr >= SIZE) `WARN(("[Memory] Out of bounds"))
 	if (read_write) begin
 		data_out = mem[index];
-		`INFO(("[Memory] Read %x => %x", addr[15:0], data_out))
+		`INFO(("[memory] Read %x => %x", addr[15:0], data_out))
 	end else begin
 		mem[index] = data_in;
 		data_out = mem[index];
-		`INFO(("[Memory] Write %x <= %x", addr[15:0], data_out))
+		`INFO(("[memory] Write %x <= %x", addr[15:0], data_out))
 	end
 	ack = 1;
 end

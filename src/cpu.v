@@ -301,7 +301,7 @@ assign ic_read_req = 1'b0;
 assign ic_hit = 1'b1;
 
 memory_sync #(
-	.ALIAS("I-Memory")
+	.ALIAS("imem")
 ) imem (
 	.clk(clk),
 	.reset(reset),
@@ -313,7 +313,7 @@ memory_sync #(
 );
 `else
 cache_direct #(
-	.ALIAS("I-Cache")
+	.ALIAS("icache")
 ) icache (
 	.clk(clk),
 	.reset(reset),
@@ -615,7 +615,7 @@ assign dc_read_req = 1'b0;
 assign dc_hit = 1'b1;
 
 memory_sync #(
-	.ALIAS("D-Memory")
+	.ALIAS("dmem")
 ) dmem (
 	.clk(clk),
 	.reset(reset),
@@ -628,7 +628,7 @@ memory_sync #(
 );
 `else
 cache_direct #(
-	.ALIAS("D-Cache")
+	.ALIAS("dcache")
 ) dcache (
 	.clk(clk),
 	.reset(reset),
@@ -702,7 +702,6 @@ always @(posedge clk) if (reset) begin
 	perf_iTLB_loads          <= 0;
 	perf_iTLB_load_misses    <= 0;
 end else begin
-	`INFO(("dc stall %b", dc_stall))
 	perf_cycles              <= perf_cycles              + 1;
 	perf_instructions        <= perf_instructions        + wb_isvalid;
 	perf_branches            <= perf_branches            + (mem_isbranch   | ex_isjump | ex_exc_ret);

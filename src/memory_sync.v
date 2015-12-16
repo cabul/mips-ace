@@ -21,7 +21,7 @@ parameter DEPTH = `MEMORY_DEPTH;
 localparam WB = $clog2(WIDTH) - 3; // Address in bytes
 localparam DB = $clog2(DEPTH);
 
-parameter ALIAS = "Memory";
+parameter ALIAS = "memory";
 
 parameter DATA = `MEMORY_DATA;
 

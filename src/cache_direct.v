@@ -34,7 +34,7 @@ parameter DEPTH = 4; // Number of cache lines
 localparam WB   = $clog2(WIDTH) - 3; // Width bits
 localparam DB   = $clog2(DEPTH); // Depth bits
 
-parameter ALIAS = "Cache";
+parameter ALIAS = "cache";
 
 // address = tag | index | offset
 wire [WB-1:0]     offset = addr[WB-1:0];
