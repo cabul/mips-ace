@@ -13,24 +13,20 @@ module pc(
     input wire is_eret,
     input wire is_bpredictor,
     input wire is_misspred,
-    input wire [WIDTH-1:0] dst_nextpc,
-    input wire [WIDTH-1:0] dst_jump,
-    input wire [WIDTH-1:0] dst_branch,
-    input wire [WIDTH-1:0] dst_kernel,
-    input wire [WIDTH-1:0] dst_eret,
-    input wire [WIDTH-1:0] dst_prediction,
-    input wire [WIDTH-1:0] dst_misspred,
-    input wire [WIDTH-1:0] initial_pc,
-    output reg [WIDTH-1:0] pc_out
+    input wire [31:0] dst_nextpc,
+    input wire [31:0] dst_jump,
+    input wire [31:0] dst_branch,
+    input wire [31:0] dst_kernel,
+    input wire [31:0] dst_eret,
+    input wire [31:0] dst_prediction,
+    input wire [31:0] dst_misspred,
+    input wire [31:0] initial_pc,
+    output reg [31:0] pc_out
 );
-
-// Configuration
-
-parameter WIDTH = 32;
 
 // Internal memory
 
-wire [WIDTH-1:0] pc_computed;
+wire [31:0] pc_computed;
 
 // Multiplexer chain
 
