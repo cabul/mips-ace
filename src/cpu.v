@@ -32,6 +32,51 @@ module cpu(
 );
 
 parameter WIDTH = `MEMORY_WIDTH;
+//
+////////////////////////
+//                    //
+//  Instrumentation   //
+//                    //
+////////////////////////
+//
+// see: perf list
+integer perf_cycles              = 0;
+integer perf_instructions        = 0;
+integer perf_branches            = 0;
+integer perf_branch_misses       = 0;
+integer perf_dcache_loads        = 0;
+integer perf_dcache_load_misses  = 0;
+integer perf_dcache_stores       = 0;
+integer perf_dcache_store_misses = 0;
+integer perf_icache_load_misses  = 0;
+integer perf_dTLB_loads          = 0;
+integer perf_dTLB_load_misses    = 0;
+integer perf_dTLB_stores         = 0;
+integer perf_dTLB_store_misses   = 0;
+integer perf_iTLB_loads          = 0;
+integer perf_iTLB_load_misses    = 0;
+
+always @(posedge io_exit) begin
+`ifdef INSTRUMENT
+	$display("[Perf] cycles:              %d", perf_cycles);
+	$display("[Perf] instructions:        %d", perf_instructions);
+	$display("[Perf] branches:            %d", perf_branches);
+	$display("[Perf] branch_misses:       %d", perf_branch_misses);
+	$display("[Perf] dcache_loads:        %d", perf_dcache_loads);
+	$display("[Perf] dcache_load_misses:  %d", perf_dcache_load_misses);
+	$display("[Perf] dcache_stores:       %d", perf_dcache_stores);
+	$display("[Perf] dcache_store_misses: %d", perf_dcache_store_misses);
+	$display("[Perf] icache_load_misses:  %d", perf_icache_load_misses);
+	$display("[Perf] dTLB_loads:          %d", perf_dTLB_loads);
+	$display("[Perf] dTLB_load_misses:    %d", perf_dTLB_load_misses);
+	$display("[Perf] dTLB_stores:         %d", perf_dTLB_stores);
+	$display("[Perf] dTLB_store_misses:   %d", perf_dTLB_store_misses);
+	$display("[Perf] iTLB_loads:          %d", perf_iTLB_loads);
+	$display("[Perf] iTLB_load_misses:    %d", perf_iTLB_load_misses);
+`endif
+	$finish;
+end
+
 
 ////////////////////////
 //                    //
@@ -287,12 +332,13 @@ cache_direct #(
 );
 `endif
 
-flipflop #(.N(64)) if_id (
+// Insert 1'b1 as valid here, this will flow through the pipeline
+flipflop #(.N(65)) if_id (
 	.clk(clk),
 	.reset(if_id_reset | reset),
 	.we(if_id_we),
-	.in({if_pc_next, if_instr}),
-	.out({id_pc_next, id_instr})
+	.in({if_pc_next, if_instr, 1'b1}),
+	.out({id_pc_next, id_instr, id_isvalid})
 );
 
 ////////////////////////
@@ -320,6 +366,7 @@ wire id_exc_ri;
 wire id_exc_sys;
 wire id_cowrite;
 wire id_c0dst;
+wire id_isvalid;
 wire [31:0] id_imm;
 wire [31:0] id_data_rs;
 wire [31:0] id_data_rt;
@@ -402,7 +449,7 @@ multiplexer #(.X(4)) data_rt_mux (
 	.data_out(id_data_rt)
 );
 
-flipflop #(.N(263)) id_ex (  
+flipflop #(.N(264)) id_ex (  
 	.clk(clk),
 	.reset(id_ex_reset | reset),
 	.we(id_ex_we),
@@ -410,12 +457,12 @@ flipflop #(.N(263)) id_ex (
 			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst, 
 			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26], 
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
-			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst}),
+			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst, id_isvalid}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_memtype, ex_isbranch,
 			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst, 
 			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode, 
 			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr,
-			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_c0, ex_c0dst})
+			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_c0, ex_c0dst, ex_isvalid})
 );
 
 ////////////////////////
@@ -444,6 +491,7 @@ wire ex_exc_sys;
 wire ex_cowrite;
 wire ex_c0dst;
 wire ex_exc_ret;
+wire ex_isvalid;
 wire [31:0] dst_jump;
 wire [31:0] ex_pc_next;
 wire [31:0] ex_data_rs;
@@ -498,17 +546,17 @@ assign ex_exout = ex_islink ? ex_pc_next : alures;
 assign dst_reg = ex_regdst ? dst_rd : dst_rt;
 assign ex_wreg = ex_islink ? 5'd31 : dst_reg;
 
-flipflop #(.N(176)) ex_mem (
+flipflop #(.N(177)) ex_mem (
 	.clk(clk),
 	.reset(ex_mem_reset | reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_memtype,
 			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt, 
-			ex_wreg, ex_instr, ex_pc_next,
+			ex_wreg, ex_instr, ex_pc_next, ex_isvalid,
 			ex_exc_ov, ex_exc_ri, ex_exc_sys, ex_cowrite}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_memtype,
 			mem_isbranch, mem_pc_branch, mem_aluz, mem_exout, mem_data_rt, 
-			mem_wreg, mem_instr, mem_pc_next,
+			mem_wreg, mem_instr, mem_pc_next, mem_isvalid,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite})
 );
 
@@ -531,6 +579,7 @@ wire mem_exc_ov;
 wire mem_exc_ri;
 wire mem_exc_sys;
 wire mem_cowrite;
+wire mem_isvalid;
 wire [31:0] mem_pc_next;
 wire [31:0] mem_exout;
 wire [31:0] mem_data_rt;
@@ -546,6 +595,7 @@ assign io_mem = & mem_exout[31:26]; // IO when 0xFF....
 wire dc_enable = (mem_memwrite | mem_memread) & ~io_mem;
 wire [31:0] io_out;
 wire [31:0] mem_out;
+wire io_exit;
 
 stdio stdio(
 	.clk(~clk),
@@ -554,7 +604,8 @@ stdio stdio(
 	.data_out(io_out),
 	.data_in(mem_data_rt),
 	.enable((mem_memwrite | mem_memread) & io_mem),
-	.read_write(mem_memread)
+	.read_write(mem_memread),
+	.exit(io_exit)
 );
 
 `ifdef NO_CACHE
@@ -603,16 +654,16 @@ cache_direct #(
 assign mem_memout = io_mem ? io_out : mem_out;
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
-flipflop #(.N(138)) mem_wb (
+flipflop #(.N(139)) mem_wb (
 	.clk(clk),
 	.reset(mem_wb_reset | reset),
 	.we(mem_wb_we),
 	.in({mem_regwrite, mem_wdata, mem_wreg, mem_instr,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite, 
-			mem_pc_next, mem_exout}),
+			mem_pc_next, mem_exout, mem_isvalid}),
 	.out({wb_regwrite, wb_wdata, wb_wreg, wb_instr, 
 			wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_cowrite, 
-			wb_pc_next, wb_exc_address})
+			wb_pc_next, wb_exc_address, wb_isvalid})
 );
 
 
@@ -632,6 +683,42 @@ wire wb_exc_ov;
 wire wb_exc_ri;
 wire wb_exc_sys;
 wire wb_cowrite;
+wire wb_isvalid;
+
+always @(posedge clk) if (reset) begin
+	perf_cycles              <= 0;
+	perf_instructions        <= 0;
+	perf_branches            <= 0;
+	perf_branch_misses       <= 0;
+	perf_dcache_loads        <= 0;
+	perf_dcache_load_misses  <= 0;
+	perf_dcache_stores       <= 0;
+	perf_dcache_store_misses <= 0;
+	perf_icache_load_misses  <= 0;
+	perf_dTLB_loads          <= 0;
+	perf_dTLB_load_misses    <= 0;
+	perf_dTLB_stores         <= 0;
+	perf_dTLB_store_misses   <= 0;
+	perf_iTLB_loads          <= 0;
+	perf_iTLB_load_misses    <= 0;
+end else begin
+	perf_cycles              <= perf_cycles              + 1;
+	perf_instructions        <= perf_instructions        + wb_isvalid;
+	// Experimental
+	perf_branches            <= perf_branches            + mem_isbranch | ex_isjump | ex_exc_ret;
+	perf_branch_misses       <= perf_branch_misses       + pc_take_branch | ex_isjump | ex_exc_ret; // <- Branch Predictor
+	perf_dcache_loads        <= perf_dcache_loads        + 0;
+	perf_dcache_load_misses  <= perf_dcache_load_misses  + 0;
+	perf_dcache_stores       <= perf_dcache_stores       + 0;
+	perf_dcache_store_misses <= perf_dcache_store_misses + 0;
+	perf_icache_load_misses  <= perf_icache_load_misses  + 0;
+	perf_dTLB_loads          <= perf_dTLB_loads          + 0;
+	perf_dTLB_load_misses    <= perf_dTLB_load_misses    + 0;
+	perf_dTLB_stores         <= perf_dTLB_stores         + 0;
+	perf_dTLB_store_misses   <= perf_dTLB_store_misses   + 0;
+	perf_iTLB_loads          <= perf_iTLB_loads          + 0;
+	perf_iTLB_load_misses    <= perf_iTLB_load_misses    + 0;
+end
 
 //
 //          /\_/\
