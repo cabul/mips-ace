@@ -32,13 +32,13 @@ module cpu(
 );
 
 parameter WIDTH = `MEMORY_WIDTH;
-//
+
 ////////////////////////
 //                    //
 //  Instrumentation   //
 //                    //
 ////////////////////////
-//
+
 // see: perf list
 integer perf_cycles              = 0;
 integer perf_instructions        = 0;
@@ -354,7 +354,7 @@ wire id_regdst;
 wire id_memtoreg;
 wire id_memread;
 wire id_memwrite;
-wire id_memtype;
+wire id_membyte;
 wire id_isbranch;
 wire id_isjump;
 wire id_islink;
@@ -397,7 +397,7 @@ control control (
 	.memwrite(id_memwrite),
 	.alu_s(id_alu_s),
 	.alu_t(id_alu_t),
-	.memtype(id_memtype),
+	.membyte(id_membyte),
 	.regwrite(id_regwrite),
 	.isjump(id_isjump),
 	.jumpdst(id_jumpdst),
@@ -453,12 +453,12 @@ flipflop #(.N(264)) id_ex (
 	.clk(clk),
 	.reset(id_ex_reset | reset),
 	.we(id_ex_we),
-	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_memtype, id_isbranch,
+	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_membyte, id_isbranch,
 			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst, 
 			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26], 
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
 			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst, id_isvalid}),
-	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_memtype, ex_isbranch,
+	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte, ex_isbranch,
 			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst, 
 			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode, 
 			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr,
@@ -476,7 +476,7 @@ wire ex_regwrite;
 wire ex_memtoreg;
 wire ex_memread;
 wire ex_memwrite;
-wire ex_memtype;
+wire ex_membyte;
 wire ex_isbranch;
 wire ex_regdst;
 wire ex_aluop;
@@ -550,11 +550,11 @@ flipflop #(.N(177)) ex_mem (
 	.clk(clk),
 	.reset(ex_mem_reset | reset),
 	.we(ex_mem_we),
-	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_memtype,
+	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte,
 			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt, 
 			ex_wreg, ex_instr, ex_pc_next, ex_isvalid,
 			ex_exc_ov, ex_exc_ri, ex_exc_sys, ex_cowrite}),
-	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_memtype,
+	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_membyte,
 			mem_isbranch, mem_pc_branch, mem_aluz, mem_exout, mem_data_rt, 
 			mem_wreg, mem_instr, mem_pc_next, mem_isvalid,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite})
@@ -572,7 +572,7 @@ wire mem_regwrite;
 wire mem_memtoreg;
 wire mem_memread;
 wire mem_memwrite;
-wire mem_memtype;
+wire mem_membyte;
 wire mem_isbranch;
 wire mem_aluz;
 wire mem_exc_ov;
@@ -624,7 +624,7 @@ memory_sync #(
 	.data_in(mem_data_rt),
 	.master_enable(dc_enable),
 	.write_enable(mem_memwrite),
-	.byte_enable(~mem_memtype)
+	.byte_enable(mem_membyte)
 );
 `else
 cache_direct #(
@@ -637,7 +637,7 @@ cache_direct #(
 	.data_in(mem_data_rt),
 	.master_enable(dc_enable),
 	.write_enable(mem_memwrite),
-	.byte_enable(~mem_memtype),
+	.byte_enable(mem_membyte),
 	.hit(dc_hit),
 	// Memory ports
 	.mem_write_req(dc_write_req),
@@ -707,9 +707,9 @@ end else begin
 	// Experimental
 	perf_branches            <= perf_branches            + mem_isbranch | ex_isjump | ex_exc_ret;
 	perf_branch_misses       <= perf_branch_misses       + pc_take_branch | ex_isjump | ex_exc_ret; // <- Branch Predictor
-	perf_dcache_loads        <= perf_dcache_loads        + 0;
+	perf_dcache_loads        <= perf_dcache_loads        + mem_memread;
 	perf_dcache_load_misses  <= perf_dcache_load_misses  + 0;
-	perf_dcache_stores       <= perf_dcache_stores       + 0;
+	perf_dcache_stores       <= perf_dcache_stores       + mem_memwrite;
 	perf_dcache_store_misses <= perf_dcache_store_misses + 0;
 	perf_icache_load_misses  <= perf_icache_load_misses  + 0;
 	perf_dTLB_loads          <= perf_dTLB_loads          + 0;
