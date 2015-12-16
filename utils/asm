@@ -35,7 +35,7 @@ token_def = [
 patterns = [ (n,re.compile(p),i) for (n,p,i) in token_def ]
 
 instructions = {
-#   Name		  Type  Opcode  Funct   Operands
+#   Name          Type  Opcode  Funct   Operands
 	'add'     : ( 'R' , 0x0   , 0x20  , 'rd , rs , rt' ),
 	'addi'    : ( 'I' , 0x8   , None  , 'rt , rs , imm' ),
 	'sub'     : ( 'R' , 0x0   , 0x22  , 'rd , rs , rt' ),
@@ -67,7 +67,7 @@ instructions = {
 	'mtc0'    : ( 'I' , 0x11  , 0x0   , 'rs , rt' ),
 	'mul'     : ( 'R' , 0x0   , 0x18  , 'rd , rs , rt' ),
 	'div'     : ( 'R' , 0x0   , 0x1a  , 'rd , rs , rt' ),
-	'eret' 	  : ( 'I' , 0x12  , 0x0   , None ),
+	'eret'    : ( 'I' , 0x12  , 0x0   , None ),
 	'nop'     : ( 'P' , None  , None  , None ),
 }
 
