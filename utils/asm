@@ -51,6 +51,10 @@ instructions = {
 	'slt'     : ( 'R' , 0x0   , 0x2a  , 'rd , rs , rt' ),
 	'beq'     : ( 'I' , 0x4   , None  , 'rs , rt , label' ),
 	'bne'     : ( 'I' , 0x5   , None  , 'rs , rt , label' ),
+	'bgt'     : ( 'P' , None  , None  , 'rs , rt , label' ),
+	'bge'     : ( 'P' , None  , None  , 'rs , rt , label' ),
+	'blt'     : ( 'P' , None  , None  , 'rs , rt , label' ),
+	'ble'     : ( 'P' , None  , None  , 'rs , rt , label' ),
 	'j'       : ( 'J' , 0x2   , None  , 'label' ),
 	'jal'     : ( 'J' , 0x3   , None  , 'label' ),
 	'jr'      : ( 'R' , 0x0   , 0x8   , 'rs' ),
@@ -145,6 +149,10 @@ def instrLen(opcode, operands):
 	if itype != 'P':     return 4
 	if opcode == 'li':   return 8
 	if opcode == 'la':   return 8
+	if opcode == 'bgt':  return 8
+	if opcode == 'bge':  return 8
+	if opcode == 'blt':  return 8
+	if opcode == 'ble':  return 8
 	return 4
 
 def dataLen(key, val):
@@ -498,6 +506,50 @@ class Parser(object):
 					}, '...')
 				elif key == 'nop':
 					pos = self.printtext(pos, 'sll', {}, 'nop')
+				elif key == 'bgt':
+					pos = self.printtext(pos, 'slt', {
+						'rd': ('Register', '$at'),
+						'rs': val['rt'],
+						'rt': val['rs']
+					}, self.instrToStr(key, val))
+					pos = self.printtext(pos, 'bne', {
+						'rs': ('Register', '$at'),
+						'rt': ('Register', '$0'),
+						'label': val['label'],
+					}, '...')
+				elif key == 'bge':
+					pos = self.printtext(pos, 'slt', {
+						'rd': ('Register', '$at'),
+						'rs': val['rs'],
+						'rt': val['rt']
+					}, self.instrToStr(key, val))
+					pos = self.printtext(pos, 'beq', {
+						'rs': ('Register', '$at'),
+						'rt': ('Register', '$0'),
+						'label': val['label'],
+					}, '...')
+				elif key == 'blt':
+					pos = self.printtext(pos, 'slt', {
+						'rd': ('Register', '$at'),
+						'rs': val['rs'],
+						'rt': val['rt']
+					}, self.instrToStr(key, val))
+					pos = self.printtext(pos, 'bne', {
+						'rs': ('Register', '$at'),
+						'rt': ('Register', '$0'),
+						'label': val['label'],
+					}, '...')
+				elif key == 'ble':
+					pos = self.printtext(pos, 'slt', {
+						'rd': ('Register', '$at'),
+						'rs': val['rt'],
+						'rt': val['rs']
+					}, self.instrToStr(key, val))
+					pos = self.printtext(pos, 'beq', {
+						'rs': ('Register', '$at'),
+						'rt': ('Register', '$0'),
+						'label': val['label'],
+					}, '...')
 				return pos
 			print '\t%0.8X' % int(binary, 2) ,
 			if info == None:
