@@ -2,6 +2,7 @@
 
 import re, sys, collections, math
 from pprint import pprint
+from os import getenv
 
 class SyntaxError(Exception):
 	def __init__(self, lineno, msg):
@@ -10,10 +11,17 @@ class SyntaxError(Exception):
 		super(SyntaxError, self).__init__(message)
 
 # Configuration
-ktextinit = 0x0000
-kdatainit = 0x0400
-textinit  = 0x1000
-datainit  = 0x2000
+mode = getenv('ASM_MODE' , 'user_kernel')
+
+# Modes:
+# - user_kernel
+# - user_only
+# - kernel_only
+
+ktextinit = getenv('KTEXT_INIT' , 0x0000)
+kdatainit = getenv('KDATA_INIT' , 0x0400)
+textinit  = getenv('TEXT_INIT'  , 0x0000 if mode == 'user_only' else 0x1000)
+datainit  = getenv('DATA_INIT'  , 0x1000 if mode == 'user_only' else 0x2000)
 
 token_def = [
 #     Name           Pattern            Ignore
@@ -185,8 +193,9 @@ class Parser(object):
 			tokens = self.tokenize(line)
 			# Always at least end of line
 			if len(tokens) > 1: self.parser(tokens)
-		if not 'main' in self.labels:
-			raise SyntaxError(self.lineno, 'No main label')
+		if mode == 'user_kernel':
+			if not 'main' in self.labels:
+				raise SyntaxError(self.lineno, 'No main label')
 	def regToBin(self, reg):
 		regname = reg[1][1:]
 		if regname not in registers:
@@ -259,10 +268,14 @@ class Parser(object):
 		if section == '.data' or section == '.kdata':
 			self.expect(tokens, pos, 'end of line')
 			self.parser = self.parsedata
+			if section == '.kdata' and mode == 'user_only': raise SyntaxError(self.lineno, '.kdata in user code')
+			if section == '.data' and mode == 'kernel_only': raise SyntaxError(self.lineno, '.data in kernel code')
 			self.section = self.data if section == '.data' else self.kdata
 		elif section == '.text' or section == '.ktext':
 			self.expect(tokens, pos, 'end of line')
 			self.parser = self.parsetext
+			if section == '.ktext' and mode == 'user_only': raise SyntaxError(self.lineno, '.ktext in user code')
+			if section == '.text' and mode == 'kernel_only': raise SyntaxError(self.lineno, '.text in kernel code')
 			self.section = self.text if section == '.text' else self.ktext
 		else:
 			raise SyntaxError(self.lineno, 'Invalid section %s' % section)
@@ -323,53 +336,59 @@ class Parser(object):
 		self.calcLabels()
 		self.printout()
 	def calcLabels(self):
-		datapos = kdatainit
-		for lineno, key, val in self.kdata:
-			if key == '@label':
-				self.labels[val] = datapos
-			else:
-				offset = dataLen(key, val)
-				# Data is word aligned by default
-				datapos += offset + (4 - offset % 4)
-		textpos = ktextinit
-		for lineno, texttype, value in self.ktext:
-			if texttype == '@label':
-				self.labels[value] = textpos
-			else:
-				textpos += instrLen(texttype, value)
-		datapos = datainit
-		for lineno, key, val in self.data:
-			if key == '@label':
-				self.labels[val] = datapos
-			else:
-				offset = dataLen(key, val)
-				# Data is word aligned by default
-				datapos += offset + (4 - offset % 4)
-		textpos = textinit
-		for lineno, texttype, value in self.text:
-			if texttype == '@label':
-				self.labels[value] = textpos
-			else:
-				textpos += instrLen(texttype, value)
+		if mode != 'user_only':
+			datapos = kdatainit
+			for lineno, key, val in self.kdata:
+				if key == '@label':
+					self.labels[val] = datapos
+				else:
+					offset = dataLen(key, val)
+					# Data is word aligned by default
+					datapos += offset + (4 - offset % 4)
+			textpos = ktextinit
+			for lineno, texttype, value in self.ktext:
+				if texttype == '@label':
+					self.labels[value] = textpos
+				else:
+					textpos += instrLen(texttype, value)
+		if mode != 'kernel_only':
+			datapos = datainit
+			for lineno, key, val in self.data:
+				if key == '@label':
+					self.labels[val] = datapos
+				else:
+					offset = dataLen(key, val)
+					# Data is word aligned by default
+					datapos += offset + (4 - offset % 4)
+			textpos = textinit
+			for lineno, texttype, value in self.text:
+				if texttype == '@label':
+					self.labels[value] = textpos
+				else:
+					textpos += instrLen(texttype, value)
+		if 'main' not in self.labels:
+			self.labels['main'] = textinit
 	def printout(self):
-		print '; .ktext'
-		offset = 0
-		for lineno, key, val in self.ktext:
-			self.lineno = lineno
-			offset = self.printtext(offset, key, val)
-		print '; .kdata'
-		for lineno, key, val in self.kdata:
-			self.lineno = lineno
-			self.printdata(key, val)
-		print '; .text'
-		offset = 0
-		for lineno, key, val in self.text:
-			self.lineno = lineno
-			offset = self.printtext(offset, key, val)
-		print '; .data'
-		for lineno, key, val in self.data:
-			self.lineno = lineno
-			self.printdata(key, val)
+		if mode != 'user_only':
+			print '; .ktext'
+			offset = 0
+			for lineno, key, val in self.ktext:
+				self.lineno = lineno
+				offset = self.printtext(offset, key, val)
+			print '; .kdata'
+			for lineno, key, val in self.kdata:
+				self.lineno = lineno
+				self.printdata(key, val)
+		if mode != 'kernel_only':
+			print '; .text'
+			offset = 0
+			for lineno, key, val in self.text:
+				self.lineno = lineno
+				offset = self.printtext(offset, key, val)
+			print '; .data'
+			for lineno, key, val in self.data:
+				self.lineno = lineno
+				self.printdata(key, val)
 	def printstring(self, value):
 		escaped = value.decode('string_escape')
 		for i in range(0, len(escaped), 4):
