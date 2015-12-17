@@ -42,7 +42,6 @@ usage() {
 	echo '   create   Create boilerplate testbench or module'
 	echo '   clean    Remove all intermediate files'
 	echo '   run      Run assembly or memory'
-	echo '   asm      Convert assembly to hex'
 	echo
 	echo 'To learn more about the options for the'
 	echo 'different commands try ace help <command>'
@@ -52,29 +51,28 @@ usage() {
 details() {
 	case $1 in
 		todo)
-			echo 'usage: ace todo [-A] [-q] [<file>]'
+			echo 'usage: ace todo [-a|--all] [-q|--quiet] [<file>]'
 			echo
-			echo '   -A   Gets all todos'
-			echo '   -q   Quiet'
+			echo '   -a|--all     Gets all todos'
+			echo '   -q|--quiet   Quiet'
 			echo
 			echo 'List all TODO and FIXME tokens in source files (.v).'
 			;;
 		check)
-			echo 'usage: ace check [-A] [-q] [<file>]'
+			echo 'usage: ace check [-a|--all] [-q|--quiet] [<file>]'
 			echo
-			echo '   -A   Check all files'
-			echo '   -q   Quiet, no error messages'
+			echo '   -a|--all     Check all files'
+			echo '   -q|--quiet   Quiet, no error messages'
 			echo
 			echo 'Tries to compile source file (.v). This is useful for'
 			echo 'syntax checking'
 			;;
 		test)
-			echo 'usage: ace test [-d <flag>] [-g] [-t <trace>] <testbench>'
+			echo 'usage: ace test [-d|--define <flag>] [-g|--gtkwave] [-t|--trace <trace>] <testbench>'
 			echo
-			echo '   -t   Writes trace to <trace>'
-			echo '   -g   Graphical mode (GTKWave)'
-			echo '   -v   Verbose mode'
-			echo '   -d   Add debug flag'
+			echo '   -t|--trace     Writes trace to <trace>'
+			echo '   -g|--gtkwave   Graphical mode (GTKWave)'
+			echo '   -d|--define    Add debug flag'
 			echo
 			echo 'All testbenches are located in the test folder.'
 			echo 'GTKWave needs a valid trace file'
@@ -90,24 +88,21 @@ details() {
 			echo 'usage: ace clean'
 			;;
 		run)
-			echo 'usage: ace run [-t <trace>] [-d <flag>] [-g] [-m <main>] [-k <kernel>] <program>'
+			echo 'usage: ace run [-t|--trace <trace>] [-g|--gtkwave]'
+			echo '               [-m|--main <main>] [-k|--kernel <kernel>]'
+			echo '               [-d|--define <flag>] <program>'
 			echo
-			echo '   -t   Name for tracefile'
-			echo '   -g   Graphical mode (GTKWave)'
-			echo '   -m   Main module (default: cpu_tb)'
-			echo '   -d   Add debug flag'
-			echo '   -k   Name of the kernel (default: minimal)'
+			echo '   -t|--trace     Name for tracefile'
+			echo '   -g|--gtkwave   Graphical mode (GTKWave)'
+			echo '   -m|--main      Main module (default: cpu_tb)'
+			echo '   -d|--define    Add debug flag'
+			echo '   -k|--kernel    Name of the kernel (default: minimal)'
 			echo
 			echo 'This command builds the cpu and runs a program against it.'
 			echo 'You can either use assembly source code or a hexadecimal'
 			echo 'file containing the memory input data. The memory format is'
 			echo 'defined by MEMORY_WIDTH and MEMORY_DEPTH env variables.'
 
-			;;
-		asm)
-			echo 'usage: ace asm <program> [<output>]'
-			echo
-			echo 'Compiles a MIPS program to machine code'
 			;;
 		*)
 			echo "Unrecognized command $1"
@@ -155,13 +150,13 @@ check_files() {
 check() {
 	ARG_ALL=0
 	ARG_QUIET=0
-	TEMP=`getopt -o Aq -- "$@"` 
+	TEMP=`getopt -o aq --long all,quiet -- "$@" 2>/dev/null`
 	eval set -- "$TEMP"
 	mkdir -p build
 	while true ; do
 		case "$1" in
-			-A) ARG_ALL=1 ; shift ;;
-			-q) ARG_QUIET=1 ; shift ;;
+			-a|--all)   ARG_ALL=1 ; shift ;;
+			-q|--quiet) ARG_QUIET=1 ; shift ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
 		esac
@@ -201,13 +196,13 @@ todo_files() {
 todo() {
 	ARG_ALL=0
 	ARG_QUIET=0
-	TEMP=`getopt -o Aq -- "$@"`
+	TEMP=`getopt -o aq --long all,quiet -- "$@" 2>/dev/null`
 	eval set -- "$TEMP"
 	mkdir -p build
 	while true ; do
 		case "$1" in
-			-A) ARG_ALL=1 ; shift ;;
-			-q) ARG_QUIET=1 ; shift ;;
+			-a|--all)   ARG_ALL=1 ; shift ;;
+			-q|--quiet) ARG_QUIET=1 ; shift ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
 		esac
@@ -242,15 +237,15 @@ runtest() {
 }
 
 testbench() {
-	TEMP=`getopt -o d:gt: -- "$@"`
+	TEMP=`getopt -o d:gt: --long define:,gtkwave,trace: -- "$@" 2>/dev/null`
 	ARG_GTK=0
 	ARG_TRACE=
 	eval set -- "$TEMP"
 	while true ; do
 		case "$1" in
-			-d) CFLAGS="$CFLAGS -D$2" ; shift 2 ;;
-			-g) ARG_GTK=1 ; shift ;;
-			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
+			-d|--define)  CFLAGS="$CFLAGS -D$2" ; shift 2 ;;
+			-g|--gtkwave) ARG_GTK=1 ; shift ;;
+			-t|--trace)   ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
 		esac
@@ -261,7 +256,7 @@ testbench() {
 }
 
 run() {
-	TEMP=`getopt -o d:gt:m:k: -- "$@"`
+	TEMP=`getopt -o d:gt:m:k: --long define:,gtkwave,trace:,main:,kernel: -- "$@" 2>/dev/null`
 	ARG_GTK=0
 	ARG_MAIN="test/cpu_tb.v"
 	ARG_TRACE=
@@ -270,11 +265,11 @@ run() {
 	mkdir -p build
 	while true ; do
 		case "$1" in
-			-d) CFLAGS="$CFLAGS -D$2" ; shift 2 ;;
-			-g) ARG_GTK=1 ; shift ;;
-			-t) ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
-			-m) ARG_MAIN=${2%.v}.v ; shift 2 ;;
-			-k) ARG_KERNEL=$2 ; shift 2 ;;
+			-d|--define)  CFLAGS="$CFLAGS -D$2" ; shift 2 ;;
+			-g|--gtkwave) ARG_GTK=1 ; shift ;;
+			-t|--trace)   ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
+			-m|--main)    ARG_MAIN=${2%.v}.v ; shift 2 ;;
+			-k|--kernel)  ARG_KERNEL=$2 ; shift 2 ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
 		esac
@@ -333,14 +328,5 @@ case $CMD in
 	clean) clean ;;
 	test) testbench "$@" ;;
 	run) run "$@" ;;
-	asm)
-		[[ $# -ge 1 ]] || die 'Not enough arguments'
-		[[ -f $1 ]] || die 'File does not exist'
-		if [[ $# -ge 2 ]] ; then
-			utils/asm $1 > $2
-		else
-			utils/asm $1
-		fi
-		;;
 	*) usage ;;
 esac
