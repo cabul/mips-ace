@@ -10,7 +10,8 @@ module stdio (
 	input wire read_write,
 	input wire enable,
 	input wire [31:0] data_in,
-	output reg [31:0] data_out
+	output reg [31:0] data_out,
+	output reg exit = 0
 );
 
 integer err;
@@ -22,6 +23,7 @@ parameter STDERR = 32'h8000_0002;
 always @(posedge clk) begin
 	if (reset) begin
 		data_out <= 0;
+		exit <= 1'b0;
 	end else if (enable) begin
 		if (read_write) begin
 			case (addr)
@@ -38,7 +40,7 @@ always @(posedge clk) begin
 				`IO_INT:   $fwrite(STDERR, "%0d", data_in);
 				`IO_FLOAT: $fwrite(STDERR, "%0f", data_in);
 				`IO_HEX:   $fwrite(STDERR, "%0x", data_in);
-				`IO_EXIT: #5 $finish;
+				`IO_EXIT: exit <= 1'b1;
 				default: `WARN(("[IO] Unknown operation"))
 			endcase
 			$fflush(STDERR);

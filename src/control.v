@@ -9,21 +9,21 @@ module control(
 	input wire cpu_mode,
 	output reg regwrite = 0,
 	output reg memtoreg = 0,
-	output reg memread = 0,
+	output reg memread  = 0,
 	output reg memwrite = 0,
-	output reg memtype = 0,
+	output reg membyte  = 0,
 	output reg isbranch = 0,
-	output reg isjump = 0,
-	output reg jumpdst = 0,
-	output reg islink = 0,
-	output reg regdst = 0,
-	output reg aluop = 0,
-	output reg alu_s = 0,
-	output reg alu_t = 0,
-	output reg exc_ri = 0,
-	output reg exc_sys = 0,
-	output reg cowrite = 0,
-	output reg exc_ret = 0
+	output reg isjump   = 0,
+	output reg jumpdst  = 0,
+	output reg islink   = 0,
+	output reg regdst   = 0,
+	output reg aluop    = 0,
+	output reg alu_s    = 0,
+	output reg alu_t    = 0,
+	output reg exc_ri   = 0,
+	output reg exc_sys  = 0,
+	output reg cowrite  = 0,
+	output reg exc_ret  = 0
 );
 
 always @* begin
@@ -47,6 +47,7 @@ always @* begin
 					exc_sys  <= 0;
 					cowrite  <= 0;
 					exc_ret  <= 0;
+					membyte  <= 0;
 				end
 				`FN_SYS: begin
 					regwrite <= 0;
@@ -65,6 +66,7 @@ always @* begin
 					exc_sys  <= 1;
 					cowrite  <= 0;
 					exc_ret  <= 0;
+					membyte  <= 0;
 				end
 				default: begin
 					regwrite <= 1;
@@ -83,6 +85,7 @@ always @* begin
 					exc_sys  <= 0;
 					cowrite  <= 0;
 					exc_ret  <= 0;
+					membyte  <= 0;
 				end
 			endcase
 		end
@@ -103,13 +106,14 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_LW: begin
 			regwrite <= 1;
 			memtoreg <= 1;
 			memread  <= 1;
 			memwrite <= 0;
-			memtype  <= 1;
+			membyte  <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
 			alu_s    <= 0;
@@ -128,7 +132,7 @@ always @* begin
 			memtoreg <= 0;
 			memread  <= 0;
 			memwrite <= 1;
-			memtype  <= 1;
+			membyte  <= 0;
 			isbranch <= 0;
 			regdst   <= 0;
 			alu_s    <= 0;
@@ -137,13 +141,17 @@ always @* begin
 			isjump   <= 0;
 			jumpdst  <= 0;
 			islink   <= 0;
+			exc_ri   <= 0;
+			exc_sys  <= 0;
+			cowrite  <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_LB: begin
 			regwrite <= 1;
 			memtoreg <= 1;
 			memread  <= 1;
 			memwrite <= 0;
-			memtype  <= 0;
+			membyte  <= 1;
 			isbranch <= 0;
 			regdst   <= 0;
 			alu_s    <= 0;
@@ -152,13 +160,17 @@ always @* begin
 			isjump   <= 0;
 			jumpdst  <= 0;
 			islink   <= 0;
+			exc_ri   <= 0;
+			exc_sys  <= 0;
+			cowrite  <= 0;
+			exc_ret  <= 0;
 		end
 		`OP_SB:	begin
 			regwrite <= 0;
 			memtoreg <= 0;
 			memread  <= 0;
 			memwrite <= 1;
-			memtype  <= 0;
+			membyte  <= 1;
 			isbranch <= 0;
 			regdst   <= 0;
 			alu_s    <= 0;
@@ -189,6 +201,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_ANDI: begin
 			regwrite <= 1;
@@ -207,6 +220,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_ORI: begin
 			regwrite <= 1;
@@ -225,6 +239,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_XORI: begin
 			regwrite <= 1;
@@ -243,6 +258,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_SLTI: begin
 			regwrite <= 1;
@@ -261,6 +277,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_BEQ: begin
 			regwrite <= 0;
@@ -279,6 +296,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_BNE: begin
 			regwrite <= 0;
@@ -297,6 +315,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_LUI: begin
 			regwrite <= 1;
@@ -315,6 +334,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_JAL: begin
 			regwrite <= 1;
@@ -333,6 +353,7 @@ always @* begin
 			exc_sys  <= 0;
 			cowrite  <= 0;
 			exc_ret  <= 0;
+			membyte  <= 0;
 		end
 		`OP_MFC0: begin
 			regwrite <= 1;
@@ -351,6 +372,7 @@ always @* begin
 			exc_sys  <= 0;
 			exc_ret  <= 0;
 			exc_ri   <= ~cpu_mode;
+			membyte  <= 0;
 		end
 		`OP_MTC0: begin
 			regwrite <= 0;
@@ -369,6 +391,7 @@ always @* begin
 			exc_ret  <= 0;
 			exc_ri   <= ~cpu_mode;
 			cowrite  <= cpu_mode;
+			membyte  <= 0;
 		end
 		`OP_ERET: begin
 			regwrite <= 0;
@@ -387,6 +410,7 @@ always @* begin
 			cowrite  <= 0;
 			exc_ri   <= ~cpu_mode;
 			exc_ret  <= cpu_mode;
+			membyte  <= 0;
 		end
 		default:
 			`WARN(("[Control] Unknown opcode %x", opcode))

@@ -52,17 +52,15 @@ end
 
 // Output block (async)
 
+`ifndef NO_BPRED
 always @* begin
-`ifdef NO_BPRED
-    opinion <= 0;
-`else
     index = current_pc >> 2;
     
     opinion      <= ((current_pc >> 2) == pc[index]) && valid[index];
     branch_taken <= taken_state[index] > 2'b01;
     branch_addr  <= branch_pc[index] << 2;
-`endif
 end
+`endif
 
 // Feedback block (sync)
 
