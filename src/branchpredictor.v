@@ -71,7 +71,7 @@ always @(posedge clk) begin
             taken_state[i] <= 2'b01;
 		end
     end else begin
-        feedback_index = feedback_current_pc >> 2;
+        feedback_index = feedback_current_pc >> 2; // TODO: if new address, reset state!!!!
         
         if (feedback_enable) begin
             pc[feedback_index]        <= feedback_current_pc >> 2;
