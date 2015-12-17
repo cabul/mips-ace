@@ -12,9 +12,9 @@ module cache_2way (
 	input wire clk,
 	input wire reset,
 	input wire [31:0] addr,
-	input wire read_write,
+	input wire write_enable,
 	input wire master_enable,
-	input wire [3:0] byte_enable,
+	input wire byte_enable,
 	input wire [31:0] data_in,
 	output reg [31:0] data_out = 0,
 	output reg hit = 0,
@@ -56,12 +56,6 @@ wire hit_int = | set_hit;
 
 wire all_valid = & set_valid;
 
-wire [31:0] bit_mask;
-assign bit_mask[31:24] = {8{byte_enable[3]}};
-assign bit_mask[23:16] = {8{byte_enable[2]}};
-assign bit_mask[15:8]  = {8{byte_enable[1]}};
-assign bit_mask[7:0]   = {8{byte_enable[0]}};
-
 reg lru_state = 1'b0;
 
 genvar i;
@@ -71,6 +65,12 @@ generate for(i=0; i < SETS; i = i+1) begin : SET_BLOCK
 	reg [DEPTH-1:0] dirtybits = {DEPTH{1'b0}};
 	reg [31-WB-DB:0] tags [0:DEPTH-1];
 	reg [WIDTH-1:0] lines [0:DEPTH-1];
+
+	wire [WIDTH-1:0] line_out = lines[index];
+	wire [31:0]      word_out = (WIDTH == 32) ?
+		line_out :
+		line_out[(addr[WB-1:2]+1)*32-1-:32];
+	wire [7:0]       byte_out = line_out[(offset+1)*8-1-:8];
 
 	assign set_valid[i] = validbits[index];
 	assign set_hit[i] = (tags[index] == tag) && set_valid[i];
@@ -92,6 +92,13 @@ generate for(i=0; i < SETS; i = i+1) begin : SET_BLOCK
 		end
 	end
 
+	always @* if (master_enable & hit & ~reset) begin
+		if (set_hit[i]) begin
+			if (byte_enable) data_out = {24'h000000, byte_out};
+			else data_out <= word_out;
+		end
+	end else data_out <= 32'h00000000;
+
 	always @(posedge clk) begin
 		if (reset) begin
 			validbits <= {DEPTH{1'b0}};
@@ -99,55 +106,38 @@ generate for(i=0; i < SETS; i = i+1) begin : SET_BLOCK
 		end else begin
 			if (master_enable) begin
 				if (set_hit[i]) begin
-					if (read_write) begin
-						if (WIDTH == 32)
-							data_out = lines[index];
-						else
-							data_out = lines[index][(offset[WB-1:2]+1)*32-1-:32];
-						`INFO(("[%s] .%1d Read %x => %x", ALIAS, i, addr[15:0], data_out))
-					end else begin
-						if (WIDTH == 32) begin
-							lines[index] = (lines[index] & ~bit_mask) | (data_in & bit_mask);
-							data_out = lines[index];
-						end else begin
-							lines[index][32*(offset[WB-1:2]+1)-1-:32] =
-								(lines[index][32*(offset[WB-1:2]+1)-1-:32] & ~bit_mask) |
-								(data_in                                   & bit_mask);
-							data_out = lines[index][(offset[WB-1:2]+1)*32-1-:32];
-						end
+					if (write_enable) begin
+						if (byte_enable) lines[index][(offset+1)*8-1-:8] = data_in[7:0];
+						else if (WIDTH == 32) lines[index] = data_in;
+						else lines[index][(addr[WB-1:2]+1)*32-1-:32] = data_in;
 						dirtybits[index] = 1'b1;
-						`INFO(("[%s] .%1d Write %x <= %x", ALIAS, i, addr[15:0], data_out))
-					end
+						`INFO(("[%s] .%1d Write %x <= %x", ALIAS, i, addr[15:0], data_in))
+					end else `INFO(("[%s] .%1d Read %x => %x", ALIAS, i, addr[15:0], data_out))
 					// Update LRU
 					lru_state = i;
-				end else begin
-					if (!hit_int) begin
-						// Wait for memory
-						if (!mem_read_req && !mem_write_req) begin
-							// Select set
-							case (i)
-								0: if (set_valid[0] == 1'b0 ||
-									(all_valid && lru_state == 1'b1))
-										set_select[0] = 1'b1;
-								1: if (set_valid == 2'b01 ||
-									(all_valid && lru_state == 1'b0))
-										set_select[1] = 1'b1;
-							endcase
-							// Issue requests
-							if (set_select[i]) begin
-								`INFO(("[%s] .%1d Miss %x", ALIAS, i, addr[15:0]))
-								// Save line if necessary
-								if (validbits[index] && dirtybits[index]) begin
-									mem_write_addr = {tags[index], index, {WB{1'b0}}};
-									mem_write_data = lines[index];
-									`INFO(("[%s] .%1d Evict %x => %x", ALIAS, i, mem_write_addr[15:0], mem_write_data))
-									mem_write_req = 1'b1;
-								end
-								validbits[index] = 1'b0;
-								// Memory request
-								mem_read_addr = addr;
-								mem_read_req = 1'b1;
+				end else if (~hit_int) begin
+					if (~mem_read_req & ~mem_write_req) begin
+						case (i)
+							0: if (set_valid[0] == 1'b0 ||
+								(all_valid && lru_state == 1'b1))
+									set_select[0] = 1;
+							1: if (set_valid == 2'b01 ||
+								(all_valid && lru_state == 1'b0))
+									set_select[1] = 1;
+						endcase
+						if (set_select[i]) begin
+							`INFO(("[%s] .%1d Miss %x", ALIAS, i, addr[15:0]))
+							// Save line if necessary
+							if (validbits[index] & dirtybits[index]) begin
+								mem_write_addr = {tags[index], index, {WB{1'b0}}};
+								mem_write_data = lines[index];
+								`INFO(("[%s] .%1d Evict %x => %x", ALIAS, i, mem_write_addr[15:0], mem_write_data))
+								mem_write_req = 1'b1;
 							end
+							validbits[index] = 1'b0;
+							// Memory request
+							mem_read_addr = {tag, index, {WB{1'b0}}};
+							mem_read_req = 1'b1;
 						end
 					end
 				end

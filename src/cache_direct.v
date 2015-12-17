@@ -113,7 +113,6 @@ always @(posedge clk) begin
 				mem_read_addr = {tag, index, {WB{1'b0}}};
 				mem_read_req = 1'b1;
 			end
-			// Wait for memory
 		end
 	end
 end
