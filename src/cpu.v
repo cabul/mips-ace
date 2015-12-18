@@ -57,6 +57,7 @@ integer perf_dTLB_store_misses   = 0;
 integer perf_iTLB_loads          = 0;
 integer perf_iTLB_load_misses    = 0;
 
+real CPI;
 always @(posedge io_exit) begin
 `ifdef INSTRUMENT
 	$display("[perf] cycles:              %d", perf_cycles);
@@ -74,6 +75,10 @@ always @(posedge io_exit) begin
 	$display("[perf] dTLB_store_misses:   %d", perf_dTLB_store_misses);
 	$display("[perf] iTLB_loads:          %d", perf_iTLB_loads);
 	$display("[perf] iTLB_load_misses:    %d", perf_iTLB_load_misses);
+    // Additional
+    CPI = perf_instructions;
+    CPI = CPI/perf_cycles;
+    $display("[perf] CPI:                    %f", CPI);
 `endif
 	$finish;
 end
@@ -211,7 +216,7 @@ always @* begin
 		ex_mem_we    <= 1'b0;
 		mem_wb_reset <= 1'b1;
 		mem_wb_we    <= 1'b1;
-	end else if (pc_take_branch & ~if_bp_opinion) begin
+	end else if (pc_take_branch & ~mem_bp_opinion) begin //~if_bp_opinion &
 		pc_reset     <= 1'b0;
 		pc_we        <= 1'b1;
 		if_id_reset  <= 1'b1;
@@ -306,8 +311,7 @@ branchpredictor branchpredictor(
 
 assign if_pc_next = pc_out + 4;
 assign bp_misspredicted = mem_bp_opinion & mem_isbranch & 
-                          ((~mem_aluz & mem_bp_btaken) | 
-                           (mem_aluz & ~mem_bp_btaken));
+                          ((~mem_aluz & mem_bp_btaken) | (mem_aluz & ~mem_bp_btaken));
 pc pc(
     .clk(clk),
     .reset(pc_reset),
@@ -586,7 +590,7 @@ assign ex_exout = ex_islink ? ex_pc_next : alures;
 assign dst_reg = ex_regdst ? dst_rd : dst_rt;
 assign ex_wreg = ex_islink ? 5'd31 : dst_reg;
 
-flipflop #(.N(211)) ex_mem (
+flipflop #(.N(216)) ex_mem (
 	.clk(clk),
 	.reset(ex_mem_reset | reset),
 	.we(ex_mem_we),
@@ -594,12 +598,12 @@ flipflop #(.N(211)) ex_mem (
 			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt, 
 			ex_wreg, ex_instr, ex_pc_next, ex_isvalid,
 			ex_exc_ov, ex_exc_ri, ex_exc_sys, ex_cowrite,
-            ex_bp_opinion, ex_bp_btaken, ex_bp_addr}),
+            ex_bp_opinion, ex_bp_btaken, ex_bp_addr, aluop}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_membyte,
 			mem_isbranch, mem_pc_branch, mem_aluz, mem_exout, mem_data_rt, 
 			mem_wreg, mem_instr, mem_pc_next, mem_isvalid,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite,
-            mem_bp_opinion, mem_bp_btaken, mem_bp_addr})
+            mem_bp_opinion, mem_bp_btaken, mem_bp_addr, mem_aluop})
 );
 
 ////////////////////////
@@ -608,6 +612,7 @@ flipflop #(.N(211)) ex_mem (
 //                    //
 ////////////////////////
 
+wire [4:0] mem_aluop;
 wire mem_bp_opinion;
 wire mem_bp_btaken;
 wire [31:0] mem_bp_addr;
