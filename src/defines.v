@@ -84,9 +84,13 @@
 `define INT_RI      10 // *Reserved instruction exception
 `define INT_OVF     12 // *Arithmetic overflow exception
 
+// Store buffer
+
+`define STBUFF_DEPTH 4
+
 // SYS IO
 
-`define SYS_PRINT_CHAR  11 
+`define SYS_PRINT_CHAR  11
 `define SYS_PRINT_INT    1
 `define SYS_PRINT_FLOAT  2
 `define SYS_READ_CHAR   12
