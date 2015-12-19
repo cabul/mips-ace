@@ -260,7 +260,7 @@ run() {
 	ARG_GTK=0
 	ARG_MAIN="test/cpu_tb.v"
 	ARG_TRACE=
-	ARG_KERNEL=minimal
+	ARG_KERNEL=default
 	eval set -- "$TEMP"
 	mkdir -p build
 	while true ; do

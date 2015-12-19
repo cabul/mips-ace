@@ -22,6 +22,8 @@ ktextinit = getenv('KTEXT_INIT' , 0x0000)
 kdatainit = getenv('KDATA_INIT' , 0x0400)
 textinit  = getenv('TEXT_INIT'  , 0x0000 if mode == 'user_only' else 0x1000)
 datainit  = getenv('DATA_INIT'  , 0x1000 if mode == 'user_only' else 0x2000)
+use_virtual    = getenv('USE_VIRTUAL', False)
+virtual_offset = getenv('VIRTUAL_OFFSET', 0) if use_virtual else 0
 
 token_def = [
 #     Name           Pattern            Ignore
@@ -193,9 +195,6 @@ class Parser(object):
 			tokens = self.tokenize(line)
 			# Always at least end of line
 			if len(tokens) > 1: self.parser(tokens)
-		if mode == 'user_kernel':
-			if not 'main' in self.labels:
-				raise SyntaxError(self.lineno, 'No main label')
 	def regToBin(self, reg):
 		regname = reg[1][1:]
 		if regname not in registers:
@@ -384,7 +383,7 @@ class Parser(object):
 			offset = 0
 			for lineno, key, val in self.text:
 				self.lineno = lineno
-				offset = self.printtext(offset, key, val)
+				offset = self.printtext(offset, key, val, voffset=virtual_offset)
 			print '; .data'
 			for lineno, key, val in self.data:
 				self.lineno = lineno
@@ -460,7 +459,7 @@ class Parser(object):
 				else:
 					instr.append('%s' % op)
 		return ' '.join(instr)
-	def printtext(self, pos, key, val, info=None):
+	def printtext(self, pos, key, val, info=None, voffset=0):
 		if key == '@label':
 			print '%0.8x: ; <%s>' % (self.labels[val], val)
 			pos = self.labels[val]
@@ -485,7 +484,7 @@ class Parser(object):
 					label = val['label'][1]
 					if label not in self.labels:
 						raise SyntaxError(lineno, 'Label %s undefined' % label)
-					offset = self.labels[label] - pos
+					offset = self.labels[label] - pos - voffset
 					binary += self.intToBin(offset/4-1, 16)
 				else:
 					binary += '0' * 16
@@ -496,7 +495,7 @@ class Parser(object):
 				label = val['label'][1]
 				if label not in self.labels:
 					raise SyntaxError(lineno, 'Label %s undefined' % label)
-				binary += self.intToBin(self.labels[label],28)[:-2]
+				binary += self.intToBin(self.labels[label] - voffset,28)[:-2]
 				pos += 4
 			elif itype == 'P':
 				if key == 'move':
@@ -514,7 +513,7 @@ class Parser(object):
 						'imm' : ('Number', str(int(numbin[16:32],2)))
 					}, '...')
 				elif key == 'la':
-					numhex = '%0.8X' % self.labels[val['label'][1]]
+					numhex = '%0.8X' % (self.labels[val['label'][1]] - voffset)
 					pos = self.printtext(pos, 'lui', {
 						'rt' : val['rd'],
 						'imm' : ('HexNumber', '0x'+numhex[0:4])
@@ -588,11 +587,10 @@ def repl(stream):
 
 def main():
 	if len(sys.argv) < 2: 
-		while True:
-			try:
-				repl(sys.stdin)
-			except KeyboardInterrupt:
-				exit(0)
+		try:
+			repl(sys.stdin)
+		except KeyboardInterrupt:
+			exit(0)
 	else:
 		with open(sys.argv[1], 'r') as content: repl(content)
 

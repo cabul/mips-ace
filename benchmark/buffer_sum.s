@@ -11,26 +11,31 @@ main:
 	li $t2, 128 #N_ELEMENTOS
 
 #Let's initialize
-loop:	beq $t1, $t2, done
-		sw $t1, 0($t0)
-		addi $t0, $t0, 4
-		addi $t1, $t1, 1
-		j loop
+loop:
+	beq $t1, $t2, done
+	sw $t1, 0($t0)
+	addi $t0, $t0, 4
+	addi $t1, $t1, 1
+	j loop
 
-done:	la $t0, Vector
-		li $t1, 0 #Counter
-		li $a0, 0 #Sum
+done:
+	la $t0, Vector
+	li $t1, 0 #Counter
+	li $a0, 0 #Sum
 
 #Summatory
-sum:	beq $t1, $t2, out
-		lw $t3, 0($t0)
-		add $a0, $a0, $t3
-		addi $t0, $t0, 4
-		addi $t1, $t1, 1
-		j sum
+sum:
+	beq $t1, $t2, out
+	lw $t3, 0($t0)
+	add $a0, $a0, $t3
+	addi $t0, $t0, 4
+	addi $t1, $t1, 1
+	j sum
 
 #Show result and finish
-out:	li $v0, 1
-		syscall
+out:
+	li $v0, 1
+	syscall
+	li $v0, 10
+	syscall
 
-		jr $ra

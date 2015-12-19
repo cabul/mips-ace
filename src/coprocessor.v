@@ -8,16 +8,16 @@
 // mfc0 rs,rd and mtc0 rd,rs
 
 module coprocessor(
-    input wire clk,
-    input wire reset,
+	input wire clk,
+	input wire reset,
 	input wire enable,
-    input wire [4:0] rreg,
-    input wire [4:0] wreg,
-    input wire [31:0] wdata,
-    input wire [66:0] exception_bus,
+	input wire [4:0] rreg,
+	input wire [4:0] wreg,
+	input wire [31:0] wdata,
+	input wire [67:0] exception_bus,
 	output reg cop_reset = 0,
 	output reg [31:0] pc_kernel = 32'h0,
-    output reg [31:0] rdata = 32'd0,
+	output reg [31:0] rdata = 32'd0,
 	output reg [31:0] epc = 32'd0,
 	output reg pc_select = 0,
 	output reg cpu_mode = 0
@@ -52,6 +52,7 @@ always @(posedge clk) begin
 end
 
 always @(exception_bus) begin
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[67]}} & (`INT_TR      << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[66]}} & (`INT_OVF     << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[65]}} & (`INT_RI      << `C0_SR_EC));
     co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[64]}} & (`INT_SYSCALL << `C0_SR_EC));

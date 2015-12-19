@@ -1,6 +1,6 @@
 # All program code is placed after the
 # .text assembler directive
-.text		
+.text
 
 # The label 'main' represents the starting point
 main:
@@ -24,5 +24,5 @@ main:
 # in memory for a single 4-byte word (or multiple 4-byte words)
 # and assigns that memory location an initial value
 # (or a comma separated list of initial values)
-	value: .half 12, 23
-	other: .word -25
+value: .half 12, 23
+other: .word -25

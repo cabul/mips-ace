@@ -428,7 +428,7 @@ coprocessor coprocessor(
 	.rreg(id_instr[25:21]),
 	.wreg(wb_wreg),
 	.wdata(wb_wdata),
-	.exception_bus({wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_pc_next, wb_exc_address}),
+	.exception_bus({wb_exc_tr, wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_pc_next, wb_exc_address}),
 	.cop_reset(cop_reset),
 	.pc_kernel(address_kernel),
 	.pc_select(select_kernel),
@@ -590,9 +590,8 @@ wire pc_take_branch;
 
 assign pc_take_branch = mem_isbranch & mem_aluz;
 
-wire io_mem;
-assign io_mem = & mem_exout[31:26]; // IO when 0xFF....
-wire dc_enable = (mem_memwrite | mem_memread) & ~io_mem;
+wire io_enable = & mem_exout[31:26]; // IO when 0xFF....
+wire dc_enable = (mem_memwrite | mem_memread) & ~io_enable;
 wire [31:0] io_out;
 wire [31:0] mem_out;
 wire io_exit;
@@ -603,7 +602,7 @@ stdio stdio(
 	.addr(mem_exout[7:0]),
 	.data_out(io_out),
 	.data_in(mem_data_rt),
-	.enable((mem_memwrite | mem_memread) & io_mem),
+	.enable((mem_memwrite | mem_memread) & io_enable),
 	.read_write(mem_memread),
 	.exit(io_exit)
 );
@@ -651,7 +650,7 @@ cache_direct #(
 );
 `endif
 
-assign mem_memout = io_mem ? io_out : mem_out;
+assign mem_memout = io_enable ? io_out : mem_out;
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
 flipflop #(.N(139)) mem_wb (
@@ -659,7 +658,7 @@ flipflop #(.N(139)) mem_wb (
 	.reset(mem_wb_reset | reset),
 	.we(mem_wb_we),
 	.in({mem_regwrite, mem_wdata, mem_wreg, mem_instr,
-			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite, 
+			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite,
 			mem_pc_next, mem_exout, mem_isvalid}),
 	.out({wb_regwrite, wb_wdata, wb_wreg, wb_instr, 
 			wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_cowrite, 
@@ -682,6 +681,7 @@ wire [31:0] wb_exc_address;
 wire wb_exc_ov;
 wire wb_exc_ri;
 wire wb_exc_sys;
+reg wb_exc_tr = 0;
 wire wb_cowrite;
 wire wb_isvalid;
 
@@ -701,6 +701,7 @@ always @(posedge clk) if (reset) begin
 	perf_dTLB_store_misses   <= 0;
 	perf_iTLB_loads          <= 0;
 	perf_iTLB_load_misses    <= 0;
+	wb_exc_tr <= 0;
 end else begin
 	perf_cycles              <= perf_cycles              + 1;
 	perf_instructions        <= perf_instructions        + wb_isvalid;
@@ -717,6 +718,7 @@ end else begin
 	perf_dTLB_store_misses   <= perf_dTLB_store_misses   + 0;
 	perf_iTLB_loads          <= perf_iTLB_loads          + 0;
 	perf_iTLB_load_misses    <= perf_iTLB_load_misses    + 0;
+	wb_exc_tr <= perf_cycles >= `MAX_CYCLES;
 end
 
 //

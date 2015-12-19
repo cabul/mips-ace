@@ -83,6 +83,7 @@
 `define INT_BKPT    9  // Breakpoint exception
 `define INT_RI      10 // *Reserved instruction exception
 `define INT_OVF     12 // *Arithmetic overflow exception
+`define INT_TR      13 // *Trap exception
 
 // SYS IO
 
@@ -116,6 +117,10 @@
 `define MEMORY_DATA "build/memory.raw"
 `ifndef MEMORY_LATENCY
 	`define MEMORY_LATENCY 27
+`endif
+
+`ifndef MAX_CYCLES
+	`define MAX_CYCLES 10000
 `endif
 
 `endif
