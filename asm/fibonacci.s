@@ -20,7 +20,8 @@ main:
 	andi $t0, $t1, 0xFF
 	sw $v0, %IO_INT($0)
 	sw $t0, %IO_CHAR($0) # 3
-	sw $0, %IO_EXIT($0)
+	li $v0, 10
+	syscall
 
 fibonacci:
 	sw $t0, 0($sp)

@@ -8,15 +8,14 @@ integer cycle = 0;
 reg clk = 1;
 reg reset = 0;
 
-localparam WIDTH = `MEMORY_WIDTH;
-localparam BYTES = WIDTH / 8;
+localparam BWIDTH = `MEMORY_WIDTH;
 
 wire mem_enable;
 wire mem_rw;
 wire mem_ack;
 wire [31:0] mem_addr;
-wire [WIDTH-1:0] mem_data_in;
-wire [WIDTH-1:0] mem_data_out;
+wire [BWIDTH-1:0] mem_data_in;
+wire [BWIDTH-1:0] mem_data_out;
 
 cpu cpu (
 	.clk(clk),

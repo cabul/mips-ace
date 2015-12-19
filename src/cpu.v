@@ -27,11 +27,11 @@ module cpu(
 	output wire mem_rw,
 	input wire mem_ack,
 	output wire [31:0]  mem_addr,
-	input wire [WIDTH-1:0] mem_data_out,
-	output wire [WIDTH-1:0] mem_data_in
+	input wire [BWDITH-1:0] mem_data_out,
+	output wire [BWDITH-1:0] mem_data_in
 );
 
-parameter WIDTH = `MEMORY_WIDTH;
+parameter BWDITH = `MEMORY_WIDTH;
 
 ////////////////////////
 //                    //
@@ -112,15 +112,15 @@ wire dc_hit;
 wire ic_read_req;
 wire ic_read_ack;
 wire [31:0] ic_read_addr;
-wire [WIDTH-1:0] ic_read_data;
+wire [BWDITH-1:0] ic_read_data;
 wire dc_read_req;
 wire dc_read_ack;
 wire [31:0] dc_read_addr;
-wire [WIDTH-1:0] dc_read_data;
+wire [BWDITH-1:0] dc_read_data;
 wire dc_wrdirectite_req;
 wire dc_write_ack;
 wire [31:0] dc_write_addr;
-wire [WIDTH-1:0] dc_write_data;
+wire [BWDITH-1:0] dc_write_data;
 
 arbiter arbiter (
 	.clk(clk),
@@ -378,7 +378,7 @@ wire [31:0] epc;
 wire [1:0] fwdctrl_rs;
 wire [1:0] fwdctrl_rt;
 wire cop_reset;
-wire cpu_mode;
+wire id_cpu_mode;
 wire select_kernel;
 wire [31:0] address_kernel;
 wire id_exc_ret;
@@ -404,7 +404,7 @@ control control (
 	.exc_ri(id_exc_ri),
 	.exc_sys(id_exc_sys),
 	.cowrite(id_cowrite),
-	.cpu_mode(cpu_mode),
+	.cpu_mode(id_cpu_mode),
 	.exc_ret(id_exc_ret),
 	.islink(id_islink)
 );
@@ -428,13 +428,13 @@ coprocessor coprocessor(
 	.rreg(id_instr[25:21]),
 	.wreg(wb_wreg),
 	.wdata(wb_wdata),
-	.exception_bus({wb_exc_tr, wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_pc_next, wb_exc_address}),
+	.exception_bus({wb_exc_tr, wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_exc_st, wb_exc_ld, wb_pc_next, wb_exc_address}),
 	.cop_reset(cop_reset),
 	.pc_kernel(address_kernel),
 	.pc_select(select_kernel),
 	.epc(epc),
 	.rdata(id_data_c0),
-	.cpu_mode(cpu_mode)
+	.cpu_mode(id_cpu_mode)
 );
 
 multiplexer #(.X(4)) data_rs_mux (
@@ -449,7 +449,7 @@ multiplexer #(.X(4)) data_rt_mux (
 	.data_out(id_data_rt)
 );
 
-flipflop #(.N(264)) id_ex (  
+flipflop #(.N(265)) id_ex (  
 	.clk(clk),
 	.reset(id_ex_reset | reset),
 	.we(id_ex_we),
@@ -457,12 +457,14 @@ flipflop #(.N(264)) id_ex (
 			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst, 
 			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26], 
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
-			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst, id_isvalid}),
+			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst,
+			id_isvalid, id_cpu_mode}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte, ex_isbranch,
 			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst, 
 			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode, 
 			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr,
-			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_c0, ex_c0dst, ex_isvalid})
+			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_c0, ex_c0dst,
+			ex_isvalid, ex_cpu_mode})
 );
 
 ////////////////////////
@@ -492,6 +494,7 @@ wire ex_cowrite;
 wire ex_c0dst;
 wire ex_exc_ret;
 wire ex_isvalid;
+wire ex_cpu_mode;
 wire [31:0] dst_jump;
 wire [31:0] ex_pc_next;
 wire [31:0] ex_data_rs;
@@ -546,17 +549,17 @@ assign ex_exout = ex_islink ? ex_pc_next : alures;
 assign dst_reg = ex_regdst ? dst_rd : dst_rt;
 assign ex_wreg = ex_islink ? 5'd31 : dst_reg;
 
-flipflop #(.N(177)) ex_mem (
+flipflop #(.N(178)) ex_mem (
 	.clk(clk),
 	.reset(ex_mem_reset | reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte,
 			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt, 
-			ex_wreg, ex_instr, ex_pc_next, ex_isvalid,
+			ex_wreg, ex_instr, ex_pc_next, ex_isvalid, ex_cpu_mode,
 			ex_exc_ov, ex_exc_ri, ex_exc_sys, ex_cowrite}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_membyte,
 			mem_isbranch, mem_pc_branch, mem_aluz, mem_exout, mem_data_rt, 
-			mem_wreg, mem_instr, mem_pc_next, mem_isvalid,
+			mem_wreg, mem_instr, mem_pc_next, mem_isvalid, mem_cpu_mode,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite})
 );
 
@@ -580,15 +583,15 @@ wire mem_exc_ri;
 wire mem_exc_sys;
 wire mem_cowrite;
 wire mem_isvalid;
+wire mem_cpu_mode;
 wire [31:0] mem_pc_next;
 wire [31:0] mem_exout;
 wire [31:0] mem_data_rt;
 wire [31:0] mem_memout;
 wire [4:0] mem_wreg;
 wire [31:0] mem_wdata;
-wire pc_take_branch;
 
-assign pc_take_branch = mem_isbranch & mem_aluz;
+wire pc_take_branch = mem_isbranch & mem_aluz;
 
 wire io_enable = & mem_exout[31:26]; // IO when 0xFF....
 wire dc_enable = (mem_memwrite | mem_memread) & ~io_enable;
@@ -596,13 +599,16 @@ wire [31:0] io_out;
 wire [31:0] mem_out;
 wire io_exit;
 
+wire mem_exc_st = io_enable & ~mem_cpu_mode & mem_memwrite;
+wire mem_exc_ld = io_enable & ~mem_cpu_mode & mem_memread;
+
 stdio stdio(
 	.clk(~clk),
 	.reset(reset),
 	.addr(mem_exout[7:0]),
 	.data_out(io_out),
 	.data_in(mem_data_rt),
-	.enable((mem_memwrite | mem_memread) & io_enable),
+	.enable((mem_memwrite | mem_memread) & io_enable & mem_cpu_mode),
 	.read_write(mem_memread),
 	.exit(io_exit)
 );
@@ -653,14 +659,16 @@ cache_direct #(
 assign mem_memout = io_enable ? io_out : mem_out;
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
-flipflop #(.N(139)) mem_wb (
+flipflop #(.N(141)) mem_wb (
 	.clk(clk),
 	.reset(mem_wb_reset | reset),
 	.we(mem_wb_we),
 	.in({mem_regwrite, mem_wdata, mem_wreg, mem_instr,
+			mem_exc_ld, mem_exc_st,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite,
 			mem_pc_next, mem_exout, mem_isvalid}),
 	.out({wb_regwrite, wb_wdata, wb_wreg, wb_instr, 
+			wb_exc_ld, wb_exc_st,
 			wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_cowrite, 
 			wb_pc_next, wb_exc_address, wb_isvalid})
 );
@@ -682,6 +690,8 @@ wire wb_exc_ov;
 wire wb_exc_ri;
 wire wb_exc_sys;
 reg wb_exc_tr = 0;
+wire wb_exc_st;
+wire wb_exc_ld;
 wire wb_cowrite;
 wire wb_isvalid;
 

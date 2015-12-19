@@ -75,8 +75,8 @@
 // Interrupts (*supported)
 
 `define INT_EXT     0  // External interrupt
-`define INT_ADDRL   4  // Address error exception (load or instruction fetch)
-`define INT_ADDRS   5  // Address error exception (store)
+`define INT_ADDRL   4  // *Address error exception (load or instruction fetch)
+`define INT_ADDRS   5  // *Address error exception (store)
 `define INT_IBUS    6  // Bus error on instruction fetch
 `define INT_DBUS    7  // Bus error on data load or store
 `define INT_SYSCALL 8  // *Syscall exception
@@ -84,6 +84,21 @@
 `define INT_RI      10 // *Reserved instruction exception
 `define INT_OVF     12 // *Arithmetic overflow exception
 `define INT_TR      13 // *Trap exception
+
+`define EXC_OFF_ADDRL   64
+`define EXC_OFF_ADDRS   65
+`define EXC_OFF_SYSCALL 66
+`define EXC_OFF_RI      67
+`define EXC_OFF_OVF     68
+`define EXC_OFF_TR      69
+
+`define EXC_MSG_ADDRL "Address Load "
+`define EXC_MSG_ADDRS "Address Store"
+`define EXC_MSG_OVF   "Overflow     "
+`define EXC_MSG_RI    "Reserved Inst"
+`define EXC_MSG_SYS   "Syscall      "
+`define EXC_MSG_TR    "Trap         "
+`define EXC_MSG_PANIC "Panic        "
 
 // SYS IO
 

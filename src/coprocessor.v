@@ -14,7 +14,7 @@ module coprocessor(
 	input wire [4:0] rreg,
 	input wire [4:0] wreg,
 	input wire [31:0] wdata,
-	input wire [67:0] exception_bus,
+	input wire [69:0] exception_bus,
 	output reg cop_reset = 0,
 	output reg [31:0] pc_kernel = 32'h0,
 	output reg [31:0] rdata = 32'd0,
@@ -52,10 +52,12 @@ always @(posedge clk) begin
 end
 
 always @(exception_bus) begin
-    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[67]}} & (`INT_TR      << `C0_SR_EC));
-    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[66]}} & (`INT_OVF     << `C0_SR_EC));
-    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[65]}} & (`INT_RI      << `C0_SR_EC));
-    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[64]}} & (`INT_SYSCALL << `C0_SR_EC));
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[`EXC_OFF_TR     ]}} & (`INT_TR      << `C0_SR_EC));
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[`EXC_OFF_OVF    ]}} & (`INT_OVF     << `C0_SR_EC));
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[`EXC_OFF_RI     ]}} & (`INT_RI      << `C0_SR_EC));
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[`EXC_OFF_SYSCALL]}} & (`INT_SYSCALL << `C0_SR_EC));
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[`EXC_OFF_ADDRS  ]}} & (`INT_ADDRS   << `C0_SR_EC));
+    co_regs[`C0_CAUSE] = co_regs[`C0_CAUSE] | ({32{exception_bus[`EXC_OFF_ADDRL  ]}} & (`INT_ADDRL   << `C0_SR_EC));
 
     if (| exception_bus[66 -: 3]) begin
         co_regs[`C0_EPC] <= exception_bus[63:32];
@@ -65,10 +67,14 @@ always @(exception_bus) begin
 		co_regs[`C0_SR] = co_regs[`C0_SR] | 1 << `C0_SR_EL;
 		co_regs[`C0_SR] = co_regs[`C0_SR] | 1 << `C0_SR_UM;
 		`INFO(("[Exception] %s",
-			(exception_bus[66] ? "Overflow            " :
-			(exception_bus[65] ? "Reserved Instruction" :
-			(exception_bus[64] ? "Syscall             " :
-			                     "Panic               ")))))
+			(exception_bus[`EXC_OFF_TR     ] ? `EXC_MSG_TR      :
+			(exception_bus[`EXC_OFF_OVF    ] ? `EXC_MSG_OVF     :
+			(exception_bus[`EXC_OFF_RI     ] ? `EXC_MSG_RI      :
+			(exception_bus[`EXC_OFF_SYSCALL] ? `EXC_MSG_SYSCALL :
+			(exception_bus[`EXC_OFF_ADDRS  ] ? `EXC_MSG_ADDRS   :
+			(exception_bus[`EXC_OFF_ADDRL  ] ? `EXC_MSG_ADDRL   :
+			                                   `EXC_MSG_PANIC
+		))))))))
     end else begin
         cop_reset <= 0;
 		pc_select <= 0;

@@ -13,7 +13,7 @@ __str_exception:            .asciiz "[ukernel]: Exception detected: "
 __str_syscall_uns:          .asciiz "[ukernel]: Unsupported syscall ("
 __str_syscall_uns2:         .asciiz ").\n"
 __str_unimplemented:        .asciiz "exception not implemented raised.\n"
-__str_load_exc:             .asciiz "address error (load or instruction fetch).\n"
+__str_ld_exc:               .asciiz "address error (load).\n"
 __str_st_exc:               .asciiz "address error (store).\n"
 __str_tlb_fetch:            .asciiz "TLB on instruction fetch.\n"
 __str_tlb_data:             .asciiz "TLB on load or store.\n"
@@ -55,10 +55,13 @@ __skip_emsg:
 	jr $v0                          # Switch exception table (see table below)
 	
 	# 0  - Int Interrupt (hardware)
+	# 1  - TLB Mod
+	# 2  - TLB Load
+	# 3  - TLB Store
 	# 4  - AdEL Address Error Exception (load or instruction fetch)
 	# 5  - AdES Address Error Exception (store)
-	# 6  - IBE Bus Error on Instruction Fetch
-	# 7  - DBE Bus Error on Load or Store
+	# 6  - IBE Bus Error on Instruction Fetch - aka iTLB?
+	# 7  - DBE Bus Error on Load or Store     - aka dTLB?
 	# 8  - Sys Syscall Exception
 	# 9  - Bp Breakpoint Exception
 	# 10 - RI Reserved Instruction Exception
@@ -86,7 +89,7 @@ __unimpl4:
 	jal __kernel_strprint
 	j __epc
 __AdEL:
-	la $a0, __str_load_exc
+	la $a0, __str_ld_exc
 	jal __kernel_strprint
 	j __epc    
 __AdES:
