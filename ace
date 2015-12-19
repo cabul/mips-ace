@@ -90,13 +90,14 @@ details() {
 		run)
 			echo 'usage: ace run [-t|--trace <trace>] [-g|--gtkwave]'
 			echo '               [-m|--main <main>] [-k|--kernel <kernel>]'
-			echo '               [-d|--define <flag>] <program>'
+			echo '               [-b|--bare] [-d|--define <flag>] <program>'
 			echo
 			echo '   -t|--trace     Name for tracefile'
 			echo '   -g|--gtkwave   Graphical mode (GTKWave)'
 			echo '   -m|--main      Main module (default: cpu_tb)'
 			echo '   -d|--define    Add debug flag'
 			echo '   -k|--kernel    Name of the kernel (default: minimal)'
+			echo '   -b|--bare      Bare-metal mode, no kernel loaded'
 			echo
 			echo 'This command builds the cpu and runs a program against it.'
 			echo 'You can either use assembly source code or a hexadecimal'
@@ -256,11 +257,12 @@ testbench() {
 }
 
 run() {
-	TEMP=`getopt -o d:gt:m:k: --long define:,gtkwave,trace:,main:,kernel: -- "$@" 2>/dev/null`
+	TEMP=`getopt -o bd:gt:m:k: --long bare,define:,gtkwave,trace:,main:,kernel: -- "$@" 2>/dev/null`
 	ARG_GTK=0
 	ARG_MAIN="test/cpu_tb.v"
 	ARG_TRACE=
 	ARG_KERNEL=default
+	ARG_BARE=0
 	eval set -- "$TEMP"
 	mkdir -p build
 	while true ; do
@@ -270,6 +272,7 @@ run() {
 			-t|--trace)   ARG_TRACE=${2%.vcd}.vcd ; shift 2 ;;
 			-m|--main)    ARG_MAIN=${2%.v}.v ; shift 2 ;;
 			-k|--kernel)  ARG_KERNEL=$2 ; shift 2 ;;
+			-b|--bare)    ARG_BARE=1 ; shift ;;
 			--) shift ; break ;;
 			*) die "Unrecognized option $1" ;;
 		esac
@@ -280,8 +283,14 @@ run() {
 	FILE_ENDING=${1##*.}
 	case $FILE_ENDING in
 		s|asm)
-			[ -f kernel/${ARG_KERNEL}.s ] || die "Kernel $ARG_KERNEL not available"
-			cat kernel/${ARG_KERNEL}.s $1 > build/memory.asm
+			if [[ $ARG_BARE -eq 0 ]] ; then
+				[[ -f kernel/${ARG_KERNEL}.s ]] || die "Kernel $ARG_KERNEL not available"
+				cat kernel/${ARG_KERNEL}.s $1 > build/memory.asm
+				export ASM_MODE="user_kernel"
+			else
+				cat $1 > build/memory.asm
+				export ASM_MODE="user_only"
+			fi
 			utils/asm build/memory.asm > build/memory.dat 2> build/memory.log
 			if [[ $? -ne 0 ]] ; then
 				cat build/memory.log >&2
