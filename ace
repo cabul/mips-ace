@@ -24,7 +24,7 @@ GREEN='\033[32m'
 YELLOW='\033[33m'
 BLUE='\033[34m'
 
-
+CALLDIR=$PWD
 [[ -z $ROOTDIR ]] || cd $ROOTDIR
 
 die() {
@@ -278,9 +278,10 @@ run() {
 		esac
 	done
 	[[ $# -gt 0 ]] || die "No program"
-	[[ -f $1 ]] || die 'Not a file'
+	SRCFILE=$CALLDIR/$1
+	[[ -f $SRCFILE ]] || die 'Not a file'
 	check_config
-	FILE_ENDING=${1##*.}
+	FILE_ENDING=${SRCFILE##*.}
 	case $FILE_ENDING in
 		s|asm)
 			if [[ $ARG_BARE -eq 0 ]] ; then
@@ -288,7 +289,7 @@ run() {
 				cat kernel/${ARG_KERNEL}.s $1 > build/memory.asm
 				export ASM_MODE="user_kernel"
 			else
-				cat $1 > build/memory.asm
+				cat $SRCFILE > build/memory.asm
 				export ASM_MODE="user_only"
 			fi
 			utils/asm build/memory.asm > build/memory.dat 2> build/memory.log
@@ -303,14 +304,14 @@ run() {
 			fi
 			;;
 		dat)
-			utils/memformat $1 > build/memory.raw 2> build/memory.log
+			utils/memformat $SRCFILE > build/memory.raw 2> build/memory.log
 			if [[ $? -ne 0 ]] ; then
 				cat build/memory.log >&2
 				die 'Unable to format memory'
 			fi
 			;;
 		raw)
-			cat $1 > build/memory.raw
+			cat $SRCFILE > build/memory.raw
 			;;
 		*)
 			die "Unrecognized format $FILE_ENDING"
