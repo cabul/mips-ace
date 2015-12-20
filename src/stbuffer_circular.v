@@ -37,14 +37,14 @@ reg [31:0] temp1 = 0, temp2 = 0;
 reg [2:0] stbuff_state = 3'b000;
 // Store buffer entry model :: { address || data || type }
 reg [64:0] stbuff [`STBUFF_DEPTH-1:0];
-integer i=0;
+integer i = 0;
 
 //Synchronism ->  Store Buffer -- cache
 always @(hit_dc) begin
    if(hit_dc & isALUOp) begin //It's ALU operation, and DC has a hit
       store_dc <= 0; //Clear signals
       load_dc <= 0;
-      beg_p = (beg_p +1) % `STBUFF_DEPTH; //Clear entry in SB
+      beg_p <= (beg_p +1) % `STBUFF_DEPTH; //Clear entry in SB
    end
    else if(hit_dc) begin //It's a load and DC has a hit
      select_sb <= 0; //Clear signals
@@ -100,7 +100,7 @@ always @(posedge clk) begin
               out_addr <= stbuff[beg_p][64:33];
               out_wdata <= stbuff[beg_p][32:1];
               out_type <= stbuff[beg_p][0];
-              store_dc <= 1; //Send signal to DC to store oldes entry
+              store_dc <= 1; //Send signal to DC to store oldest entry
               //Update Store Buffer
               beg_p <= (beg_p +1) % `STBUFF_DEPTH ;
               end_p <= (end_p +1) % `STBUFF_DEPTH ;
