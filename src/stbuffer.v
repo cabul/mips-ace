@@ -27,8 +27,6 @@ module stbuffer(
                 output reg        select_sb = 0
 );
 
-localparam ELEMENTS = `STBUFF_DEPTH;
-parameter WIDTH = 32;
 integer i = 0;
 
 reg [64:0] stbuff [`STBUFF_DEPTH-1:0];
@@ -76,7 +74,7 @@ always @(posedge clk) begin
    end else if (store) begin //STORE
       load_dc <= 0;
       select_sb <= 0;
-      if (counter < ELEMENTS) begin //SB has enough room for a new element
+      if (counter < `STBUFF_DEPTH) begin //SB has enough room for a new element
          stbuff[counter][64:33] <= in_addr;
          stbuff[counter][32:1] <= in_wdata;
          stbuff[counter][0] <= in_type;
