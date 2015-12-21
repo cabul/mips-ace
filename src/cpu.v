@@ -295,6 +295,7 @@ wire [31:0] pc_out;
 wire [31:0] pc_kernel;
 wire [31:0] bp_fcurrent;
 wire [31:0] bp_fbaddr;
+wire [31:0] bp_misspredicted_addr;
 
 branchpredictor branchpredictor(
     .clk(clk),
@@ -310,8 +311,10 @@ branchpredictor branchpredictor(
 );
 
 assign if_pc_next = pc_out + 4;
+assign bp_misspredicted_addr = mem_bp_btaken ? mem_pc_next : mem_pc_branch ;
 assign bp_misspredicted = mem_bp_opinion & mem_isbranch & 
                           ((~mem_aluz & mem_bp_btaken) | (mem_aluz & ~mem_bp_btaken));
+
 pc pc(
     .clk(clk),
     .reset(pc_reset),
@@ -328,7 +331,7 @@ pc pc(
     .dst_kernel(address_kernel),
     .dst_eret(epc),
     .dst_prediction(if_bp_addr),
-    .dst_misspred(mem_pc_branch),
+    .dst_misspred(bp_misspredicted_addr),
     .initial_pc(32'd0),
     .pc_out(pc_out)
 );
