@@ -64,5 +64,4 @@ done_k:	mul $t8, $t5, $t4 # FILA * NCOLUMNAS
 done_j:	addi $t5, $t5, 1 # i++
 		j loop_i
 
-done_i: li $v0, 10
-		syscall
+done_i: jr $ra

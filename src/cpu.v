@@ -317,7 +317,7 @@ pc pc(
     .reset(pc_reset),
     .we(pc_we),
     .is_jump(ex_isjump),
-    .is_branch(pc_take_branch),
+    .is_branch(pc_take_branch & ~mem_bp_opinion),
     .is_kernel(select_kernel),
     .is_eret(ex_exc_ret),
     .is_bpredictor(if_bp_opinion & if_bp_btaken),
@@ -328,7 +328,7 @@ pc pc(
     .dst_kernel(address_kernel),
     .dst_eret(epc),
     .dst_prediction(if_bp_addr),
-    .dst_misspred(mem_pc_next),
+    .dst_misspred(mem_pc_branch),
     .initial_pc(32'd0),
     .pc_out(pc_out)
 );
