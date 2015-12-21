@@ -8,16 +8,16 @@
 #matrix_b:	.space FILAS*COLUMNAS*T_ELEMENTO
 #matrix_c:	.space FILAS*COLUMNAS*T_ELEMENTO
 
-matrix_a: .space 65536
-matrix_b: .space 65536
-matrix_c: .space 65536
+matrix_a: .space 256
+matrix_b: .space 256
+matrix_c: .space 256
 
 .text
 main:	la $t0, matrix_a
 		la $t1, matrix_b
 		la $t2, matrix_c
-		li $t3, 128 #FILAS
-		li $t4, 128 #COLUMNAS
+		li $t3, 8 #FILAS
+		li $t4, 8 #COLUMNAS
 
 		li $t5, 0 # i = 0
 		
