@@ -8,4 +8,10 @@ loop:
     slt $s2, $s0, $s1
     beq $s2, $0, loop       # do while $s0 >= 5
 exit:
+    li $v0, 1
+    add $a0, $s0, $0
+    syscall
+    li $v0, 11
+    li $a0, 10
+    syscall
     jr $ra
