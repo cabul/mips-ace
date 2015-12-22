@@ -57,7 +57,7 @@ integer perf_dTLB_store_misses   = 0;
 integer perf_iTLB_loads          = 0;
 integer perf_iTLB_load_misses    = 0;
 
-real CPI;
+real IPC;
 always @(posedge io_exit) begin
 `ifdef INSTRUMENT
 	$display("[perf] cycles:              %d", perf_cycles);
@@ -76,9 +76,9 @@ always @(posedge io_exit) begin
 	$display("[perf] iTLB_loads:          %d", perf_iTLB_loads);
 	$display("[perf] iTLB_load_misses:    %d", perf_iTLB_load_misses);
     // Additional
-    CPI = perf_instructions;
-    CPI = CPI/perf_cycles;
-    $display("[perf] CPI:                    %f", CPI);
+    IPC = perf_instructions;
+    IPC = IPC/perf_cycles;
+    $display("[perf] IPC:                    %f", IPC);
 `endif
 	$finish;
 end
