@@ -39,7 +39,7 @@ print_str:
 	j print_str
 print_str_ret:
 	jr $ra
-	
+
 	.data
 escape: .byte 0x1B
 tored: .asciiz "[31m"

@@ -71,7 +71,7 @@ always @(mem_write_req, mem_write_ack, mem_read_req, mem_read_ack) begin
 	end
 end
 
-always @* if (master_enable & hit & ~reset) begin
+always @* if (hit) begin
 	if (byte_enable) data_out = {24'h000000, byte_out};
 	else data_out <= word_out;
 end else data_out <= 32'h00000000;

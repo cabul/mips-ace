@@ -77,11 +77,12 @@ instructions = {
 	'sb'      : ( 'I' , 0x28  , None  , 'rt , imm ( rs )' ),
 	'sw'      : ( 'I' , 0x2b  , None  , 'rt , imm ( rs )' ),
 	'syscall' : ( 'R' , 0x0   , 0xc   , None ),
-	'mfc0'    : ( 'I' , 0x10  , 0x0   , 'rt , rs' ),
-	'mtc0'    : ( 'I' , 0x11  , 0x0   , 'rs , rt' ),
+	'mfc0'    : ( 'I' , 0x10  , None  , 'rt , rs' ),
+	'mtc0'    : ( 'I' , 0x11  , None  , 'rs , rt' ),
 	'mul'     : ( 'R' , 0x0   , 0x18  , 'rd , rs , rt' ),
 	'div'     : ( 'R' , 0x0   , 0x1a  , 'rd , rs , rt' ),
-	'eret'    : ( 'I' , 0x12  , 0x0   , None ),
+	'eret'    : ( 'I' , 0x12  , None  , None ),
+	'tlbwr'   : ( 'I' , 0x13  , None  , 'rs , rt' ),
 	'nop'     : ( 'P' , None  , None  , None ),
 }
 
@@ -109,7 +110,7 @@ registers = {
 	'5'  : 5  , 'a1'   : 5  , 'f5'  : 5  ,
 	'6'  : 6  , 'a2'   : 6  , 'f6'  : 6  ,
 	'7'  : 7  , 'a3'   : 7  , 'f7'  : 7  ,
-	'8'  : 8  , 't0'   : 8  , 'f8'  : 8  ,
+	'8'  : 8  , 't0'   : 8  , 'f8'  : 8  , 'badva'  : 8 ,
 	'9'  : 9  , 't1'   : 9  , 'f9'  : 9  ,
 	'10' : 10 , 't2'   : 10 , 'f10' : 10 ,
 	'11' : 11 , 't3'   : 11 , 'f11' : 11 ,
@@ -135,7 +136,7 @@ registers = {
 	'31' : 31 , 'ra'   : 31 , 'f31' : 31 ,
 }
 
-constants = { 
+constants = {
     'PRINT_HEX'   : 0x0,
 	'PRINT_INT'   : 0x1,
 	'PRINT_FLOAT' : 0x2,
@@ -586,7 +587,7 @@ def repl(stream):
 		sys.exit(1)
 
 def main():
-	if len(sys.argv) < 2: 
+	if len(sys.argv) < 2:
 		try:
 			repl(sys.stdin)
 		except KeyboardInterrupt:

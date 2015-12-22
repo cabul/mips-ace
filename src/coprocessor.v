@@ -24,13 +24,13 @@ module coprocessor(
 );
 
 reg [31:0] co_regs [14:8];
-// C0_BadAR 8
+// C0_BADVA 8
 // C0_SR    12
 // C0_CAUSE 13
 // C0_EPC   14
 
 always @* begin
-    rdata <= (rreg >= `C0_BadAR && rreg <= `C0_EPC) ? co_regs[rreg] : 32'd0;
+    rdata <= (rreg >= `C0_BADVA && rreg <= `C0_EPC) ? co_regs[rreg] : 32'd0;
 	cpu_mode <= co_regs[`C0_SR][4];
 	epc <= co_regs[`C0_EPC];
 end
@@ -38,14 +38,14 @@ end
 always @(posedge clk) begin
 	if (reset) begin
         rdata <= 32'd0;
-		co_regs[`C0_BadAR] <= 32'd0;
+		co_regs[`C0_BADVA] <= 32'd0;
         co_regs[`C0_SR]    <= 1 << `C0_SR_UM;
         co_regs[`C0_CAUSE] <= 32'd0;
         co_regs[`C0_EPC]   <= 32'd0;
 		cpu_mode <= co_regs[`C0_SR][4];
 
 	end else if (enable) begin
-        if (wreg >= `C0_SR && wreg <= `C0_EPC || wreg == `C0_BadAR) begin
+        if (wreg >= `C0_SR && wreg <= `C0_EPC || wreg == `C0_BADVA) begin
             co_regs[wreg] <= wdata;
         end
     end

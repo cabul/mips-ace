@@ -32,7 +32,7 @@ cpu cpu (
 memory_async mem (
 	.reset(reset),
 	.addr(mem_addr),
-	.master_enable(mem_enable),
+	.enable(mem_enable),
 	.read_write(mem_rw),
 	.data_in(mem_data_in),
 	.data_out(mem_data_out),

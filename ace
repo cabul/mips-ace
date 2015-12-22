@@ -279,14 +279,14 @@ run() {
 	done
 	[[ $# -gt 0 ]] || die "No program"
 	SRCFILE=$CALLDIR/$1
-	[[ -f $SRCFILE ]] || die 'Not a file'
+	[[ -f $SRCFILE ]] || die "File not found $1"
 	check_config
 	FILE_ENDING=${SRCFILE##*.}
 	case $FILE_ENDING in
 		s|asm)
 			if [[ $ARG_BARE -eq 0 ]] ; then
 				[[ -f kernel/${ARG_KERNEL}.s ]] || die "Kernel $ARG_KERNEL not available"
-				cat kernel/${ARG_KERNEL}.s $1 > build/memory.asm
+				cat kernel/${ARG_KERNEL}.s $SRCFILE > build/memory.asm
 				export ASM_MODE="user_kernel"
 			else
 				cat $SRCFILE > build/memory.asm

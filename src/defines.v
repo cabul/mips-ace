@@ -57,10 +57,11 @@
 `define OP_MFC0  6'h10
 `define OP_MTC0  6'h11
 `define OP_ERET  6'h12
+`define OP_TLBWR 6'h13
 
 // Coprocessor0
 
-`define C0_BadAR 5'd8
+`define C0_BADVA 5'd8
 `define C0_SR    5'd12
 `define C0_CAUSE 5'd13
 `define C0_EPC   5'd14
@@ -75,6 +76,8 @@
 // Interrupts (*supported)
 
 `define INT_EXT     0  // External interrupt
+`define INT_ITLB    2  // iTLB miss
+`define INT_DTLB    3  // dTLB miss
 `define INT_ADDRL   4  // *Address error exception (load or instruction fetch)
 `define INT_ADDRS   5  // *Address error exception (store)
 `define INT_IBUS    6  // Bus error on instruction fetch
@@ -119,6 +122,8 @@
 //Store buffer
 
 `define STBUFF_DEPTH 5
+`define TLB_DEPTH    4
+`define PAGE_SIZE    4096
 
 // Debug macros
 `ifdef DEBUG

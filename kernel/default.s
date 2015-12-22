@@ -23,7 +23,7 @@ __str_reserved:             .asciiz "reserved instruction.\n"
 __str_trap:                 .asciiz "it's a trap.\n"
 __str_endline:              .asciiz "\n"
 __save_reg:                 .space 12
-__exception_jumptable:      .word __int, __unimpl1, __unimpl2, __unimpl3, __AdEL, __AdES, __IBE, __DBE, __Sys, __Bp, __RI, __CpU, __Ov, __Tr, __unimpl4, __FPE
+__exception_jumptable:      .word __int, __unimpl1, __iTLB, __dTLB, __AdEL, __AdES, __IBE, __DBE, __Sys, __Bp, __RI, __CpU, __Ov, __Tr, __unimpl4, __FPE
 __syscall_jumptable:        .word __pint_hex, __pint, __pfloat, __pdouble, __pstring, __rint, __rfloat, __rdouble, __rstring, __mem_alloc, __sys_exit, __pchar, __rchar, __sys_unsupported
 
 .ktext
@@ -53,15 +53,15 @@ __exception_handler:
 	jal __kernel_strprint
 __skip_emsg:
 	jr $v0                          # Switch exception table (see table below)
-	
+
 	# 0  - Int Interrupt (hardware)
-	# 1  - TLB Mod
-	# 2  - TLB Load
-	# 3  - TLB Store
+	# 1  - Mod TLB Modification
+	# 2  - TLBL TLB Exception (load or instruction fetch) => Used for iTLB miss
+	# 3  - TLBS TLB Exception (store)                     => Used for dTLB miss
 	# 4  - AdEL Address Error Exception (load or instruction fetch)
 	# 5  - AdES Address Error Exception (store)
-	# 6  - IBE Bus Error on Instruction Fetch - aka iTLB?
-	# 7  - DBE Bus Error on Load or Store     - aka dTLB?
+	# 6  - IBE Bus Error on Instruction Fetch
+	# 7  - DBE Bus Error on Load or Store
 	# 8  - Sys Syscall Exception
 	# 9  - Bp Breakpoint Exception
 	# 10 - RI Reserved Instruction Exception
@@ -69,7 +69,7 @@ __skip_emsg:
 	# 12 - Ov Arithmetic Overflow Exception
 	# 13 - Tr Trap
 	# 15 - FPE Floating Point Exception
-	
+
 __CpU:
 __Bp:
 __FPE:
@@ -82,8 +82,14 @@ __Tr:
 	jal __kernel_strprint
 	sw $0, %IO_EXIT($0)
 __unimpl1:
-__unimpl2:
-__unimpl3:
+__iTLB:
+	la $a0, __str_tlb_fetch
+	jal __kernel_strprint
+	sw $0, %IO_EXIT($0)
+__dTLB:
+	la $a0, __str_tlb_data
+	jal __kernel_strprint
+	sw $0, %IO_EXIT($0)
 __unimpl4:
 	la $a0, __str_unimplemented
 	jal __kernel_strprint
@@ -91,17 +97,17 @@ __unimpl4:
 __AdEL:
 	la $a0, __str_ld_exc
 	jal __kernel_strprint
-	j __epc    
+	j __epc
 __AdES:
 	la $a0, __str_st_exc
 	jal __kernel_strprint
 	j __epc
 __IBE:
-	la $a0, __str_tlb_fetch
+	la $a0, __str_unimplemented
 	jal __kernel_strprint
 	j __epc
 __DBE:
-	la $a0, __str_tlb_data
+	la $a0, __str_unimplemented
 	jal __kernel_strprint
 	j __epc
 __Ov:
@@ -125,7 +131,7 @@ __Sys:
 	lw $v0, 0($v0)
 	xor $k1, $k1, $k1               # Clear register
 	jr $v0                          # Switch syscall table (see table below)
-	
+
 	# 0  - Print integer as hex value (custom)
 	# 1  - Print integer, $a0 = value
 	# 2  - Print float (not supported)

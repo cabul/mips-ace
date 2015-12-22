@@ -8,7 +8,7 @@
 module memory_async (
 	input wire reset,
 	input wire [31:0] addr,
-	input wire master_enable,
+	input wire enable,
 	input wire read_write,
 	input wire [WIDTH-1:0] data_in,
 	output reg [WIDTH-1:0] data_out = 0,
@@ -30,7 +30,7 @@ wire [DB-1:0] index = addr[WB+DB-1:WB];
 reg [WIDTH-1:0] mem [0:DEPTH-1];
 
 // Double guard
-always @(posedge master_enable) if (!reset) # LATENCY if (!reset) begin
+always @(posedge enable) if (!reset) # LATENCY if (!reset) begin
 	if (addr >= SIZE) `WARN(("[Memory] Out of bounds"))
 	if (read_write) begin
 		data_out = mem[index];
@@ -43,7 +43,7 @@ always @(posedge master_enable) if (!reset) # LATENCY if (!reset) begin
 	ack = 1;
 end
 
-always @(negedge master_enable) if(!reset) # 2 ack <= 1'b0;
+always @(negedge enable) if(!reset) # 2 ack <= 1'b0;
 
 always @(posedge reset) begin
 	$readmemh(DATA, mem);

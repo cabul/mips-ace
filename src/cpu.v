@@ -385,7 +385,7 @@ wire id_exc_ret;
 
 assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 assign id_pc_jump = {id_pc_next[31:28], id_instr[25:0], 2'b00};
- 
+
 control control (
 	.opcode(id_instr[31:26]),
 	.funct(id_instr[5:0]),
@@ -449,19 +449,19 @@ multiplexer #(.X(4)) data_rt_mux (
 	.data_out(id_data_rt)
 );
 
-flipflop #(.N(265)) id_ex (  
+flipflop #(.N(265)) id_ex (
 	.clk(clk),
 	.reset(id_ex_reset | reset),
 	.we(id_ex_we),
 	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_membyte, id_isbranch,
-			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst, 
-			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26], 
+			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst,
+			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
 			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst,
 			id_isvalid, id_cpu_mode}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte, ex_isbranch,
-			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst, 
-			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode, 
+			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst,
+			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode,
 			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr,
 			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_c0, ex_c0dst,
 			ex_isvalid, ex_cpu_mode})
@@ -554,11 +554,11 @@ flipflop #(.N(178)) ex_mem (
 	.reset(ex_mem_reset | reset),
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte,
-			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt, 
+			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt,
 			ex_wreg, ex_instr, ex_pc_next, ex_isvalid, ex_cpu_mode,
 			ex_exc_ov, ex_exc_ri, ex_exc_sys, ex_cowrite}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_membyte,
-			mem_isbranch, mem_pc_branch, mem_aluz, mem_exout, mem_data_rt, 
+			mem_isbranch, mem_pc_branch, mem_aluz, mem_exout, mem_data_rt,
 			mem_wreg, mem_instr, mem_pc_next, mem_isvalid, mem_cpu_mode,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite})
 );
@@ -667,9 +667,9 @@ flipflop #(.N(141)) mem_wb (
 			mem_exc_ld, mem_exc_st,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite,
 			mem_pc_next, mem_exout, mem_isvalid}),
-	.out({wb_regwrite, wb_wdata, wb_wreg, wb_instr, 
+	.out({wb_regwrite, wb_wdata, wb_wreg, wb_instr,
 			wb_exc_ld, wb_exc_st,
-			wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_cowrite, 
+			wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_cowrite,
 			wb_pc_next, wb_exc_address, wb_isvalid})
 );
 
@@ -736,7 +736,7 @@ end
 //     ____/ o o \
 //   /~____  =ø= /
 //  (______)__m_m)
-// 
+//
 
 endmodule
 
