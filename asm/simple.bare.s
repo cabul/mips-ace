@@ -5,18 +5,13 @@ main:
 loop:
 	lw $t1, 0($t0)
 	addi $t2, $t1, 48
-	move $a0, $t2
-	li $v0, %PRINT_CHAR
-	syscall
+	sw $t2, %IO_CHAR($0)
 	beq $t1, $zero, exit
 	addi $t0, $t0, 4
 	j loop
 exit:
-	move $a0, $s0
-	li $v0, %PRINT_CHAR
-	syscall
-	li $v0, %EXIT
-	syscall
+	sw $s0, %IO_CHAR($0)
+	sw $0, %IO_EXIT($0)
 
 	.data
 value: .word 3, 2, 1, 0
