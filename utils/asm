@@ -24,6 +24,9 @@ textinit  = getenv('TEXT_INIT'  , 0x0000 if mode == 'user_only' else 0x1000)
 datainit  = getenv('DATA_INIT'  , 0x1000 if mode == 'user_only' else 0x2000)
 use_virtual    = getenv('USE_VIRTUAL', False)
 virtual_offset = getenv('VIRTUAL_OFFSET', 0) if use_virtual else 0
+memory_width = getenv('MEMORY_WIDTH', 128)
+memory_depth = getenv('MEMORY_DEPTH', 1024)
+memory_size = int(memory_width) * int(memory_depth) / 8 # in bytes
 
 token_def = [
 #     Name           Pattern            Ignore
@@ -152,7 +155,7 @@ constants = {
 	'IO_INT'      : -3,
 	'IO_FLOAT'    : -4,
 	'IO_HEX'      : -5,
-    'STACK_INIT'  : 0x10000,
+    'STACK_INIT'  : memory_size - 4
 }
 
 def instrLen(opcode, operands):
