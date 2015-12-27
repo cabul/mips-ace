@@ -409,6 +409,7 @@ control control (
 	// Write back
 	.regwrite(id_regwrite),
 	.cowrite(id_cowrite),
+	// Exceptions
 	.exc_sys(id_exc_sys),
 	.exc_ri(id_exc_ri)
 );
@@ -445,7 +446,7 @@ coprocessor coprocessor(
 	.int_addrl(wb_exc_ld),
 
 	.epc_in(wb_pc_next),
-	.badvaddr_in(wb_exc_address),
+	.badvaddr_in(wb_bad_vaddr),
 
 	.pc_kernel(address_kernel),
 	.cop_reset(cop_reset),
@@ -471,21 +472,37 @@ flipflop #(.N(265)) id_ex (
 	.reset(id_ex_reset | reset),
 	.we(id_ex_we),
 	.in({
-	// Execute
-	// Memory
-	// Write back
-	id_regwrite, id_memtoreg, id_memread, id_memwrite, id_membyte, id_isbranch,
-			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst,
-			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
-			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
-			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_co, id_codst,
-			id_isvalid, id_user_mode}),
-	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte, ex_isbranch,
-			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst,
-			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode,
-			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr,
-			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_co, ex_codst,
-			ex_isvalid, ex_user_mode})
+		// General
+		id_instr, id_pc_next, id_user_mode, id_isvalid,
+		id_exc_sys, id_exc_ri,
+		// Execute
+		id_alu_s, id_alu_t, id_aluop, id_regdst, id_codst,
+		id_isjump, id_jumpdst, id_islink, id_exc_ret,
+		id_pc_jump, id_data_rs, id_data_rt, id_data_co,
+		id_imm,
+		id_instr[31:26], id_instr[25:21], id_instr[20:16], id_instr[15:11],
+		// Memory
+		id_isbranch,
+		id_memread, id_memwrite, id_memtoreg, id_membyte,
+		// Write back
+		id_regwrite, id_cowrite
+	}),
+	.out({
+		// General
+		ex_instr, ex_pc_next, ex_user_mode, ex_isvalid,
+		ex_exc_sys, ex_exc_ri,
+		// Execute
+		ex_alu_s, ex_alu_t, ex_aluop, ex_regdst, ex_codst,
+		ex_isjump, ex_jumpdst, ex_islink, ex_exc_ret,
+		ex_pc_jump, ex_data_rs, ex_data_rt, ex_data_co,
+		ex_imm_top, ex_funct,
+		ex_opcode, dst_rs, dst_rt, dst_rd,
+		// Memory
+		ex_isbranch,
+		ex_memread, ex_memwrite, ex_memtoreg, ex_membyte,
+		// Write back
+		ex_regwrite, ex_cowrite
+	})
 );
 
 ////////////////////////
@@ -574,14 +591,28 @@ flipflop #(.N(178)) ex_mem (
 	.clk(clk),
 	.reset(ex_mem_reset | reset),
 	.we(ex_mem_we),
-	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte,
-			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt,
-			ex_wreg, ex_instr, ex_pc_next, ex_isvalid, ex_user_mode,
-			ex_exc_ov, ex_exc_ri, ex_exc_sys, ex_cowrite}),
-	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_membyte,
-			mem_isbranch, mem_pc_branch, mem_aluz, mem_exout, mem_data_rt,
-			mem_wreg, mem_instr, mem_pc_next, mem_isvalid, mem_user_mode,
-			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite})
+	.in({
+		// General
+		ex_instr, ex_pc_next, ex_user_mode, ex_isvalid,
+		ex_exc_sys, ex_exc_ri, ex_exc_ov,
+		// Memory
+		ex_isbranch, ex_aluz, ex_pc_branch,
+		ex_memread, ex_memwrite, ex_memtoreg, ex_membyte,
+		ex_exout, ex_data_rt,
+		// Write back
+		ex_regwrite, ex_cowrite, ex_wreg
+	}),
+	.out({
+		// General
+		mem_instr, mem_pc_next, mem_user_mode, mem_isvalid,
+		mem_exc_sys, mem_exc_ri, mem_exc_ov,
+		// Memory
+		mem_isbranch, mem_aluz, mem_pc_branch,
+		mem_memread, mem_memwrite, mem_memtoreg, mem_membyte,
+		mem_exout, mem_data_rt,
+		// Write back
+		mem_regwrite, mem_cowrite, mem_wreg
+	})
 );
 
 ////////////////////////
@@ -680,18 +711,26 @@ cache_direct #(
 assign mem_memout = io_enable ? io_out : mem_out;
 assign mem_wdata = mem_memtoreg ? mem_memout : mem_exout;
 
-flipflop #(.N(141)) mem_wb (
+flipflop #(.N(142)) mem_wb (
 	.clk(clk),
 	.reset(mem_wb_reset | reset),
 	.we(mem_wb_we),
-	.in({mem_regwrite, mem_wdata, mem_wreg, mem_instr,
-			mem_exc_ld, mem_exc_st,
-			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite,
-			mem_pc_next, mem_exout, mem_isvalid}),
-	.out({wb_regwrite, wb_wdata, wb_wreg, wb_instr,
-			wb_exc_ld, wb_exc_st,
-			wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_cowrite,
-			wb_pc_next, wb_exc_address, wb_isvalid})
+	.in({
+		// General
+		mem_instr, mem_pc_next, mem_user_mode, mem_isvalid,
+		mem_exc_sys, mem_exc_ri, mem_exc_ov,
+		mem_exc_ld, mem_exc_st, mem_exout,
+		// Write back
+		mem_regwrite, mem_cowrite, mem_wreg, mem_wdata
+	}),
+	.out({
+		// General
+		wb_instr, wb_pc_next, wb_user_mode, wb_isvalid,
+		wb_exc_sys, wb_exc_ri, wb_exc_ov,
+		wb_exc_ld, wb_exc_st, wb_bad_vaddr,
+		// Write back
+		wb_regwrite, wb_cowrite, wb_wreg, wb_wdata
+	})
 );
 
 
@@ -706,7 +745,8 @@ wire wb_regwrite;
 wire [31:0] wb_wdata;
 wire [4:0] wb_wreg;
 wire [31:0] wb_pc_next;
-wire [31:0] wb_exc_address;
+wire [31:0] wb_bad_vaddr;
+wire wb_user_mode;
 wire wb_exc_ov;
 wire wb_exc_ri;
 wire wb_exc_sys;
