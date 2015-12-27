@@ -20,7 +20,7 @@ always @* begin
 			`OP_SLTI: aluop_out <= `ALUOP_SLT;
 			`OP_BNE:  aluop_out <= `ALUOP_BNE;
 			`OP_BEQ:  aluop_out <= `ALUOP_BEQ;
-			`OP_LB:   aluop_out <= `ALUOP_ADD; 
+			`OP_LB:   aluop_out <= `ALUOP_ADD;
 			`OP_LW:   aluop_out <= `ALUOP_ADD;
 			`OP_SB:   aluop_out <= `ALUOP_ADD;
 			`OP_SW:   aluop_out <= `ALUOP_ADD;
@@ -31,9 +31,9 @@ always @* begin
 			`OP_JAL:  aluop_out <= aluop_out;
 			`OP_ERET: aluop_out <= aluop_out;
 			`OP_RTYPE:
-				`WARN(("[ALU Control] Unexpected OP_RTYPE"))
+				`WARN(("ALU Control: Unexpected OP_RTYPE"))
 			default:
-				`WARN(("[ALU Control] Unknown opcode signal %x", opcode))
+				`WARN(("ALU Control: Unknown opcode signal %x", opcode))
 		endcase
 	end else begin
 		casex (funct)
@@ -52,7 +52,7 @@ always @* begin
 			`FN_JR:  aluop_out <= aluop_out;
 			`FN_SYS: aluop_out <= aluop_out;
 			default:
-				`WARN(("[ALU Control] Unknown funct signal %x", funct))
+				`WARN(("ALU Control: Unknown funct signal %x", funct))
 		endcase
 	end
 end

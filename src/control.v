@@ -6,7 +6,7 @@
 module control(
 	input wire [5:0] opcode,
 	input wire [5:0] funct,
-	input wire cpu_mode,
+	input wire user_mode,
 	output reg regwrite = 0,
 	output reg memtoreg = 0,
 	output reg memread  = 0,
@@ -371,7 +371,7 @@ always @* begin
 			cowrite  <= 0;
 			exc_sys  <= 0;
 			exc_ret  <= 0;
-			exc_ri   <= ~cpu_mode;
+			exc_ri   <= user_mode;
 			membyte  <= 0;
 		end
 		`OP_MTC0: begin
@@ -389,8 +389,8 @@ always @* begin
 			islink   <= 0;
 			exc_sys  <= 0;
 			exc_ret  <= 0;
-			exc_ri   <= ~cpu_mode;
-			cowrite  <= cpu_mode;
+			exc_ri   <= user_mode;
+			cowrite  <= ~user_mode;
 			membyte  <= 0;
 		end
 		`OP_ERET: begin
@@ -408,12 +408,12 @@ always @* begin
 			islink   <= 0;
 			exc_sys  <= 0;
 			cowrite  <= 0;
-			exc_ri   <= ~cpu_mode;
-			exc_ret  <= cpu_mode;
+			exc_ri   <= user_mode;
+			exc_ret  <= ~user_mode;
 			membyte  <= 0;
 		end
 		default:
-			`WARN(("[Control] Unknown opcode %x", opcode))
+			`WARN(("Control: Unknown opcode %x", opcode))
 	endcase
 end
 

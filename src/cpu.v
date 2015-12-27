@@ -279,7 +279,7 @@ pc pc(
     .we(pc_we),
     .is_jump(ex_isjump),
     .is_branch(pc_take_branch),
-    .is_kernel(select_kernel),
+    .is_kernel(cop_reset),
     .is_eret(ex_exc_ret),
     .is_bpredictor(0),
     .is_misspred(0),
@@ -378,7 +378,7 @@ wire [31:0] epc;
 wire [1:0] fwdctrl_rs;
 wire [1:0] fwdctrl_rt;
 wire cop_reset;
-wire id_cpu_mode;
+wire id_user_mode;
 wire select_kernel;
 wire [31:0] address_kernel;
 wire id_exc_ret;
@@ -389,6 +389,7 @@ assign id_pc_jump = {id_pc_next[31:28], id_instr[25:0], 2'b00};
 control control (
 	.opcode(id_instr[31:26]),
 	.funct(id_instr[5:0]),
+	.user_mode(id_user_mode),
 	.regdst(id_regdst),
 	.isbranch(id_isbranch),
 	.memread(id_memread),
@@ -404,7 +405,6 @@ control control (
 	.exc_ri(id_exc_ri),
 	.exc_sys(id_exc_sys),
 	.cowrite(id_cowrite),
-	.cpu_mode(id_cpu_mode),
 	.exc_ret(id_exc_ret),
 	.islink(id_islink)
 );
@@ -425,16 +425,28 @@ coprocessor coprocessor(
 	.clk(clk),
 	.reset(reset),
 	.enable(wb_cowrite),
+
 	.rreg(id_instr[25:21]),
 	.wreg(wb_wreg),
-	.wdata(wb_wdata),
-	.exception_bus({wb_exc_tr, wb_exc_ov, wb_exc_ri, wb_exc_sys, wb_exc_st, wb_exc_ld, wb_pc_next, wb_exc_address}),
-	.cop_reset(cop_reset),
-	.pc_kernel(address_kernel),
-	.pc_select(select_kernel),
-	.epc(epc),
 	.rdata(id_data_c0),
-	.cpu_mode(id_cpu_mode)
+	.wdata(wb_wdata),
+
+	.int_ext(wb_exc_ext),
+	.int_tr(wb_exc_tr),
+	.int_ovf(wb_exc_ovf),
+	.int_ri(wb_exc_ri),
+	.int_sys(wb_exc_sys),
+	.int_addrs(wb_exc_st),
+	.int_addrl(wb_exc_ld),
+
+	.epc_in(wb_pc_next),
+	.badvaddr_in(wb_exc_address),
+
+	.pc_kernel(address_kernel),
+	.cop_reset(cop_reset),
+
+	.user_mode(id_user_mode),
+	.epc_out(epc)
 );
 
 multiplexer #(.X(4)) data_rs_mux (
@@ -458,13 +470,13 @@ flipflop #(.N(265)) id_ex (
 			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
 			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst,
-			id_isvalid, id_cpu_mode}),
+			id_isvalid, id_user_mode}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte, ex_isbranch,
 			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst,
 			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode,
 			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr,
 			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_c0, ex_c0dst,
-			ex_isvalid, ex_cpu_mode})
+			ex_isvalid, ex_user_mode})
 );
 
 ////////////////////////
@@ -494,7 +506,7 @@ wire ex_cowrite;
 wire ex_c0dst;
 wire ex_exc_ret;
 wire ex_isvalid;
-wire ex_cpu_mode;
+wire ex_user_mode;
 wire [31:0] dst_jump;
 wire [31:0] ex_pc_next;
 wire [31:0] ex_data_rs;
@@ -555,11 +567,11 @@ flipflop #(.N(178)) ex_mem (
 	.we(ex_mem_we),
 	.in({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte,
 			ex_isbranch, ex_pc_branch, ex_aluz, ex_exout, ex_data_rt,
-			ex_wreg, ex_instr, ex_pc_next, ex_isvalid, ex_cpu_mode,
+			ex_wreg, ex_instr, ex_pc_next, ex_isvalid, ex_user_mode,
 			ex_exc_ov, ex_exc_ri, ex_exc_sys, ex_cowrite}),
 	.out({mem_regwrite, mem_memtoreg, mem_memread, mem_memwrite, mem_membyte,
 			mem_isbranch, mem_pc_branch, mem_aluz, mem_exout, mem_data_rt,
-			mem_wreg, mem_instr, mem_pc_next, mem_isvalid, mem_cpu_mode,
+			mem_wreg, mem_instr, mem_pc_next, mem_isvalid, mem_user_mode,
 			mem_exc_ov, mem_exc_ri, mem_exc_sys, mem_cowrite})
 );
 
@@ -583,7 +595,7 @@ wire mem_exc_ri;
 wire mem_exc_sys;
 wire mem_cowrite;
 wire mem_isvalid;
-wire mem_cpu_mode;
+wire mem_user_mode;
 wire [31:0] mem_pc_next;
 wire [31:0] mem_exout;
 wire [31:0] mem_data_rt;
@@ -593,14 +605,14 @@ wire [31:0] mem_wdata;
 
 wire pc_take_branch = mem_isbranch & mem_aluz;
 
-wire io_enable = & mem_exout[31:26]; // IO when 0xFF....
+wire io_enable = & mem_exout[31:24]; // IO when 0xFF....
 wire dc_enable = (mem_memwrite | mem_memread) & ~io_enable;
 wire [31:0] io_out;
 wire [31:0] mem_out;
 wire io_exit;
 
-wire mem_exc_st = io_enable & ~mem_cpu_mode & mem_memwrite;
-wire mem_exc_ld = io_enable & ~mem_cpu_mode & mem_memread;
+wire mem_exc_st = io_enable & mem_user_mode & mem_memwrite;
+wire mem_exc_ld = io_enable & mem_user_mode & mem_memread;
 
 stdio stdio(
 	.clk(~clk),
@@ -608,7 +620,7 @@ stdio stdio(
 	.addr(mem_exout[7:0]),
 	.data_out(io_out),
 	.data_in(mem_data_rt),
-	.enable((mem_memwrite | mem_memread) & io_enable & mem_cpu_mode),
+	.enable((mem_memwrite | mem_memread) & io_enable & ~mem_user_mode),
 	.read_write(mem_memread),
 	.exit(io_exit)
 );

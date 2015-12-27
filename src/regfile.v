@@ -37,12 +37,14 @@ always @* begin
 end
 
 always @(posedge clk) begin
-	if (reset)
+	if (reset) begin
 		for (i = 0; i < DEPTH; i = i+1) begin
 			mem[i] <= {WIDTH{1'b0}};
 		end
-	else if (regwrite && wreg != {ADDR{1'b0}})
+	end else if (regwrite && wreg != {ADDR{1'b0}}) begin
 		mem[wreg] <= wdata;
+		`INFO(("[regfile] Write $%2d <= %x", wreg, wdata))
+	end
 end
 
 `ifdef DEBUG

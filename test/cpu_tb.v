@@ -53,6 +53,13 @@ initial begin
 	# 10 reset <= 0;
 	cycle = 0;
 
+	`ifdef TIMEOUT
+	# `TIMEOUT begin
+		`WARN(("It's a trap"))
+		$finish;
+	end
+	`endif
+
 end
 
 endmodule

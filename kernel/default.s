@@ -32,7 +32,10 @@ __syscall_jumptable:        .word __pint_hex, __pint, __pfloat, __pdouble, __pst
 
 __entry_point:
 	li $sp, %STACK_INIT             # Set stack-pointer
-	mtc0 $0, $status                # Set machine to user-mode
+	li $k1, 0x10                    # UM is bit 4
+	mtc0 $k1, $status               # Set machine to user-mode
+	nop
+	nop
 	j main                          # We are still in kernel-mode here
 
 __exception_handler:
@@ -54,21 +57,21 @@ __exception_handler:
 __skip_emsg:
 	jr $v0                          # Switch exception table (see table below)
 
-	# 0  - Int Interrupt (hardware)
-	# 1  - Mod TLB Modification
+	# 0  - Int  Interrupt (hardware)
+	# 1  - Mod  TLB Modification
 	# 2  - TLBL TLB Exception (load or instruction fetch) => Used for iTLB miss
 	# 3  - TLBS TLB Exception (store)                     => Used for dTLB miss
 	# 4  - AdEL Address Error Exception (load or instruction fetch)
 	# 5  - AdES Address Error Exception (store)
-	# 6  - IBE Bus Error on Instruction Fetch
-	# 7  - DBE Bus Error on Load or Store
-	# 8  - Sys Syscall Exception
-	# 9  - Bp Breakpoint Exception
-	# 10 - RI Reserved Instruction Exception
-	# 11 - CpU Coprocessor Unimplemented
-	# 12 - Ov Arithmetic Overflow Exception
-	# 13 - Tr Trap
-	# 15 - FPE Floating Point Exception
+	# 6  - IBE  Bus Error on Instruction Fetch
+	# 7  - DBE  Bus Error on Load or Store
+	# 8  - Sys  Syscall Exception
+	# 9  - Bp   Breakpoint Exception
+	# 10 - RI   Reserved Instruction Exception
+	# 11 - CpU  Coprocessor Unimplemented
+	# 12 - Ov   Arithmetic Overflow Exception
+	# 13 - Tr   Trap
+	# 15 - FPE  Floating Point Exception
 
 __CpU:
 __Bp:
@@ -200,9 +203,9 @@ __skip_v0:
 	lw $a0, 4($k0)
 	lw $ra, 8($k0)
 	move $k0, $0                    # Can't touch this
-	move $k1, $0
 	mtc0 $0, $cause                 # Clear cause
-	mtc0 $0, $status                # Set machine to user-mode
+	li $k1, 0x10
+	mtc0 $k1, $status               # Set machine to user-mode
 	eret                            # Return
 
 # Note that kernel functions do not save registers

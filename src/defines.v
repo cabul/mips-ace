@@ -61,39 +61,60 @@
 
 // Coprocessor0
 
-`define C0_BADVA 5'd8
-`define C0_SR    5'd12
-`define C0_CAUSE 5'd13
-`define C0_EPC   5'd14
+`define COP_INDEX     5'd0  // Index into the TLB array
+`define COP_RANDOM    5'd1  // Randomly generated index into the TLB array
+`define COP_ENTRYLO0  5'd2  //
+`define COP_ENTRYLO1  5'd3  //
+`define COP_CONTEXT   5'd4  // Pointer to page table entry in memory
+`define COP_PAGEMASK  5'd5  // Control for variable page size in TLB entries
+`define COP_WIRED     5'd6  //
+//      Reserved      5'd7  // Reserved for future extensions
+`define COP_BADVADDR  5'd8  //
+`define COP_COUNT     5'd9  // Processor cycle count
+`define COP_ENTRYHI   5'd10 // High-order portion of the TLB entry
+`define COP_COMPARE   5'd11 // Timer interrupt control
+`define COP_STATUS    5'd12 // Processor status and control
+`define COP_CAUSE     5'd13 // Cause of last general exception
+`define COP_EPC       5'd14 // Program counter at last exception
+`define COP_PRID      5'd15 // Processor identification and revision
+`define COP_CONFIG    5'd16 // Configuration register
+`define COP_LLADDR    5'd17 // Load linked address
+`define COP_WATCHLO   5'd18 // Watchpoint address
+`define COP_WATCHHI   5'd19 // Watchpoint control
+//      Reserved      5'd20 // XContext in 64-bit implementations
+//      Reserved      5'd21 // Reserved for future extensions
+`define COP_AVAILABLE 5'd22 // for implementation dependent use
+`define COP_DEBUG     5'd23 // EJTAG Debug register
+`define COP_DEPC      5'd24 //
+`define COP_PERFCNT   5'd25 // Performance counter interface
+`define COP_ERRCTL    5'd26 // Parity/ECC error control and status
+`define COP_CACHEERR  5'd27 // Cache parity error control and status
+`define COP_TAGLO     5'd28 // Low-order portion of cache tag interface
+`define COP_DATALO    5'd28 // Low-order portion of cache data interface
+`define COP_TAGHI     5'd29 // High-order portion of cache tag interface
+`define COP_DATAHI    5'd29 // High-order portion of cache data interface
+`define COP_ERROREPC  5'd30 // Program counter at last error
+`define COP_DESAVE    5'd31 // EJTAG debug exception save register
 
 // Coprocessor0 registers offsets
 
-`define C0_SR_EC 2 // Exception Code
-`define C0_SR_PI 8 // Pending Interrupts
-`define C0_SR_EL 2 // Exception Level
-`define C0_SR_UM 4 // User Mode
+`define COP_STATUS_EXL 1 // Exception Level
+`define COP_STATUS_UM  4 // User Mode
 
 // Interrupts (*supported)
 
-`define INT_EXT     0  // External interrupt
-`define INT_ITLB    2  // iTLB miss
-`define INT_DTLB    3  // dTLB miss
-`define INT_ADDRL   4  // *Address error exception (load or instruction fetch)
-`define INT_ADDRS   5  // *Address error exception (store)
-`define INT_IBUS    6  // Bus error on instruction fetch
-`define INT_DBUS    7  // Bus error on data load or store
-`define INT_SYSCALL 8  // *Syscall exception
-`define INT_BKPT    9  // Breakpoint exception
-`define INT_RI      10 // *Reserved instruction exception
-`define INT_OVF     12 // *Arithmetic overflow exception
-`define INT_TR      13 // *Trap exception
-
-`define EXC_OFF_ADDRL   64
-`define EXC_OFF_ADDRS   65
-`define EXC_OFF_SYSCALL 66
-`define EXC_OFF_RI      67
-`define EXC_OFF_OVF     68
-`define EXC_OFF_TR      69
+`define INT_EXT   0  // External interrupt
+`define INT_ITLB  2  // iTLB miss
+`define INT_DTLB  3  // dTLB miss
+`define INT_ADDRL 4  // *Address error exception (load or instruction fetch)
+`define INT_ADDRS 5  // *Address error exception (store)
+`define INT_IBUS  6  // Bus error on instruction fetch
+`define INT_DBUS  7  // Bus error on data load or store
+`define INT_SYS   8  // *Syscall exception
+`define INT_BKPT  9  // Breakpoint exception
+`define INT_RI    10 // *Reserved instruction exception
+`define INT_OVF   12 // *Arithmetic overflow exception
+`define INT_TR    13 // *Trap exception
 
 `define EXC_MSG_ADDRL "Address Load "
 `define EXC_MSG_ADDRS "Address Store"
@@ -101,6 +122,7 @@
 `define EXC_MSG_RI    "Reserved Inst"
 `define EXC_MSG_SYS   "Syscall      "
 `define EXC_MSG_TR    "Trap         "
+`define EXC_MSG_EXT   "Ext Interrupt"
 `define EXC_MSG_PANIC "Panic        "
 
 // SYS IO
@@ -132,7 +154,7 @@
 	`define INFO(M) begin end
 `endif
 
-`define WARN(M) begin $write("[warning]: %5t ", $time); $display M ; end
+`define WARN(M) begin $write("%5t [warning] ", $time); $display M ; end
 
 `define MEMORY_DATA "build/memory.raw"
 `ifndef MEMORY_LATENCY
@@ -140,7 +162,7 @@
 `endif
 
 `ifndef MAX_CYCLES
-	`define MAX_CYCLES 10000
+	`define MAX_CYCLES 5000
 `endif
 
 `endif
