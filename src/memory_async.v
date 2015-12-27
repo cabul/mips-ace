@@ -31,7 +31,7 @@ reg [WIDTH-1:0] mem [0:DEPTH-1];
 
 // Double guard
 always @(posedge enable) if (!reset) # LATENCY if (!reset) begin
-	if (addr >= SIZE) `WARN(("Memory: Out of bounds"))
+	if (addr >= SIZE) `WARN(("Memory out of bounds"))
 	if (read_write) begin
 		data_out = mem[index];
 		`INFO(("[memory] Read %x => %x", addr[15:0], data_out))

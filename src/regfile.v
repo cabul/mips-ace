@@ -9,7 +9,7 @@ module regfile(
 	input wire [ADDR-1:0] rreg1, rreg2,
 	output reg [WIDTH-1:0] rdata1 = {WIDTH{1'b0}},
 	output reg [WIDTH-1:0] rdata2 = {WIDTH{1'b0}},
-	input wire regwrite,
+	input wire enable,
 	input wire [ADDR-1:0] wreg,
 	input wire [WIDTH-1:0] wdata
 );
@@ -41,7 +41,7 @@ always @(posedge clk) begin
 		for (i = 0; i < DEPTH; i = i+1) begin
 			mem[i] <= {WIDTH{1'b0}};
 		end
-	end else if (regwrite && wreg != {ADDR{1'b0}}) begin
+	end else if (enable && wreg != {ADDR{1'b0}}) begin
 		mem[wreg] <= wdata;
 		`INFO(("[regfile] Write $%2d <= %x", wreg, wdata))
 	end

@@ -387,36 +387,41 @@ assign id_imm = {{16{id_instr[15]}}, id_instr[15:0]};
 assign id_pc_jump = {id_pc_next[31:28], id_instr[25:0], 2'b00};
 
 control control (
+	// Inputs
 	.opcode(id_instr[31:26]),
 	.funct(id_instr[5:0]),
 	.user_mode(id_user_mode),
+	// Execute
+	.alu_s(id_alu_s),
+	.alu_t(id_alu_t),
+	.aluop(id_aluop),
 	.regdst(id_regdst),
+	.isjump(id_isjump),
+	.jumpdst(id_jumpdst),
+	.islink(id_islink),
+	.exc_ret(id_exc_ret),
+	// Memory
 	.isbranch(id_isbranch),
 	.memread(id_memread),
 	.memtoreg(id_memtoreg),
-	.aluop(id_aluop),
 	.memwrite(id_memwrite),
-	.alu_s(id_alu_s),
-	.alu_t(id_alu_t),
 	.membyte(id_membyte),
+	// Write back
 	.regwrite(id_regwrite),
-	.isjump(id_isjump),
-	.jumpdst(id_jumpdst),
-	.exc_ri(id_exc_ri),
-	.exc_sys(id_exc_sys),
 	.cowrite(id_cowrite),
-	.exc_ret(id_exc_ret),
-	.islink(id_islink)
+	.exc_sys(id_exc_sys),
+	.exc_ri(id_exc_ri)
 );
 
 regfile regfile(
 	.clk(clk),
 	.reset(reset),
+	.enable(wb_regwrite),
+
 	.rreg1(id_instr[25:21]),
 	.rreg2(id_instr[20:16]),
  	.rdata1(reg_rs),
 	.rdata2(reg_rt),
-	.regwrite(wb_regwrite),
 	.wreg(wb_wreg),
 	.wdata(wb_wdata)
 );
@@ -465,7 +470,11 @@ flipflop #(.N(265)) id_ex (
 	.clk(clk),
 	.reset(id_ex_reset | reset),
 	.we(id_ex_we),
-	.in({id_regwrite, id_memtoreg, id_memread, id_memwrite, id_membyte, id_isbranch,
+	.in({
+	// Execute
+	// Memory
+	// Write back
+	id_regwrite, id_memtoreg, id_memread, id_memwrite, id_membyte, id_isbranch,
 			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst,
 			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
