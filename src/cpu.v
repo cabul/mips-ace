@@ -18,8 +18,7 @@
 `include "coprocessor.v"
 `include "pc.v"
 
-// Central Processing Unit
-module cpu(
+module cpu (
 	input wire clk,
 	input wire reset,
 	// Memory ports
@@ -264,6 +263,7 @@ end
 ////////////////////////
 
 wire [31:0] if_pc_next;
+wire if_user_mode;
 wire [31:0] if_instr;
 wire [31:0] pc_in;
 wire [31:0] pc_real;
@@ -333,12 +333,12 @@ cache_direct #(
 `endif
 
 // Insert 1'b1 as valid here, this will flow through the pipeline
-flipflop #(.N(65)) if_id (
+flipflop #(.N(66)) if_id (
 	.clk(clk),
 	.reset(if_id_reset | reset),
 	.we(if_id_we),
-	.in({if_pc_next, if_instr, 1'b1}),
-	.out({id_pc_next, id_instr, id_isvalid})
+	.in({if_pc_next, if_instr, if_user_mode, 1'b1}),
+	.out({id_pc_next, id_instr, id_user_mode, id_isvalid})
 );
 
 ////////////////////////
@@ -365,7 +365,7 @@ wire id_alu_t;
 wire id_exc_ri;
 wire id_exc_sys;
 wire id_cowrite;
-wire id_c0dst;
+wire id_codst;
 wire id_isvalid;
 wire [31:0] id_imm;
 wire [31:0] id_data_rs;
@@ -373,7 +373,7 @@ wire [31:0] id_data_rt;
 wire [31:0] id_pc_jump;
 wire [31:0] reg_rs;
 wire [31:0] reg_rt;
-wire [31:0] id_data_c0;
+wire [31:0] id_data_co;
 wire [31:0] epc;
 wire [1:0] fwdctrl_rs;
 wire [1:0] fwdctrl_rt;
@@ -428,7 +428,7 @@ coprocessor coprocessor(
 
 	.rreg(id_instr[25:21]),
 	.wreg(wb_wreg),
-	.rdata(id_data_c0),
+	.rdata(id_data_co),
 	.wdata(wb_wdata),
 
 	.int_ext(wb_exc_ext),
@@ -445,7 +445,7 @@ coprocessor coprocessor(
 	.pc_kernel(address_kernel),
 	.cop_reset(cop_reset),
 
-	.user_mode(id_user_mode),
+	.user_mode(if_user_mode),
 	.epc_out(epc)
 );
 
@@ -469,13 +469,13 @@ flipflop #(.N(265)) id_ex (
 			id_regdst, id_aluop, id_alu_s, id_alu_t, id_isjump, id_islink, id_jumpdst,
 			id_pc_next, id_data_rs, id_data_rt, id_imm, id_instr[31:26],
 			id_pc_jump, id_instr[20:16], id_instr[15:11], id_instr[25:21], id_instr,
-			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_c0, id_c0dst,
+			id_exc_ri, id_exc_sys, id_cowrite, id_exc_ret, id_data_co, id_codst,
 			id_isvalid, id_user_mode}),
 	.out({ex_regwrite, ex_memtoreg, ex_memread, ex_memwrite, ex_membyte, ex_isbranch,
 			ex_regdst, ex_aluop, ex_alu_s, ex_alu_t, ex_isjump, ex_islink, ex_jumpdst,
 			ex_pc_next, ex_data_rs, ex_data_rt, ex_imm_top, ex_funct, ex_opcode,
 			ex_pc_jump, dst_rt, dst_rd, dst_rs, ex_instr,
-			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_c0, ex_c0dst,
+			ex_exc_ri, ex_exc_sys, ex_cowrite, ex_exc_ret, ex_data_co, ex_codst,
 			ex_isvalid, ex_user_mode})
 );
 
@@ -503,7 +503,7 @@ wire ex_alu_t;
 wire ex_exc_ri;
 wire ex_exc_sys;
 wire ex_cowrite;
-wire ex_c0dst;
+wire ex_codst;
 wire ex_exc_ret;
 wire ex_isvalid;
 wire ex_user_mode;
@@ -514,7 +514,7 @@ wire [31:0] ex_data_rt;
 wire [31:0] ex_imm;
 wire [25:0] ex_imm_top;
 wire [31:0] ex_pc_jump;
-wire [31:0] ex_data_c0;
+wire [31:0] ex_data_co;
 wire [4:0] dst_rt;
 wire [4:0] dst_rd;
 wire [4:0] dst_rs;
@@ -544,7 +544,7 @@ alucontrol alucontrol(
 	.aluop_out(aluop)
 );
 
-assign data_s = ex_alu_s ? ex_data_c0 : ex_data_rs;
+assign data_s = ex_alu_s ? ex_data_co : ex_data_rs;
 assign data_t = ex_alu_t ? ex_imm : ex_data_rt;
 
 alu alu(
@@ -732,7 +732,7 @@ end else begin
 	perf_dcache_loads        <= perf_dcache_loads        + (mem_memread  & dc_enable);
 	perf_dcache_load_misses  <= perf_dcache_load_misses  + (mem_memread  & dc_stall);
 	perf_dcache_stores       <= perf_dcache_stores       + (mem_memwrite & dc_enable);
-	perf_dcache_store_misses <= perf_dcache_store_misses + (mem_memwrite & dc_hit);
+	perf_dcache_store_misses <= perf_dcache_store_misses + (mem_memwrite & dc_stall);
 	perf_icache_load_misses  <= perf_icache_load_misses  + ic_stall;
 	perf_dTLB_loads          <= perf_dTLB_loads          + 0;
 	perf_dTLB_load_misses    <= perf_dTLB_load_misses    + 0;
