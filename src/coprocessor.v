@@ -35,17 +35,20 @@ module coprocessor(
 	output reg user_mode,
 	output reg exc_level,
 	output reg [31:0] epc_out,
-	output reg [31:0] badvaddr_out
+	output reg [31:0] badvaddr_out,
+	output reg [31:0] random_out
 );
 
 // see: http://www.cs.cornell.edu/courses/cs3410/2015sp/MIPS_Vol3.pdf
 reg [31:0] cop_regs [31:0];
+integer i;
 
 always @* begin
 	epc_out      <= cop_regs[`COP_EPC];
 	user_mode    <= cop_regs[`COP_STATUS][`COP_STATUS_UM];
 	exc_level    <= cop_regs[`COP_STATUS][`COP_STATUS_EXL];
 	badvaddr_out <= cop_regs[`COP_BADVADDR];
+	random_out   <= cop_regs[`COP_RANDOM];
 end
 
 always @* if (reset) rdata <= 32'd0;
@@ -53,14 +56,14 @@ else rdata <= cop_regs[rreg];
 
 always @(posedge clk) begin
 	if (reset) begin
-		cop_regs[`COP_BADVADDR] <= 32'd0;
-		cop_regs[`COP_STATUS]   <= 32'd0;
-		cop_regs[`COP_CAUSE]    <= 32'd0;
-		cop_regs[`COP_EPC]      <= 32'd0;
+		for (i = 0; i < 32; i = i+1) begin
+			cop_regs[i] <= 32'd0;
+		end
 	end else if (enable) begin
 		cop_regs[wreg] <= wdata;
 		`INFO(("[cop] Write $%2d <= %x", wreg, wdata))
 	end
+	cop_regs[`COP_RANDOM] <= $random;
 	if (cop_reset) cop_reset <= 1'b0;
 end
 
