@@ -42,8 +42,9 @@ reg [TB-1:0] vtags [0:DEPTH-1];
 reg [TB-1:0] ptags [0:DEPTH-1];
 reg [DEPTH-1:0] validbits = 0;
 
-always @* if (read_enable & ~reset & ~hit) begin
-	for (i = 0; i < DEPTH & ~hit; i = i+1) begin
+always @* if (read_enable & ~reset) begin
+	hit = 0;
+	for (i = 0; (i < DEPTH) && ~hit; i = i+1) begin
 		if (vtags[i] == vtag) begin
 			paddr     <= {ptags[i],voff};
 			index_out <= i;
@@ -64,7 +65,7 @@ always @(posedge clk) begin
 		vtags[index_in] <= wr_vtag;
 		ptags[index_in] <= wr_ptag;
 		validbits[index_in] <= 1;
-		`INFO(("[%s] Fill %x <=> %x", ALIAS, wr_vtag, wr_ptag))
+		`INFO(("[%s] Fill .%d %x <=> %x", ALIAS, index_in, wr_vtag, wr_ptag))
 	end
 end
 
