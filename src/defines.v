@@ -104,8 +104,9 @@
 // Interrupts (*supported)
 
 `define INT_EXT   0  // External interrupt
-`define INT_ITLB  2  // iTLB miss
-`define INT_DTLB  3  // dTLB miss
+`define INT_MOD   1  // TLB Modification (write to ro section)
+`define INT_TLBL  2  // TLB miss on load
+`define INT_TLBS  3  // TLB miss on store
 `define INT_ADDRL 4  // *Address error exception (load or instruction fetch)
 `define INT_ADDRS 5  // *Address error exception (store)
 `define INT_IBUS  6  // Bus error on instruction fetch
@@ -123,6 +124,8 @@
 `define EXC_MSG_SYS   "Syscall      "
 `define EXC_MSG_TR    "Trap         "
 `define EXC_MSG_EXT   "Ext Interrupt"
+`define EXC_MSG_TLBL  "TLB Load     "
+`define EXC_MSG_TLBS  "TLB Store    "
 `define EXC_MSG_PANIC "Panic        "
 
 // SYS IO
@@ -144,7 +147,7 @@
 //Store buffer
 
 `define STBUFF_DEPTH 5
-`define TLB_DEPTH    4
+`define TLB_ENTRIES    10
 `define PAGE_SIZE    4096
 
 // Debug macros

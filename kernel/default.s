@@ -15,15 +15,15 @@ __str_syscall_uns2:         .asciiz ").\n"
 __str_unimplemented:        .asciiz "exception not implemented raised.\n"
 __str_ld_exc:               .asciiz "address error (load).\n"
 __str_st_exc:               .asciiz "address error (store).\n"
-__str_tlb_fetch:            .asciiz "TLB on instruction fetch.\n"
-__str_tlb_data:             .asciiz "TLB on load or store.\n"
+__str_tlb_load:             .asciiz "TLB miss on load or fetch.\n"
+__str_tlb_store:            .asciiz "TLB miss on store.\n"
 __str_overflow:             .asciiz "arithmetic overflow.\n"
 __str_syscall:              .asciiz "syscall.\n"
 __str_reserved:             .asciiz "reserved instruction.\n"
 __str_trap:                 .asciiz "it's a trap.\n"
 __str_endline:              .asciiz "\n"
 __save_reg:                 .space 12
-__exception_jumptable:      .word __int, __unimpl1, __iTLB, __dTLB, __AdEL, __AdES, __IBE, __DBE, __Sys, __Bp, __RI, __CpU, __Ov, __Tr, __unimpl4, __FPE
+__exception_jumptable:      .word __int, __unimpl1, __TLBL, __TLBS, __AdEL, __AdES, __IBE, __DBE, __Sys, __Bp, __RI, __CpU, __Ov, __Tr, __unimpl4, __FPE
 __syscall_jumptable:        .word __pint_hex, __pint, __pfloat, __pdouble, __pstring, __rint, __rfloat, __rdouble, __rstring, __mem_alloc, __sys_exit, __pchar, __rchar, __sys_unsupported
 
 .ktext
@@ -59,8 +59,8 @@ __skip_emsg:
 
 	# 0  - Int  Interrupt (hardware)
 	# 1  - Mod  TLB Modification
-	# 2  - TLBL TLB Exception (load or instruction fetch) => Used for iTLB miss
-	# 3  - TLBS TLB Exception (store)                     => Used for dTLB miss
+	# 2  - TLBL TLB Exception (load or instruction fetch)
+	# 3  - TLBS TLB Exception (store)
 	# 4  - AdEL Address Error Exception (load or instruction fetch)
 	# 5  - AdES Address Error Exception (store)
 	# 6  - IBE  Bus Error on Instruction Fetch
@@ -84,15 +84,17 @@ __Tr:
 	la $a0, __str_trap
 	jal __kernel_strprint
 	sw $0, %IO_EXIT($0)
-__unimpl1:
-__iTLB:
-	la $a0, __str_tlb_fetch
-	jal __kernel_strprint
-	sw $0, %IO_EXIT($0)
-__dTLB:
-	la $a0, __str_tlb_data
-	jal __kernel_strprint
-	sw $0, %IO_EXIT($0)
+__unimpl1: # Mod
+__TLBL:
+__TLBS:
+	mfc0 $k0, $entryhi
+	nop # check if really necessary
+	nop
+	li $k1, 0xfffff000
+	and $k0, $k0, $k1 # only get the vaddr
+	addi $k0, $k0, 0x1001 # translate to paddr + valid bit
+	mtc0 $k0, $entrylo
+	j __epc
 __unimpl4:
 	la $a0, __str_unimplemented
 	jal __kernel_strprint

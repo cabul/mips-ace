@@ -24,6 +24,8 @@ module coprocessor(
 	input wire int_sys,
 	input wire int_addrs,
 	input wire int_addrl,
+	input wire int_tlbs,
+	input wire int_tlbl,
 
 	input wire [31:0] epc_in,
 	input wire [31:0] badvaddr_in,
@@ -34,21 +36,31 @@ module coprocessor(
 	// Status unmangled
 	output reg user_mode,
 	output reg exc_level,
+
 	output reg [31:0] epc_out,
 	output reg [31:0] badvaddr_out,
-	output reg [31:0] random_out
+	output reg [31:0] random_out,
+	output reg [31:0] entrylo_out,
+	output reg [31:0] entryhi_out
 );
+
+parameter TLB_ENTRIES = `TLB_ENTRIES;
+parameter PAGE_SIZE = `PAGE_SIZE;
+localparam TLB_BITS = $clog2(TLB_ENTRIES);
+localparam PB = $clog2(PAGE_SIZE);
 
 // see: http://www.cs.cornell.edu/courses/cs3410/2015sp/MIPS_Vol3.pdf
 reg [31:0] cop_regs [31:0];
 integer i;
 
 always @* begin
-	epc_out      <= cop_regs[`COP_EPC];
 	user_mode    <= cop_regs[`COP_STATUS][`COP_STATUS_UM];
 	exc_level    <= cop_regs[`COP_STATUS][`COP_STATUS_EXL];
+	epc_out      <= cop_regs[`COP_EPC];
 	badvaddr_out <= cop_regs[`COP_BADVADDR];
 	random_out   <= cop_regs[`COP_RANDOM];
+	entrylo_out  <= cop_regs[`COP_ENTRYLO0];
+	entryhi_out  <= cop_regs[`COP_ENTRYHI];
 end
 
 always @* if (reset) rdata <= 32'd0;
@@ -63,11 +75,15 @@ always @(posedge clk) begin
 		cop_regs[wreg] <= wdata;
 		`INFO(("[cop] Write $%2d <= %x", wreg, wdata))
 	end
-	cop_regs[`COP_RANDOM] <= $random;
+	cop_regs[`COP_RANDOM][TLB_BITS-1:0] <= $random;
 	if (cop_reset) cop_reset <= 1'b0;
 end
 
-always @(int_ext or int_tr or int_ovf or int_ri or int_sys or int_addrs or int_addrl) begin
+always @(int_ext or int_tr or
+	int_ovf or int_ri or int_sys or
+	int_addrs or int_addrl or
+	int_tlbs or int_tlbl) begin
+
 	if (~exc_level) begin
 		if      (int_ext)   cop_regs[`COP_CAUSE][6:2] = `INT_EXT;
 		else if (int_tr)    cop_regs[`COP_CAUSE][6:2] = `INT_TR;
@@ -76,6 +92,8 @@ always @(int_ext or int_tr or int_ovf or int_ri or int_sys or int_addrs or int_a
 		else if (int_sys)   cop_regs[`COP_CAUSE][6:2] = `INT_SYS;
 		else if (int_addrs) cop_regs[`COP_CAUSE][6:2] = `INT_ADDRS;
 		else if (int_addrl) cop_regs[`COP_CAUSE][6:2] = `INT_ADDRL;
+		else if (int_tlbl)  cop_regs[`COP_CAUSE][6:2] = `INT_TLBL;
+		else if (int_tlbs)  cop_regs[`COP_CAUSE][6:2] = `INT_TLBS;
 
 		if (| cop_regs[`COP_CAUSE][6:2]) begin
 			cop_reset <= 1'b1;
@@ -84,16 +102,21 @@ always @(int_ext or int_tr or int_ovf or int_ri or int_sys or int_addrs or int_a
 			cop_regs[`COP_STATUS][`COP_STATUS_UM]  <= 1'b0;
 
 			case (cop_regs[`COP_CAUSE][6:2])
-				`INT_EXT   : `INFO(("[exception] %s", `EXC_MSG_EXT))
-				`INT_TR    : `INFO(("[exception] %s", `EXC_MSG_TR))
-				`INT_OVF   : `INFO(("[exception] %s", `EXC_MSG_OVF))
-				`INT_RI    : `INFO(("[exception] %s", `EXC_MSG_RI))
-				`INT_SYS   : `INFO(("[exception] %s", `EXC_MSG_SYS))
-				`INT_ADDRS : `INFO(("[exception] %s", `EXC_MSG_ADDRS))
-				`INT_ADDRL : `INFO(("[exception] %s", `EXC_MSG_ADDRL))
-				default    : `INFO(("[exception] %s", `EXC_MSG_PANIC))
+				`INT_EXT   : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_EXT))
+				`INT_TR    : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_TR))
+				`INT_OVF   : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_OVF))
+				`INT_RI    : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_RI))
+				`INT_SYS   : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_SYS))
+				`INT_ADDRS : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_ADDRS))
+				`INT_ADDRL : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_ADDRL))
+				`INT_TLBL  : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_TLBL))
+				`INT_TLBS  : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_TLBS))
+				default    : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_PANIC))
 			endcase
-			`INFO(("[cop] exception at @%x", epc_in))
+		end
+
+		if (int_tlbl | int_tlbs) begin
+			cop_regs[`COP_ENTRYHI][31:PB] <= badvaddr_in[31:PB];
 		end
 	end
 end

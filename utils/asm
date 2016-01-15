@@ -105,21 +105,21 @@ rules = {
 
 registers = {
 #   Trivial     Normal        Floating P   Coproc0
-	'0'  : 0  , 'zero' : 0  , 'f0'  : 0  ,
-	'1'  : 1  , 'at'   : 1  , 'f1'  : 1  ,
-	'2'  : 2  , 'v0'   : 2  , 'f2'  : 2  ,
-	'3'  : 3  , 'v1'   : 3  , 'f3'  : 3  ,
-	'4'  : 4  , 'a0'   : 4  , 'f4'  : 4  ,
-	'5'  : 5  , 'a1'   : 5  , 'f5'  : 5  ,
-	'6'  : 6  , 'a2'   : 6  , 'f6'  : 6  ,
-	'7'  : 7  , 'a3'   : 7  , 'f7'  : 7  ,
-	'8'  : 8  , 't0'   : 8  , 'f8'  : 8  , 'badva'  : 8 ,
-	'9'  : 9  , 't1'   : 9  , 'f9'  : 9  ,
-	'10' : 10 , 't2'   : 10 , 'f10' : 10 ,
+	'0'  :  0 , 'zero' :  0 , 'f0'  :  0 ,
+	'1'  :  1 , 'at'   :  1 , 'f1'  :  1 ,
+	'2'  :  2 , 'v0'   :  2 , 'f2'  :  2 , 'entrylo'  :  2 ,
+	'3'  :  3 , 'v1'   :  3 , 'f3'  :  3 ,
+	'4'  :  4 , 'a0'   :  4 , 'f4'  :  4 ,
+	'5'  :  5 , 'a1'   :  5 , 'f5'  :  5 ,
+	'6'  :  6 , 'a2'   :  6 , 'f6'  :  6 ,
+	'7'  :  7 , 'a3'   :  7 , 'f7'  :  7 ,
+	'8'  :  8 , 't0'   :  8 , 'f8'  :  8 , 'badvaddr' :  8 ,
+	'9'  :  9 , 't1'   :  9 , 'f9'  :  9 ,
+	'10' : 10 , 't2'   : 10 , 'f10' : 10 , 'entryhi'  : 10 ,
 	'11' : 11 , 't3'   : 11 , 'f11' : 11 ,
-	'12' : 12 , 't4'   : 12 , 'f12' : 12 , 'status' : 12 ,
-	'13' : 13 , 't5'   : 13 , 'f13' : 13 , 'cause'  : 13 ,
-	'14' : 14 , 't6'   : 14 , 'f14' : 14 , 'epc'    : 14 ,
+	'12' : 12 , 't4'   : 12 , 'f12' : 12 , 'status'   : 12 ,
+	'13' : 13 , 't5'   : 13 , 'f13' : 13 , 'cause'    : 13 ,
+	'14' : 14 , 't6'   : 14 , 'f14' : 14 , 'epc'      : 14 ,
 	'15' : 15 , 't7'   : 15 , 'f15' : 15 ,
 	'16' : 16 , 's0'   : 16 , 'f16' : 16 ,
 	'17' : 17 , 's1'   : 17 , 'f17' : 17 ,
@@ -210,7 +210,7 @@ class Parser(object):
 		if num < 0:
 			num = overflow + num
 		if num >= overflow:
-			raise SyntaxError(self.lineno, 'Number out of bounds %d %d %d'  % (maxnum, num, nbits))
+			raise SyntaxError(self.lineno, 'Number out of bounds %d %d %d'  % (overflow, num, nbits))
 		return fmt.format(num)
 	def numToBin(self, num, nbits):
 		ntype, ndata = num

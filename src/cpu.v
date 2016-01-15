@@ -3,8 +3,6 @@
 
 `include "flipflop.v"
 `include "cache_direct.v"
-`include "cache_2way.v"
-`include "cache_4way.v"
 `include "memory_sync.v"
 `include "arbiter.v"
 `include "regfile.v"
@@ -444,6 +442,8 @@ coprocessor coprocessor(
 	.int_sys(wb_exc_sys),
 	.int_addrs(wb_exc_st),
 	.int_addrl(wb_exc_ld),
+	.int_tlbs(0),
+	.int_tlbl(0),
 
 	.epc_in(wb_pc_next),
 	.badvaddr_in(wb_bad_vaddr),
