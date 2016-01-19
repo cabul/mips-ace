@@ -30,9 +30,9 @@ wire [31:0] pc_computed;
 
 // Multiplexer chain
 
-assign pc_computed = is_misspred   ? dst_misspred   :
-                     is_eret       ? dst_eret       :
+assign pc_computed = is_eret       ? dst_eret       :
                      is_kernel     ? dst_kernel     :
+                     is_misspred   ? dst_misspred   :
                      is_bpredictor ? dst_prediction :
                      is_branch     ? dst_branch     :
                      is_jump       ? dst_jump       : dst_nextpc;
