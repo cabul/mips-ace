@@ -556,7 +556,7 @@ flipflop #(.N(299)) id_ex (
 		// Write back
 		ex_regwrite, ex_cowrite,
 		// Branch predictor
-		id_bp_opinion, id_bp_btaken, id_bp_addr
+		ex_bp_opinion, ex_bp_btaken, ex_bp_addr
 	})
 );
 
@@ -719,7 +719,7 @@ wire mem_exc_st = io_enable & mem_user_mode & mem_memwrite;
 wire mem_exc_ld = io_enable & mem_user_mode & mem_memread;
 
 stdio stdio(
-	.clk(~clk),
+	.clk(clk),
 	.reset(reset),
 	.addr(mem_exout[7:0]),
 	.data_out(io_out),
