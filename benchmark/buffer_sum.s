@@ -10,7 +10,7 @@ main:
 	li $t2, 128         # Elements
 
 # Let's initialize
-loop:	
+loop:
 	sw $t1, 0($t0)
 	addi $t0, $t0, 4
 	addi $t1, $t1, 1
@@ -31,4 +31,5 @@ sum:
     li $v0, 11
     li $a0, 10
     syscall
-	jr $ra
+	li $v0, 10
+	syscall
