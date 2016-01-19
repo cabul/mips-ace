@@ -1,41 +1,34 @@
 .data
-#N_ELEMENTOS = 128
-#T_ELEMENTO = 4
-#.align 2
-Vector: .space 512 #N_ELEMENTOS*T_ELEMENTO
+
+vector: .space 512      # Elements*4
 
 .text
-main:
-	la $t0, Vector
-	li $t1, 0 #Counter
-	li $t2, 128 #N_ELEMENTOS
 
-#Let's initialize
-loop:
-	beq $t1, $t2, done
+main:
+	la $t0, vector
+	li $t1, 0           # Counter
+	li $t2, 128         # Elements
+
+# Let's initialize
+loop:	
 	sw $t1, 0($t0)
 	addi $t0, $t0, 4
 	addi $t1, $t1, 1
-	j loop
-
-done:
-	la $t0, Vector
-	li $t1, 0 #Counter
-	li $a0, 0 #Sum
+	bne $t1, $t2, loop
+    la $t0, vector
+	li $t1, 0           # Counter
+	li $a0, 0           # Sum
 
 #Summatory
 sum:
-	beq $t1, $t2, out
 	lw $t3, 0($t0)
 	add $a0, $a0, $t3
 	addi $t0, $t0, 4
 	addi $t1, $t1, 1
-	j sum
-
-#Show result and finish
-out:
-	li $v0, 1
-	syscall
-	li $v0, 10
-	syscall
-
+	bne $t1, $t2, sum
+	li $v0, 1           # Show result and finish
+    syscall
+    li $v0, 11
+    li $a0, 10
+    syscall
+	jr $ra

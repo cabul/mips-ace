@@ -15,8 +15,10 @@
 `include "stdio.v"
 `include "coprocessor.v"
 `include "pc.v"
+`include "branchpredictor.v"
 
-module cpu (
+// Central Processing Unit
+module cpu(
 	input wire clk,
 	input wire reset,
 	// Memory ports
@@ -53,6 +55,7 @@ integer perf_dTLB_store_misses   = 0;
 integer perf_iTLB_loads          = 0;
 integer perf_iTLB_load_misses    = 0;
 
+real IPC;
 always @(posedge io_exit) begin
 `ifdef INSTRUMENT
 	$display("[perf] cycles:              %d", perf_cycles);
@@ -70,6 +73,10 @@ always @(posedge io_exit) begin
 	$display("[perf] dTLB_store_misses:   %d", perf_dTLB_store_misses);
 	$display("[perf] iTLB_loads:          %d", perf_iTLB_loads);
 	$display("[perf] iTLB_load_misses:    %d", perf_iTLB_load_misses);
+    // Additional
+    IPC = perf_instructions;
+    IPC = IPC/perf_cycles;
+    $display("[perf] IPC:                    %f", IPC);
 `endif
 	$finish;
 end
@@ -174,6 +181,17 @@ always @* begin
 		ex_mem_we    <= 1'b1;
 		mem_wb_reset <= 1'b1;
 		mem_wb_we    <= 1'b1;
+    end else if (bp_misspredicted) begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b1;
+		if_id_reset  <= 1'b1;
+		if_id_we     <= 1'b1;
+		id_ex_reset  <= 1'b1;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b1;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b0;
+		mem_wb_we    <= 1'b1;
 	end else if (cop_reset) begin
 		pc_reset     <= 1'b0;
 		pc_we        <= 1'b1;
@@ -196,7 +214,7 @@ always @* begin
 		ex_mem_we    <= 1'b0;
 		mem_wb_reset <= 1'b1;
 		mem_wb_we    <= 1'b1;
-	end else if (pc_take_branch) begin
+	end else if (pc_take_branch & ~mem_bp_opinion) begin //~if_bp_opinion &
 		pc_reset     <= 1'b0;
 		pc_we        <= 1'b1;
 		if_id_reset  <= 1'b1;
@@ -260,6 +278,12 @@ end
 //                    //
 ////////////////////////
 
+wire if_bp_opinion;
+wire if_bp_btaken;
+wire bp_fenable;
+wire bp_fbtaken;
+wire bp_misspredicted;
+wire [31:0] if_bp_addr;
 wire [31:0] if_pc_next;
 wire if_user_mode;
 wire [31:0] if_instr;
@@ -268,26 +292,45 @@ wire [31:0] pc_real;
 wire [31:0] pc_interm;
 wire [31:0] pc_out;
 wire [31:0] pc_kernel;
+wire [31:0] bp_fcurrent;
+wire [31:0] bp_fbaddr;
+wire [31:0] bp_misspredicted_addr;
+
+branchpredictor branchpredictor(
+    .clk(clk),
+    .reset(reset),
+    .current_pc(pc_out),
+    .feedback_enable(mem_isbranch),
+    .feedback_branch_taken(mem_aluz),
+    .feedback_branch_addr(mem_pc_branch),
+    .feedback_current_pc(mem_pc_next - 4),
+    .branch_addr(if_bp_addr),
+    .branch_taken(if_bp_btaken),
+    .opinion(if_bp_opinion)
+);
 
 assign if_pc_next = pc_out + 4;
+assign bp_misspredicted_addr = mem_bp_btaken ? mem_pc_next : mem_pc_branch ;
+assign bp_misspredicted = mem_bp_opinion & mem_isbranch &
+                          ((~mem_aluz & mem_bp_btaken) | (mem_aluz & ~mem_bp_btaken));
 
 pc pc(
     .clk(clk),
     .reset(pc_reset),
     .we(pc_we),
     .is_jump(ex_isjump),
-    .is_branch(pc_take_branch),
     .is_kernel(cop_reset),
+    .is_branch(pc_take_branch & ~mem_bp_opinion),
     .is_eret(ex_exc_ret),
-    .is_bpredictor(0),
-    .is_misspred(0),
+    .is_bpredictor(if_bp_opinion & if_bp_btaken),
+    .is_misspred(bp_misspredicted),
     .dst_nextpc(if_pc_next),
     .dst_jump(dst_jump),
     .dst_branch(mem_pc_branch),
     .dst_kernel(address_kernel),
     .dst_eret(epc),
-    .dst_prediction(32'd0),
-    .dst_misspred(32'd0),
+    .dst_prediction(if_bp_addr),
+    .dst_misspred(bp_misspredicted_addr),
     .initial_pc(32'd0),
     .pc_out(pc_out)
 );
@@ -331,12 +374,18 @@ cache_direct #(
 `endif
 
 // Insert 1'b1 as valid here, this will flow through the pipeline
-flipflop #(.N(66)) if_id (
+flipflop #(.N(100)) if_id (
 	.clk(clk),
 	.reset(if_id_reset | reset),
 	.we(if_id_we),
-	.in({if_pc_next, if_instr, if_user_mode, 1'b1}),
-	.out({id_pc_next, id_instr, id_user_mode, id_isvalid})
+	.in({
+		if_pc_next, if_instr, if_user_mode, 1'b1,
+		if_bp_opinion, if_bp_btaken, if_bp_addr
+	}),
+	.out({
+		id_pc_next, id_instr, id_user_mode, id_isvalid,
+		id_bp_opinion, id_bp_btaken, id_bp_addr
+	})
 );
 
 ////////////////////////
@@ -345,6 +394,9 @@ flipflop #(.N(66)) if_id (
 //                    //
 ////////////////////////
 
+wire id_bp_opinion;
+wire id_bp_btaken;
+wire [31:0] id_bp_addr;
 wire [31:0] id_instr;
 wire [31:0] id_pc_next;
 wire id_regwrite;
@@ -377,7 +429,6 @@ wire [1:0] fwdctrl_rs;
 wire [1:0] fwdctrl_rt;
 wire cop_reset;
 wire id_user_mode;
-wire select_kernel;
 wire [31:0] address_kernel;
 wire id_exc_ret;
 
@@ -467,7 +518,7 @@ multiplexer #(.X(4)) data_rt_mux (
 	.data_out(id_data_rt)
 );
 
-flipflop #(.N(265)) id_ex (
+flipflop #(.N(299)) id_ex (
 	.clk(clk),
 	.reset(id_ex_reset | reset),
 	.we(id_ex_we),
@@ -485,7 +536,9 @@ flipflop #(.N(265)) id_ex (
 		id_isbranch,
 		id_memread, id_memwrite, id_memtoreg, id_membyte,
 		// Write back
-		id_regwrite, id_cowrite
+		id_regwrite, id_cowrite,
+		// Branch predicotr,
+		id_bp_opinion, id_bp_btaken, id_bp_addr
 	}),
 	.out({
 		// General
@@ -501,7 +554,9 @@ flipflop #(.N(265)) id_ex (
 		ex_isbranch,
 		ex_memread, ex_memwrite, ex_memtoreg, ex_membyte,
 		// Write back
-		ex_regwrite, ex_cowrite
+		ex_regwrite, ex_cowrite,
+		// Branch predictor
+		id_bp_opinion, id_bp_btaken, id_bp_addr
 	})
 );
 
@@ -511,6 +566,9 @@ flipflop #(.N(265)) id_ex (
 //                    //
 ////////////////////////
 
+wire ex_bp_opinion;
+wire ex_bp_btaken;
+wire [31:0] ex_bp_addr;
 wire [31:0] ex_instr;
 wire ex_regwrite;
 wire ex_memtoreg;
@@ -558,9 +616,7 @@ wire [5:0] ex_opcode;
 wire [5:0] ex_funct;
 
 assign ex_imm = {ex_imm_top, ex_funct};
-
 assign ex_pc_branch = ex_pc_next + (ex_imm << 2);
-
 assign dst_jump = ex_jumpdst ? ex_data_rs : ex_pc_jump;
 
 alucontrol alucontrol(
@@ -587,7 +643,7 @@ assign ex_exout = ex_islink ? ex_pc_next : alures;
 assign dst_reg = ex_regdst ? dst_rd : dst_rt;
 assign ex_wreg = ex_islink ? 5'd31 : dst_reg;
 
-flipflop #(.N(178)) ex_mem (
+flipflop #(.N(217)) ex_mem (
 	.clk(clk),
 	.reset(ex_mem_reset | reset),
 	.we(ex_mem_we),
@@ -600,7 +656,9 @@ flipflop #(.N(178)) ex_mem (
 		ex_memread, ex_memwrite, ex_memtoreg, ex_membyte,
 		ex_exout, ex_data_rt,
 		// Write back
-		ex_regwrite, ex_cowrite, ex_wreg
+		ex_regwrite, ex_cowrite, ex_wreg,
+		// Branch predictor
+		ex_bp_opinion, ex_bp_btaken, ex_bp_addr, aluop
 	}),
 	.out({
 		// General
@@ -611,7 +669,9 @@ flipflop #(.N(178)) ex_mem (
 		mem_memread, mem_memwrite, mem_memtoreg, mem_membyte,
 		mem_exout, mem_data_rt,
 		// Write back
-		mem_regwrite, mem_cowrite, mem_wreg
+		mem_regwrite, mem_cowrite, mem_wreg,
+		// Branch predictor
+		mem_bp_opinion, mem_bp_btaken, mem_bp_addr, mem_aluop
 	})
 );
 
@@ -621,6 +681,10 @@ flipflop #(.N(178)) ex_mem (
 //                    //
 ////////////////////////
 
+wire [4:0] mem_aluop;
+wire mem_bp_opinion;
+wire mem_bp_btaken;
+wire [31:0] mem_bp_addr;
 wire [31:0] mem_pc_branch;
 wire [31:0] mem_instr;
 wire mem_regwrite;
