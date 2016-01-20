@@ -28,9 +28,9 @@ always @(posedge clk) begin
 		if (read_write) begin
 			case (addr)
 				`IO_CHAR:  data_out = $fgetc(STDIN);
-				`IO_INT: err = $fscanf(STDIN, "%d", data_out);
-				`IO_FLOAT: err = $fscanf(STDIN, "%f", data_out);
-				`IO_HEX:   err = $fscanf(STDIN, "%x", data_out);
+				`IO_INT:   err      = $fscanf(STDIN, "%d", data_out);
+				`IO_FLOAT: err      = $fscanf(STDIN, "%f", data_out);
+				`IO_HEX:   err      = $fscanf(STDIN, "%x", data_out);
 				`IO_EXIT: $finish;
 				default: `WARN(("[IO] Unknown operation"))
 			endcase
