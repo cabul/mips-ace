@@ -853,7 +853,11 @@ end else begin
 	perf_dTLB_store_misses   <= perf_dTLB_store_misses   + 0;
 	perf_iTLB_loads          <= perf_iTLB_loads          + 0;
 	perf_iTLB_load_misses    <= perf_iTLB_load_misses    + 0;
+`ifdef MAX_CYCLES
 	wb_exc_tr <= perf_cycles >= `MAX_CYCLES;
+`else
+	wb_exc_tr <= 0;
+`endif
 end
 
 //

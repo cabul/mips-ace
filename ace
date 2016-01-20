@@ -96,7 +96,7 @@ details() {
 			echo '   -g|--gtkwave   Graphical mode (GTKWave)'
 			echo '   -m|--main      Main module (default: cpu_tb)'
 			echo '   -d|--define    Add debug flag'
-			echo '   -k|--kernel    Name of the kernel (default: minimal)'
+			echo '   -k|--kernel    Name of the kernel'
 			echo '   -b|--bare      Bare-metal mode, no kernel loaded'
 			echo
 			echo 'This command builds the cpu and runs a program against it.'

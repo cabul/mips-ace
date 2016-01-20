@@ -164,8 +164,4 @@
 	`define MEMORY_LATENCY 27
 `endif
 
-`ifndef MAX_CYCLES
-	`define MAX_CYCLES 5000
-`endif
-
 `endif
