@@ -181,17 +181,6 @@ always @* begin
 		ex_mem_we    <= 1'b1;
 		mem_wb_reset <= 1'b1;
 		mem_wb_we    <= 1'b1;
-    end else if (bp_misspredicted) begin
-		pc_reset     <= 1'b0;
-		pc_we        <= 1'b1;
-		if_id_reset  <= 1'b1;
-		if_id_we     <= 1'b1;
-		id_ex_reset  <= 1'b1;
-		id_ex_we     <= 1'b1;
-		ex_mem_reset <= 1'b1;
-		ex_mem_we    <= 1'b1;
-		mem_wb_reset <= 1'b0;
-		mem_wb_we    <= 1'b1;
 	end else if (cop_reset) begin
 		pc_reset     <= 1'b0;
 		pc_we        <= 1'b1;
@@ -213,6 +202,17 @@ always @* begin
 		ex_mem_reset <= 1'b0;
 		ex_mem_we    <= 1'b0;
 		mem_wb_reset <= 1'b1;
+		mem_wb_we    <= 1'b1;
+    end else if (bp_misspredicted) begin
+		pc_reset     <= 1'b0;
+		pc_we        <= 1'b1;
+		if_id_reset  <= 1'b1;
+		if_id_we     <= 1'b1;
+		id_ex_reset  <= 1'b1;
+		id_ex_we     <= 1'b1;
+		ex_mem_reset <= 1'b1;
+		ex_mem_we    <= 1'b1;
+		mem_wb_reset <= 1'b0;
 		mem_wb_we    <= 1'b1;
 	end else if (pc_take_branch & ~mem_bp_opinion) begin //~if_bp_opinion &
 		pc_reset     <= 1'b0;
