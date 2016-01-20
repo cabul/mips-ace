@@ -1,5 +1,5 @@
-`ifndef _cache_direct
-`define _cache_direct
+`ifndef _cache
+`define _cache
 
 `include "defines.v"
 
@@ -8,13 +8,13 @@
 //   Direct Mapped Cache   //
 //                         //
 /////////////////////////////
-module cache_direct (
+module cache (
 	input wire clk,
 	input wire reset,
 	input wire [31:0] addr,
-	input wire master_enable,
-	input wire byte_enable,
-	input wire write_enable,
+	input wire do_read,
+	input wire is_byte,
+	input wire do_write,
 	input wire [31:0] data_in,
 	output reg [31:0] data_out = 0,
 	output reg hit = 0,
@@ -57,6 +57,7 @@ wire [7:0]       byte_out = line_out[(offset+1)*8-1-:8];
 
 // Async hit signal, internal
 wire hit_int = tags[index] == tag && validbits[index];
+wire do_sth = do_read | do_write;
 
 // Handle requests
 always @(mem_write_req, mem_write_ack, mem_read_req, mem_read_ack) begin
@@ -72,11 +73,11 @@ always @(mem_write_req, mem_write_ack, mem_read_req, mem_read_ack) begin
 end
 
 always @* if (hit) begin
-	if (byte_enable) data_out = {24'h000000, byte_out};
+	if (is_byte) data_out = {24'h000000, byte_out};
 	else data_out <= word_out;
 end else data_out <= 32'h00000000;
 
-always @* if (~master_enable | reset)
+always @* if (~do_sth | reset)
 	hit <= 1'b0;
 else hit <= hit_int;
 
@@ -90,10 +91,10 @@ always @(posedge clk) begin
 		mem_read_req   <= 0;
 		mem_read_addr  <= 0;
 	end else begin
-		if (master_enable) begin
+		if (do_sth) begin
 			if (hit_int) begin
-				if (write_enable) begin
-					if (byte_enable) lines[index][(offset+1)*8-1-:8] = data_in[7:0];
+				if (do_write) begin
+					if (is_byte) lines[index][(offset+1)*8-1-:8] = data_in[7:0];
 					else if (WIDTH == 32) lines[index] = data_in;
 					else lines[index][(addr[WB-1:2]+1)*32-1-:32] = data_in;
 					dirtybits[index] = 1'b1;

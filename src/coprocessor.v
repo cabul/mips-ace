@@ -113,6 +113,8 @@ always @(int_ext or int_tr or
 				`INT_TLBS  : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_TLBS))
 				default    : `INFO(("[exception] @%x: %s", epc_in, `EXC_MSG_PANIC))
 			endcase
+		end else begin
+			cop_reset <= 1'b0;
 		end
 
 		if (int_tlbl | int_tlbs) begin

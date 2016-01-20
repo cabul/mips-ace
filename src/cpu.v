@@ -2,7 +2,7 @@
 `define _cpu
 
 `include "flipflop.v"
-`include "cache_direct.v"
+`include "cache.v"
 `include "memory_sync.v"
 `include "arbiter.v"
 `include "regfile.v"
@@ -348,12 +348,12 @@ memory_sync #(
 	.reset(reset),
 	.addr(pc_out),
 	.data_out(if_instr),
-	.master_enable(1'b1),
-	.write_enable(1'b0),
-	.byte_enable(1'b0)
+	.do_read(1'b1),
+	.do_write(1'b0),
+	.is_byte(1'b0)
 );
 `else
-cache_direct #(
+cache #(
 	.ALIAS("icache")
 ) icache (
 	.clk(clk),
@@ -361,9 +361,9 @@ cache_direct #(
 	.addr(pc_out),
 	.data_out(if_instr),
 	.data_in(0),
-	.master_enable(1'b1),
-	.write_enable(1'b0),
-	.byte_enable(1'b0),
+	.do_read(1'b1),
+	.do_write(1'b0),
+	.is_byte(1'b0),
 	.hit(ic_hit),
 	// Memory ports
 	.mem_read_req(ic_read_req),
@@ -743,12 +743,12 @@ memory_sync #(
 	.addr(mem_exout),
 	.data_out(mem_out),
 	.data_in(mem_data_rt),
-	.master_enable(dc_enable),
-	.write_enable(mem_memwrite),
-	.byte_enable(mem_membyte)
+	.do_read(mem_memread & ~io_enable),
+	.do_write(mem_memwrite & ~io_enable),
+	.is_byte(mem_membyte)
 );
 `else
-cache_direct #(
+cache #(
 	.ALIAS("dcache")
 ) dcache (
 	.clk(clk),
@@ -756,9 +756,9 @@ cache_direct #(
 	.addr(mem_exout),
 	.data_out(mem_out),
 	.data_in(mem_data_rt),
-	.master_enable(dc_enable),
-	.write_enable(mem_memwrite),
-	.byte_enable(mem_membyte),
+	.do_read(mem_memread & ~io_enable),
+	.do_write(mem_memwrite & ~io_enable),
+	.is_byte(mem_membyte),
 	.hit(dc_hit),
 	// Memory ports
 	.mem_write_req(dc_write_req),
