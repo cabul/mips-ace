@@ -71,7 +71,7 @@ always @(posedge clk) begin
             taken_state[i] <= 2'b01;
 		end
     end else begin
-		`INFO(("[bpred] opinion: %b taken: %b addr: %x", opinion, branch_taken, branch_addr))
+		`INFO(("[bpred] pc: %x opinion: %b taken: %b addr: %x", current_pc, opinion, branch_taken, branch_addr))
         feedback_index = feedback_current_pc >> 2; // TODO: if new address, reset state!!!!
 
         if (feedback_enable) begin

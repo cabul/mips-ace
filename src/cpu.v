@@ -719,7 +719,7 @@ wire mem_exc_st = io_enable & mem_user_mode & mem_memwrite;
 wire mem_exc_ld = io_enable & mem_user_mode & mem_memread;
 
 stdio stdio(
-	.clk(clk),
+	.clk(~clk),
 	.reset(reset),
 	.addr(mem_exout[7:0]),
 	.data_out(io_out),
