@@ -1,10 +1,8 @@
 [*]
 [*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
-[*] Thu Jan 21 09:25:17 2016
+[*] Thu Jan 21 09:28:55 2016
 [*]
-[dumpfile] "/home/quique/Documents/15-16/PA/mips-ace/g.vcd"
-[dumpfile_mtime] "Thu Jan 21 09:23:45 2016"
-[dumpfile_size] 40336
+[dumpfile] "(null)"
 [savefile] "/home/quique/Documents/15-16/PA/mips-ace/traces/aluops_bare_nocache.gtkw"
 [timestart] 0
 [size] 1366 719
@@ -16,17 +14,27 @@
 [signals_width] 259
 [sst_expanded] 1
 [sst_vpaned_height] 323
-@24
-cpu_tb.cycle[31:0]
 @28
+[color] 2
 cpu_tb.clk
+@23
+[color] 2
+cpu_tb.cpu.pc_out[31:0]
+@24
+[color] 2
+cpu_tb.cycle[31:0]
 @200
 -Stages
 @22
+[color] 3
 cpu_tb.cpu.if_instr[31:0]
+[color] 3
 cpu_tb.cpu.id_instr[31:0]
+[color] 3
 cpu_tb.cpu.ex_instr[31:0]
+[color] 3
 cpu_tb.cpu.mem_instr[31:0]
+[color] 3
 cpu_tb.cpu.wb_instr[31:0]
 @200
 -Fwd Control
