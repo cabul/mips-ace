@@ -1,0 +1,81 @@
+[*]
+[*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
+[*] Thu Jan 21 09:41:07 2016
+[*]
+[dumpfile] "/home/cabul/Miri/pa/mips/traces/ldst_bare_cache.vcd"
+[dumpfile_mtime] "Thu Jan 21 09:40:42 2016"
+[dumpfile_size] 80133
+[savefile] "/home/cabul/Miri/pa/mips/traces/ldst_bare_cache.gtkw"
+[timestart] 0
+[size] 1920 1025
+[pos] -1 -1
+*-6.187627 277 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+[treeopen] cpu_tb.
+[treeopen] cpu_tb.cpu.
+[sst_width] 197
+[signals_width] 259
+[sst_expanded] 1
+[sst_vpaned_height] 639
+@24
+[color] 2
+cpu_tb.cycle[31:0]
+@28
+[color] 2
+cpu_tb.clk
+@22
+[color] 2
+cpu_tb.cpu.pc_out[31:0]
+@200
+-Stages
+@22
+[color] 3
+cpu_tb.cpu.if_instr[31:0]
+[color] 3
+cpu_tb.cpu.id_instr[31:0]
+[color] 3
+cpu_tb.cpu.ex_instr[31:0]
+[color] 3
+cpu_tb.cpu.mem_instr[31:0]
+[color] 3
+cpu_tb.cpu.wb_instr[31:0]
+@200
+-Registers
+@24
++{$t2} cpu_tb.cpu.regfile.reg_10[31:0]
++{$t3} cpu_tb.cpu.regfile.reg_11[31:0]
+@23
++{$t4} cpu_tb.cpu.regfile.reg_12[31:0]
+@200
+-Control
+@28
+cpu_tb.cpu.ic_hit
+cpu_tb.cpu.dc_hit
+cpu_tb.cpu.dc_enable
+@200
+-Arbiter
+@28
+cpu_tb.cpu.arbiter.arb_state[1:0]
+cpu_tb.cpu.arbiter.dc_write_req
+cpu_tb.cpu.arbiter.dc_read_req
+cpu_tb.cpu.arbiter.ic_read_req
+@200
+-Memory
+@22
+cpu_tb.mem.addr[31:0]
+@28
+cpu_tb.mem.read_write
+cpu_tb.mem.ack
+@200
+-I-Cache
+@28
+cpu_tb.cpu.icache.mem_read_req
+cpu_tb.cpu.icache.mem_read_ack
+@200
+-D-Cache
+@28
+cpu_tb.cpu.dcache.mem_read_req
+cpu_tb.cpu.dcache.mem_read_ack
+cpu_tb.cpu.dcache.mem_write_req
+cpu_tb.cpu.dcache.mem_write_ack
+[pattern_trace] 1
+[pattern_trace] 0
