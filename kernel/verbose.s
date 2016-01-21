@@ -37,15 +37,18 @@ __syscall_jumptable:        .word __pint_hex, __pint, __pfloat, __pdouble, __pst
 .ktext
 	mfc0 $k0, $cause
 	bne $k0, $0, __exception_handler
-	
+
 __entry_point:
 	li $sp, %STACK_INIT             # Set stack-pointer
-	mtc0 $0, $status                # Set machine to user-mode
 	jal __boot_logo
 	la $a0, __str_saulgoodman
 	jal __kernel_strprint
 	la $a0, __str_launching
 	jal __kernel_strprint
+	li $k1, 0x10                    # UM is bit 4
+	mtc0 $k1, $status               # Set machine to user-mode
+	nop
+	nop
 	jal main
 	la $a0, __str_end
 	jal __kernel_strprint
@@ -69,7 +72,7 @@ __exception_handler:
 	jal __kernel_strprint
 __skip_emsg:
 	jr $v0                          # Switch exception table (see table below)
-	
+
 	# 0  - Int Interrupt (hardware)
 	# 4  - AdEL Address Error Exception (load or instruction fetch)
 	# 5  - AdES Address Error Exception (store)
@@ -82,7 +85,7 @@ __skip_emsg:
 	# 12 - Ov Arithmetic Overflow Exception
 	# 13 - Tr Trap
 	# 15 - FPE Floating Point Exception
-	
+
 __CpU:
 __Bp:
 __FPE:
@@ -98,7 +101,7 @@ __unimpl4:
 __AdEL:
 	la $a0, __str_load_exc
 	jal __kernel_strprint
-	j __epc    
+	j __epc
 __AdES:
 	la $a0, __str_st_exc
 	jal __kernel_strprint
@@ -132,7 +135,7 @@ __Sys:
 	lw $v0, 0($v0)
 	xor $k1, $k1, $k1               # Clear register
 	jr $v0                          # Switch syscall table (see table below)
-	
+
 	# 0  - Print integer as hex value (custom)
 	# 1  - Print integer, $a0 = value
 	# 2  - Print float (not supported)
@@ -201,7 +204,8 @@ __skip_v0:
 	lw $a0, 4($k0)
 	lw $ra, 8($k0)
     mtc0 $0, $cause                 # Clear cause
-	mtc0 $0, $status                # Set machine to user-mode
+	li $k1, 0x10                    # UM is bit 4
+	mtc0 $k1, $status               # Set machine to user-mode
 	eret                            # Return
 
 # Note that kernel functions do not save registers

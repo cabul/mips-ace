@@ -15,10 +15,11 @@ __exception_jumptable:      .word __int, __unimpl1, __unimpl2, __unimpl3, __AdEL
 .ktext
 	mfc0 $k0, $cause
 	bne $k0, $0, __exception_handler
-	
+
 __entry_point:
 	li $sp, %STACK_INIT             # Set stack-pointer
-	mtc0 $0, $status                # Set machine to user-mode
+	li $k1, 0x10                    # UM is bit 4
+	mtc0 $k1, $status               # Set machine to user-mode
 	jal main
 	sw $0, %IO_EXIT($0)
 
@@ -45,7 +46,7 @@ __unimpl1:
 __unimpl2:
 __unimpl3:
 __unimpl4:
-__AdEL:   
+__AdEL:
 __AdES:
 __IBE:
 __DBE:
@@ -63,7 +64,8 @@ __ret_exception:
 	lw $a0, 4($k0)
 	lw $ra, 8($k0)
     mtc0 $0, $cause                 # Clear cause
-	mtc0 $0, $status                # Set machine to user-mode
+	li $k1, 0x10                    # UM is bit 4
+	mtc0 $k1, $status               # Set machine to user-mode
 	eret                            # Return
 
 # Insert <main> here
