@@ -214,7 +214,7 @@ always @* begin
 		ex_mem_we    <= 1'b1;
 		mem_wb_reset <= 1'b0;
 		mem_wb_we    <= 1'b1;
-	end else if (pc_take_branch & ~mem_bp_opinion) begin //~if_bp_opinion &
+	end else if (pc_take_branch & ~mem_bp_opinion) begin
 		pc_reset     <= 1'b0;
 		pc_we        <= 1'b1;
 		if_id_reset  <= 1'b1;
@@ -820,6 +820,16 @@ wire wb_exc_ld;
 wire wb_cowrite;
 wire wb_isvalid;
 
+always @(posedge clk) begin
+`ifdef NO_BPRED
+    if (pc_take_branch & ~mem_bp_opinion)
+        perf_branch_misses = perf_branch_misses + 1;
+`else
+    if (bp_misspredicted)
+        perf_branch_misses = perf_branch_misses + 1;
+`endif
+end
+
 always @(posedge clk) if (reset) begin
 	perf_cycles              <= 0;
 	perf_instructions        <= 0;
@@ -841,7 +851,6 @@ end else begin
 	perf_cycles              <= perf_cycles              + 1;
 	perf_instructions        <= perf_instructions        + wb_isvalid;
 	perf_branches            <= perf_branches            + (mem_isbranch   | ex_isjump | ex_exc_ret);
-	perf_branch_misses       <= perf_branch_misses       + (pc_take_branch | ex_isjump | ex_exc_ret); // <- Branch Predictor
 	perf_dcache_loads        <= perf_dcache_loads        + (mem_memread  & dc_enable);
 	perf_dcache_load_misses  <= perf_dcache_load_misses  + (mem_memread  & dc_stall);
 	perf_dcache_stores       <= perf_dcache_stores       + (mem_memwrite & dc_enable);
@@ -860,9 +869,9 @@ end else begin
 `endif
 end
 
-//
-//          /\_/\
-//     ____/ o o \
+//                   zZ
+//          /\_/\  zZ
+//     ____/ - - \
 //   /~____  =ø= /
 //  (______)__m_m)
 //
