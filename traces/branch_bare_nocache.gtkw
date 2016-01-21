@@ -1,6 +1,6 @@
 [*]
 [*] GTKWave Analyzer v3.3.58 (w)1999-2014 BSI
-[*] Thu Jan 21 09:30:04 2016
+[*] Thu Jan 21 09:31:58 2016
 [*]
 [dumpfile] "/home/quique/Documents/15-16/PA/mips-ace/traces/branch_bare_nocache.vcd"
 [dumpfile_mtime] "Thu Jan 21 08:56:29 2016"
@@ -9,7 +9,7 @@
 [timestart] 0
 [size] 1366 719
 [pos] -1 -1
-*-6.000000 8951 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
+*-6.000000 9077 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1 -1
 [treeopen] cpu_tb.
 [treeopen] cpu_tb.cpu.
 [sst_width] 201
@@ -27,7 +27,7 @@ cpu_tb.clk
 +{pc} cpu_tb.cpu.pc_out[31:0]
 @200
 -Stages
-@23
+@22
 [color] 3
 cpu_tb.cpu.if_instr[31:0]
 [color] 3
@@ -47,5 +47,10 @@ cpu_tb.cpu.branchpredictor.branch_taken
 cpu_tb.cpu.branchpredictor.branch_addr[31:0]
 @28
 cpu_tb.cpu.bp_misspredicted
+@200
+-CPU
+@29
+[color] 7
+cpu_tb.cpu.pc_take_branch
 [pattern_trace] 1
 [pattern_trace] 0
