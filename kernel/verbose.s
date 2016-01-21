@@ -50,6 +50,7 @@ __entry_point:
 	nop
 	nop
 	jal main
+__exit_point:
 	la $a0, __str_end
 	jal __kernel_strprint
 	sw $0, %IO_EXIT($0)
@@ -172,7 +173,8 @@ __rstring:
 __mem_alloc:
 	j __sys_unsupported
 __sys_exit:
-	sw $0, %IO_EXIT($0)             # Exit
+	j __exit_point
+	#sw $0, %IO_EXIT($0)             # Exit
 __pchar:
 	sw $a0, %IO_CHAR($0)
 	j __epc
