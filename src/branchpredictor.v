@@ -72,20 +72,22 @@ always @(posedge clk) begin
 		end
     end else begin
 		`INFO(("[bpred] pc: %x opinion: %b taken: %b addr: %x", current_pc, opinion, branch_taken, branch_addr))
-        feedback_index = feedback_current_pc >> 2; // TODO: if new address, reset state!!!!
+        feedback_index = feedback_current_pc >> 2;
 
         if (feedback_enable) begin
-            pc[feedback_index]        <= feedback_current_pc >> 2;
-            branch_pc[feedback_index] <= feedback_branch_addr >> 2;
-            valid[feedback_index]     <= 1;
-
-            // Saturated counter
-            case (taken_state[feedback_index])
-                2'b00: taken_state[feedback_index] <= feedback_branch_taken;
-                2'b01: taken_state[feedback_index] <= feedback_branch_taken ? 2'b10 : 2'b00;
-                2'b10: taken_state[feedback_index] <= feedback_branch_taken ? 2'b11 : 2'b01;
-                2'b11: taken_state[feedback_index] <= feedback_branch_taken ? 2'b11 : 2'b10;
-            endcase
+            if (pc[feedback_index] != (feedback_current_pc >> 2)) begin // New entry
+                pc[feedback_index]          <= feedback_current_pc >> 2;
+                branch_pc[feedback_index]   <= feedback_branch_addr >> 2;
+                valid[feedback_index]       <= 1;
+                taken_state[feedback_index] <= 2'b10;
+            end else begin // Old entry
+                case (taken_state[feedback_index]) // Saturated counter
+                    2'b00: taken_state[feedback_index] <= feedback_branch_taken;
+                    2'b01: taken_state[feedback_index] <= feedback_branch_taken ? 2'b10 : 2'b00;
+                    2'b10: taken_state[feedback_index] <= feedback_branch_taken ? 2'b11 : 2'b01;
+                    2'b11: taken_state[feedback_index] <= feedback_branch_taken ? 2'b11 : 2'b10;
+                endcase
+            end
         end
     end
 end

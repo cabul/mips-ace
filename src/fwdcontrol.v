@@ -14,8 +14,6 @@ module fwdcontrol(
 	output reg [1:0] ctrl_rt = 2'b0
 );
 
-// TODO logic could be optimized, but whocaresxddd
-
 // 00 -> Regfile
 // 01 -> Ex data
 // 10 -> Mem data

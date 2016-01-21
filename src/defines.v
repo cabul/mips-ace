@@ -146,7 +146,7 @@
 
 //Store buffer
 
-`define STBUFF_DEPTH 5
+`define STBUFF_DEPTH    5
 `define TLB_ENTRIES    10
 `define PAGE_SIZE    4096
 
