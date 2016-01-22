@@ -11,8 +11,8 @@ Implementation of a MIPS Processor developed during the course of [Processor Arc
 - [x] Exceptions
 - [x] Benchmarks
 - [x] Cache
+- [x] Branch Prediction
 - [ ] Store Buffer
-- [ ] Branch Prediction
 - [ ] Virtual Memory
 - [ ] Variable Length Pipeline
 - [ ] Reorder Buffer / History File
